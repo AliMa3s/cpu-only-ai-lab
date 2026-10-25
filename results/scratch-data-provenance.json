@@ -1,0 +1,31 @@
+{
+  "source_url": "https://raw.githubusercontent.com/karpathy/char-rnn/6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e/data/tinyshakespeare/input.txt",
+  "source_revision": "6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e",
+  "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+  "total_bytes": 1115394,
+  "dataset": "tiny Shakespeare: subset of Shakespeare works distributed in karpathy/char-rnn",
+  "license_note": "Upstream repository README declares MIT; underlying Shakespeare works are public domain. Corpus kept local; no upstream code copied.",
+  "license_source": "https://github.com/karpathy/char-rnn/blob/6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e/Readme.md#license",
+  "splits": {
+    "train": {
+      "start_byte_inclusive": 0,
+      "stop_byte_exclusive": 1003854,
+      "bytes": 1003854,
+      "sha256": "a9e24e23a1ec77744dad26844bfd5a09b6e041954e1eef0000e7f24cba6db735"
+    },
+    "validation": {
+      "start_byte_inclusive": 1003854,
+      "stop_byte_exclusive": 1059623,
+      "bytes": 55769,
+      "sha256": "2005a733cb87b490f256a123d9dc47073809546e912a45fd9a0eb504f7562f3e"
+    },
+    "test": {
+      "start_byte_inclusive": 1059623,
+      "stop_byte_exclusive": 1115394,
+      "bytes": 55771,
+      "sha256": "2762f01f8b72c92df265d3f3d1f16606421d6c7d11ae688a065f6a421915e43c"
+    }
+  },
+  "split_policy": "Contiguous source-byte intervals; train/validation/test never share source positions; no batch crosses a split. Natural repeated phrases may occur across the corpus.",
+  "tokenization": "fixed 256-byte vocabulary; no tokenizer fitting"
+}

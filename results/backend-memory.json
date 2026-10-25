@@ -1,0 +1,162 @@
+{
+  "format": "cpu-ai-lab-ollama-memory-probe-v1",
+  "status": "complete",
+  "started_utc": "2026-10-25T09:50:51.221385+00:00",
+  "purpose": "Corrective process-tree memory measurement; not a speed comparison",
+  "provenance": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "adapter_sha256": {
+      "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+      "adapter_model.safetensors": "9c7e61cb6a188a37b99b2be7f691441655e114b51102b8b7ce18a756c557e9ed",
+      "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+    },
+    "ollama_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+    "gguf_sha256": "c8e64b65018bf90f742c64750c535b271fe024cf83cd6e928ab2ca9480739154",
+    "deployment_manifest_sha256": "985e6f90d97dd7e8cfdedf5591c3c00d98a6216349a429397929ace194b3176a",
+    "benchmark_config_sha256": "02df6d30268137ff449cec52b2b8a4a59b9720345706a21ab31a5988d64b18b9"
+  },
+  "ollama_version": {
+    "version": "0.40.6"
+  },
+  "workload": {
+    "model": "cpu-ai-lab-smollm2:trained-f16",
+    "prompt_id": "forest-prose",
+    "prompt": "An illustrated encyclopedia of forest ecosystems\n\nForests contain many layers, from the organisms beneath the soil to the tallest branches of the canopy. Each layer provides a different habitat and plays a different role in the ecosystem.\n\nThe forest floor is ",
+    "raw": true,
+    "requested_tokens": 128,
+    "threads": 4,
+    "context": 2048
+  },
+  "limits": [
+    "One memory-only follow-up request; no wall-time or throughput comparison is claimed.",
+    "No PyTorch model is loaded in this process, unlike the original paired benchmark.",
+    "RSS is sampled every 0.1 seconds and may miss short peaks; process sums can count shared pages more than once.",
+    "Ollama API size is a server-reported model allocation, not an independently measured process RSS or whole-machine total.",
+    "Process evidence contains only PID, parent PID, executable name and RSS; no command lines or environment values."
+  ],
+  "cache_reset": {
+    "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+    "wall_seconds_excluded_from_timing": 0.5783064999995986,
+    "load_response": {
+      "model": "cpu-ai-lab-smollm2:trained-f16",
+      "created_at": "2026-10-25T09:50:51.7911026Z",
+      "response": "",
+      "done": true,
+      "done_reason": "load"
+    },
+    "size_vram": 0,
+    "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+    "first_request_after_reload": true,
+    "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+  },
+  "memory": {
+    "python_peak_rss_bytes": 34181120,
+    "ollama_peak_rss_sum_bytes": 485146624,
+    "samples": 3,
+    "ollama_process_names": [
+      "conhost.exe",
+      "llama-server.exe",
+      "ollama app.exe",
+      "ollama.exe"
+    ],
+    "sample_interval_seconds": 0.1,
+    "method": "ollama-roots-and-recursive-descendants-refreshed-each-sample-v2",
+    "ollama_processes": [
+      {
+        "pid": 9164,
+        "ppid": 30528,
+        "name": "llama-server.exe",
+        "rss_bytes": 355700736
+      },
+      {
+        "pid": 12108,
+        "ppid": 9164,
+        "name": "conhost.exe",
+        "rss_bytes": 7819264
+      },
+      {
+        "pid": 26748,
+        "ppid": 7036,
+        "name": "ollama app.exe",
+        "rss_bytes": 52518912
+      },
+      {
+        "pid": 30528,
+        "ppid": 26748,
+        "name": "ollama.exe",
+        "rss_bytes": 59232256
+      },
+      {
+        "pid": 30588,
+        "ppid": 30528,
+        "name": "conhost.exe",
+        "rss_bytes": 9875456
+      }
+    ],
+    "ollama_peak_process_snapshot": [
+      {
+        "pid": 9164,
+        "ppid": 30528,
+        "name": "llama-server.exe",
+        "rss_bytes": 355700736
+      },
+      {
+        "pid": 12108,
+        "ppid": 9164,
+        "name": "conhost.exe",
+        "rss_bytes": 7819264
+      },
+      {
+        "pid": 26748,
+        "ppid": 7036,
+        "name": "ollama app.exe",
+        "rss_bytes": 52518912
+      },
+      {
+        "pid": 30528,
+        "ppid": 26748,
+        "name": "ollama.exe",
+        "rss_bytes": 59232256
+      },
+      {
+        "pid": 30588,
+        "ppid": 30528,
+        "name": "conhost.exe",
+        "rss_bytes": 9875456
+      }
+    ],
+    "unreadable_ollama_rss_observations": 0,
+    "process_scan_failures": 0,
+    "python_rss_failures": 0,
+    "note": "RSS samples, not exact peaks. Every sample rediscovers Ollama roots and their descendants regardless of executable name, including late-started runners. RSS sums can double-count shared pages; Python RSS is separate. Only PID, parent PID, executable name, and RSS evidence is retained for the Ollama tree."
+  },
+  "served_model_allocation": {
+    "before": {
+      "name": "cpu-ai-lab-smollm2:trained-f16",
+      "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+      "reported_size_bytes": 333929511,
+      "size_vram": 0
+    },
+    "after": {
+      "name": "cpu-ai-lab-smollm2:trained-f16",
+      "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+      "reported_size_bytes": 333929511,
+      "size_vram": 0
+    }
+  },
+  "generation": {
+    "output_tokens": 128,
+    "prompt_tokens": 50,
+    "done_reason": "length",
+    "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are"
+  },
+  "cpu_evidence": {
+    "num_gpu": 0,
+    "size_vram_before": 0,
+    "size_vram_after": 0,
+    "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+  },
+  "cleanup": "Test model unloaded",
+  "finished_utc": "2026-10-25T09:50:59.649121+00:00"
+}

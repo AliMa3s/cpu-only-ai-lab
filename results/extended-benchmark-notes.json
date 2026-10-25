@@ -1,0 +1,19 @@
+{
+  "format": "cpu-ai-lab-measurement-correction-v1",
+  "source_report": "extended-benchmark.json",
+  "source_report_sha256": "3889cf6ba2d1d57cefca3b339c1207bf5e249cf4375d62dd547a2f2cd1ecb616",
+  "original_report_preserved": true,
+  "affected_fields": [
+    "timing[].memory.ollama_peak_rss_sum_bytes",
+    "timing[].memory.ollama_process_names",
+    "summary.all_requests.*.sampled_peak_ollama_process_rss_sum_bytes"
+  ],
+  "finding": "The original memory sampler selected executable names beginning with ollama once per request. The recorded names contain only ollama app.exe and ollama.exe. The installed native runner is named llama-server.exe, so the original values do not cover the complete inference process tree. Do not interpret those values as total Ollama inference RAM.",
+  "correction": "The sampler now rediscovers Ollama roots and all recursive descendants on every sample, including native runners with different names and processes starting after sampling begins. It records per-process PID, parent PID, name, and RSS. Existing raw timings and memory values remain unchanged.",
+  "timing_results": "The original time and token measurements are unaffected by this reporting correction. The follow-up is a memory-only measurement and is not a new speed comparison.",
+  "follow_up_report": "backend-memory.json",
+  "follow_up_status": "complete",
+  "follow_up_scope": "One CPU-only 128-token raw generation on the first confirmation prompt, without a resident PyTorch model. The report verifies model digest and zero VRAM and includes the rediscovered process tree. Sampled RSS can miss peaks and can double-count shared pages.",
+  "follow_up_report_sha256": "cf6bb1976d1da892a2f7f8d55703471f90cad4437b3f7937afb156df52b0189e",
+  "follow_up_ollama_process_tree_sampled_peak_rss_bytes": 485146624
+}

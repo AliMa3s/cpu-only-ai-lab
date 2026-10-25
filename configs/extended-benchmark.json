@@ -1,0 +1,21 @@
+{
+  "seed": 20261026,
+  "base_url": "http://127.0.0.1:11434",
+  "context": 2048,
+  "pytorch_thread_candidates": [1, 2, 4, 6, 12],
+  "ollama_threads": 4,
+  "tuning_tokens": 64,
+  "tuning_repeats": 2,
+  "token_budgets": [128, 256],
+  "confirmation_repeats": 3,
+  "tuning_prompts": [
+    {"id": "tune-water", "text": "A science textbook chapter about the water cycle.\n\nThe water cycle moves water through the atmosphere, the land, and the oceans. There are several stages, and each stage has a different physical mechanism.\n\n1. Evaporation: "},
+    {"id": "tune-recipe", "text": "A complete guide to preparing a vegetable garden throughout the year.\n\nJanuary: Start by reviewing last year's planting records and planning where each crop will grow. Order seeds and inspect your tools.\n\nFebruary: "}
+  ],
+  "confirmation_prompts": [
+    {"id": "forest-prose", "category": "prose", "text": "An illustrated encyclopedia of forest ecosystems\n\nForests contain many layers, from the organisms beneath the soil to the tallest branches of the canopy. Each layer provides a different habitat and plays a different role in the ecosystem.\n\nThe forest floor is "},
+    {"id": "python-code", "category": "code", "text": "# Python examples for a beginner's programming textbook\n# Each example includes a function and a short demonstration.\n\n# Example 1: Count how often each word occurs in a string.\ndef count_words(text):\n    counts = {}\n    for word in text.lower().split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts\n\nprint(count_words('red blue red'))\n\n# Example 2: Merge two sorted lists into one sorted list.\ndef merge_sorted(left, right):\n"},
+    {"id": "travel-list", "category": "numbered_list", "text": "Thirty practical tips for planning a long train journey\n\n1. Compare departure times and connection lengths before buying tickets. A short connection may leave too little time to change platforms.\n2. Check the luggage rules and pack a small bag with the things you will need during the journey.\n3. "},
+    {"id": "database-context", "category": "longer_context", "text": "Training manual: maintaining a small community library database\n\nThe library stores books, members, loans, and reservations in separate tables. Each book has an identifier, a title, an author, a publication year, and a shelf location. Each member has an identifier, a name, and a contact address. A loan connects a member to a particular copy of a book and records the due date. A reservation records which member is waiting for a book that is currently unavailable.\n\nA librarian must be able to register new members, add books, issue loans, record returns, and find overdue items. Every operation should leave the database in a consistent state. For example, a copy of a book should not be marked both available and currently on loan. Backups should be tested before they are needed. Changes to the database schema should be documented so that another librarian can understand them.\n\nThe following sections describe each routine maintenance task step by step.\n\n1. Creating and checking a backup\n\nBefore making a backup, "}
+  ]
+}

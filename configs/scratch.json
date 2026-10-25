@@ -1,0 +1,23 @@
+{
+  "seed": 20261025,
+  "threads": 4,
+  "width": 192,
+  "heads": 4,
+  "layers": 4,
+  "block_size": 128,
+  "dropout": 0.1,
+  "batch_size": 8,
+  "evaluation_batch_size": 16,
+  "steps": 1200,
+  "validation_every": 200,
+  "max_train_seconds": 360,
+  "learning_rate": 0.001,
+  "weight_decay": 0.01,
+  "gradient_clip": 1.0,
+  "train_fraction": 0.9,
+  "validation_fraction": 0.05,
+  "sample_prompt": "ROMEO:\n",
+  "sample_bytes": 256,
+  "temperature": 0.8,
+  "top_k": 40
+}

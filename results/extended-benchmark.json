@@ -1,0 +1,4107 @@
+{
+  "format": "cpu-ai-lab-extended-benchmark-v1",
+  "status": "complete",
+  "started_utc": "2026-10-25T09:00:10.079022+00:00",
+  "configuration": {
+    "seed": 20261026,
+    "base_url": "http://127.0.0.1:11434",
+    "context": 2048,
+    "pytorch_thread_candidates": [
+      1,
+      2,
+      4,
+      6,
+      12
+    ],
+    "ollama_threads": 4,
+    "tuning_tokens": 64,
+    "tuning_repeats": 2,
+    "token_budgets": [
+      128,
+      256
+    ],
+    "confirmation_repeats": 3,
+    "tuning_prompts": [
+      {
+        "id": "tune-water",
+        "text": "A science textbook chapter about the water cycle.\n\nThe water cycle moves water through the atmosphere, the land, and the oceans. There are several stages, and each stage has a different physical mechanism.\n\n1. Evaporation: "
+      },
+      {
+        "id": "tune-recipe",
+        "text": "A complete guide to preparing a vegetable garden throughout the year.\n\nJanuary: Start by reviewing last year's planting records and planning where each crop will grow. Order seeds and inspect your tools.\n\nFebruary: "
+      }
+    ],
+    "confirmation_prompts": [
+      {
+        "id": "forest-prose",
+        "category": "prose",
+        "text": "An illustrated encyclopedia of forest ecosystems\n\nForests contain many layers, from the organisms beneath the soil to the tallest branches of the canopy. Each layer provides a different habitat and plays a different role in the ecosystem.\n\nThe forest floor is "
+      },
+      {
+        "id": "python-code",
+        "category": "code",
+        "text": "# Python examples for a beginner's programming textbook\n# Each example includes a function and a short demonstration.\n\n# Example 1: Count how often each word occurs in a string.\ndef count_words(text):\n    counts = {}\n    for word in text.lower().split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts\n\nprint(count_words('red blue red'))\n\n# Example 2: Merge two sorted lists into one sorted list.\ndef merge_sorted(left, right):\n"
+      },
+      {
+        "id": "travel-list",
+        "category": "numbered_list",
+        "text": "Thirty practical tips for planning a long train journey\n\n1. Compare departure times and connection lengths before buying tickets. A short connection may leave too little time to change platforms.\n2. Check the luggage rules and pack a small bag with the things you will need during the journey.\n3. "
+      },
+      {
+        "id": "database-context",
+        "category": "longer_context",
+        "text": "Training manual: maintaining a small community library database\n\nThe library stores books, members, loans, and reservations in separate tables. Each book has an identifier, a title, an author, a publication year, and a shelf location. Each member has an identifier, a name, and a contact address. A loan connects a member to a particular copy of a book and records the due date. A reservation records which member is waiting for a book that is currently unavailable.\n\nA librarian must be able to register new members, add books, issue loans, record returns, and find overdue items. Every operation should leave the database in a consistent state. For example, a copy of a book should not be marked both available and currently on loan. Backups should be tested before they are needed. Changes to the database schema should be documented so that another librarian can understand them.\n\nThe following sections describe each routine maintenance task step by step.\n\n1. Creating and checking a backup\n\nBefore making a backup, "
+      }
+    ]
+  },
+  "provenance": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "adapter_sha256": {
+      "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+      "adapter_model.safetensors": "9c7e61cb6a188a37b99b2be7f691441655e114b51102b8b7ce18a756c557e9ed",
+      "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+    },
+    "ollama_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+    "deployment_manifest_sha256": "985e6f90d97dd7e8cfdedf5591c3c00d98a6216349a429397929ace194b3176a",
+    "config_sha256": "02df6d30268137ff449cec52b2b8a4a59b9720345706a21ab31a5988d64b18b9",
+    "gguf_sha256": "c8e64b65018bf90f742c64750c535b271fe024cf83cd6e928ab2ca9480739154"
+  },
+  "ollama_version": {
+    "version": "0.40.6"
+  },
+  "ollama_model": "cpu-ai-lab-smollm2:trained-f16",
+  "method": {
+    "workload": "Raw text continuation with natural EOS on both backends, no chat template. Predetermined prompts and 128/256-token caps; every run retained.",
+    "baseline": "Merged trained FP32 PyTorch, eval mode, SDPA, KV cache; threads selected only on separate tuning prompts.",
+    "candidate": "The same merged checkpoint exported to F16 GGUF in Ollama/llama.cpp; runtime and storage precision both change.",
+    "wall": "Tokenization + generation + response decoding. Ollama also includes local HTTP/stream parsing. Model loading and explicit cache resets are excluded.",
+    "ttft": "First nonempty decoded content at the local client. PyTorch additionally records its first generated token callback. Ollama chunks may contain more than one token.",
+    "prefill_decode": "PyTorch forward-hook prefill/decode compute durations and Ollama API prompt/eval durations are retained with distinct names; they are not identical timing boundaries.",
+    "cache": "Fresh PyTorch generation cache. Ollama explicitly unloaded and reloaded without a prompt for every measured request; first-call kernel overhead is included.",
+    "fixed_work_policy": "Require both outputs to reach the exact requested token budget, identical prompt token counts, and no reported cached prompt tokens. Retain and enumerate all other pairs separately.",
+    "quality": "Throughput prompts are not scored for usefulness. Prior extraction quality results do not establish long-form quality; raw outputs are saved for inspection.",
+    "limitations": "One machine, four prompt families, short repetitions, no energy telemetry or hardware-level GPU tracing. Memory RSS includes shared pages. No broad quality-equivalence claim."
+  },
+  "warmups": [
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "tune-water",
+      "requested_tokens": 8,
+      "prompt_tokens": 49,
+      "output_tokens": 8,
+      "output": " Water from the surface of the Earth and",
+      "wall_seconds": 0.6097699999991164,
+      "first_content_seconds": 0.1891166000004887,
+      "first_generated_token_seconds": 0.18898710000030405,
+      "tokenization_seconds": 0.0003663000006781658,
+      "prefill_forward_seconds": 0.18524100000104227,
+      "decode_forward_seconds": 0.40378940000118746,
+      "model_forward_calls": 8,
+      "after_first_token_seconds": 0.4204322999994474,
+      "after_first_token_tokens_per_second": 16.649529543779582,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1096957952,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 7,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      }
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 2,
+      "prompt_id": "tune-water",
+      "requested_tokens": 8,
+      "prompt_tokens": 49,
+      "output_tokens": 8,
+      "output": " Water from the surface of the Earth and",
+      "wall_seconds": 0.6256026999999449,
+      "first_content_seconds": 0.17374300000119547,
+      "first_generated_token_seconds": 0.17366100000072038,
+      "tokenization_seconds": 0.00028449999990698416,
+      "prefill_forward_seconds": 0.1707618000000366,
+      "decode_forward_seconds": 0.436925699999847,
+      "model_forward_calls": 8,
+      "after_first_token_seconds": 0.451562099999137,
+      "after_first_token_tokens_per_second": 15.501743835484373,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1098735616,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 7,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      }
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 4,
+      "prompt_id": "tune-water",
+      "requested_tokens": 8,
+      "prompt_tokens": 49,
+      "output_tokens": 8,
+      "output": " Water from the surface of the Earth and",
+      "wall_seconds": 0.5193395999995118,
+      "first_content_seconds": 0.09800689999974566,
+      "first_generated_token_seconds": 0.09793289999834087,
+      "tokenization_seconds": 0.00030479999986710027,
+      "prefill_forward_seconds": 0.09546250000130385,
+      "decode_forward_seconds": 0.4076442000041425,
+      "model_forward_calls": 8,
+      "after_first_token_seconds": 0.4209848000009515,
+      "after_first_token_tokens_per_second": 16.627678719004056,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1099546624,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 6,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      }
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 6,
+      "prompt_id": "tune-water",
+      "requested_tokens": 8,
+      "prompt_tokens": 49,
+      "output_tokens": 8,
+      "output": " Water from the surface of the Earth and",
+      "wall_seconds": 0.5006073000004108,
+      "first_content_seconds": 0.09162219999961962,
+      "first_generated_token_seconds": 0.09154320000016014,
+      "tokenization_seconds": 0.0003470999999990454,
+      "prefill_forward_seconds": 0.08875559999978577,
+      "decode_forward_seconds": 0.39575069999773405,
+      "model_forward_calls": 8,
+      "after_first_token_seconds": 0.4088179999998829,
+      "after_first_token_tokens_per_second": 17.12253374362676,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1101189120,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 6,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      }
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 12,
+      "prompt_id": "tune-water",
+      "requested_tokens": 8,
+      "prompt_tokens": 49,
+      "output_tokens": 8,
+      "output": " Water from the surface of the Earth and",
+      "wall_seconds": 0.5566288999998505,
+      "first_content_seconds": 0.09810309999920719,
+      "first_generated_token_seconds": 0.09802069999932428,
+      "tokenization_seconds": 0.00028059999931429047,
+      "prefill_forward_seconds": 0.09530900000027032,
+      "decode_forward_seconds": 0.44398069999806467,
+      "model_forward_calls": 8,
+      "after_first_token_seconds": 0.45830149999892456,
+      "after_first_token_tokens_per_second": 15.273788106773436,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1102786560,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 7,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      }
+    }
+  ],
+  "tuning": [
+    {
+      "variant": "pytorch_fp32",
+      "threads": 2,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.0957140999998956,
+      "first_content_seconds": 0.1558679999998276,
+      "first_generated_token_seconds": 0.15578889999960666,
+      "tokenization_seconds": 0.00028510000083770137,
+      "prefill_forward_seconds": 0.15318280000064988,
+      "decode_forward_seconds": 3.8182892999993783,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.939428900001076,
+      "after_first_token_tokens_per_second": 15.992165767982968,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1108037632,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 38,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 12,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.3582274000000325,
+      "first_content_seconds": 0.08459880000009434,
+      "first_generated_token_seconds": 0.08452149999902758,
+      "tokenization_seconds": 0.0003966000003856607,
+      "prefill_forward_seconds": 0.08151760000146169,
+      "decode_forward_seconds": 4.1450660999998945,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.273244800000612,
+      "after_first_token_tokens_per_second": 14.742895141413612,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1108955136,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 41,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 2,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.1760651000004145,
+      "first_content_seconds": 0.15982070000063686,
+      "first_generated_token_seconds": 0.15974390000155836,
+      "tokenization_seconds": 0.0005974000014248304,
+      "prefill_forward_seconds": 0.15622269999948912,
+      "decode_forward_seconds": 3.8950547999902483,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.015795799999978,
+      "after_first_token_tokens_per_second": 15.68804868016455,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1108746240,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 39,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 4,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.187746400000833,
+      "first_content_seconds": 0.12215410000135307,
+      "first_generated_token_seconds": 0.12207110000053945,
+      "tokenization_seconds": 0.00043730000106734224,
+      "prefill_forward_seconds": 0.11919870000019728,
+      "decode_forward_seconds": 3.9453477000024577,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.065184099999897,
+      "after_first_token_tokens_per_second": 15.497453116576343,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109577728,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 39,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 4,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.371975600000951,
+      "first_content_seconds": 0.11540150000109861,
+      "first_generated_token_seconds": 0.11532290000104695,
+      "tokenization_seconds": 0.00039400000059686136,
+      "prefill_forward_seconds": 0.11211469999943802,
+      "decode_forward_seconds": 4.129558899994663,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.256263399998716,
+      "after_first_token_tokens_per_second": 14.801715514133598,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109200896,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 41,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 6,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.148321900000155,
+      "first_content_seconds": 0.09258199999931094,
+      "first_generated_token_seconds": 0.09250450000035926,
+      "tokenization_seconds": 0.00036860000000160653,
+      "prefill_forward_seconds": 0.08979340000041702,
+      "decode_forward_seconds": 3.9383674999971845,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.055451499998526,
+      "after_first_token_tokens_per_second": 15.534645156038211,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109340160,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 39,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 6,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.176381899998887,
+      "first_content_seconds": 0.09841930000038701,
+      "first_generated_token_seconds": 0.09834039999986999,
+      "tokenization_seconds": 0.0003465999998297775,
+      "prefill_forward_seconds": 0.09570379999968281,
+      "decode_forward_seconds": 3.9580017999996926,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.077521199998955,
+      "after_first_token_tokens_per_second": 15.450563445265752,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1108987904,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 39,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 12,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.3608048999994935,
+      "first_content_seconds": 0.10440010000093025,
+      "first_generated_token_seconds": 0.10432070000024396,
+      "tokenization_seconds": 0.0004976000000169734,
+      "prefill_forward_seconds": 0.10096729999895615,
+      "decode_forward_seconds": 4.131806700006564,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.255967299999611,
+      "after_first_token_tokens_per_second": 14.802745312447716,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109446656,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 41,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 3.9851431000006414,
+      "first_content_seconds": 0.21681610000086948,
+      "first_generated_token_seconds": 0.21673870000086026,
+      "tokenization_seconds": 0.0004201000010652933,
+      "prefill_forward_seconds": 0.21336600000176986,
+      "decode_forward_seconds": 3.62685890001012,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.7679996000006213,
+      "after_first_token_tokens_per_second": 16.719746997847242,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109372928,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 38,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 3.99350400000003,
+      "first_content_seconds": 0.18610119999902963,
+      "first_generated_token_seconds": 0.18602889999965555,
+      "tokenization_seconds": 0.00046799999836366624,
+      "prefill_forward_seconds": 0.18238420000125188,
+      "decode_forward_seconds": 3.663622599990049,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.8071271999997407,
+      "after_first_token_tokens_per_second": 16.547910455948067,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109315584,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 38,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 12,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.2695334,
+      "first_content_seconds": 0.08490530000017316,
+      "first_generated_token_seconds": 0.08481949999986682,
+      "tokenization_seconds": 0.00044799999886890873,
+      "prefill_forward_seconds": 0.08179439999912574,
+      "decode_forward_seconds": 4.060964599992076,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.184251299999232,
+      "after_first_token_tokens_per_second": 15.05645705362189,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1108910080,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 40,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 2,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.235744800000248,
+      "first_content_seconds": 0.138988500000778,
+      "first_generated_token_seconds": 0.1389089000003878,
+      "tokenization_seconds": 0.0004064999993715901,
+      "prefill_forward_seconds": 0.13616390000061074,
+      "decode_forward_seconds": 3.9737582999914594,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.096412299999429,
+      "after_first_token_tokens_per_second": 15.37931130614191,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109250048,
+        "ollama_peak_rss_sum_bytes": 108343296,
+        "samples": 40,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.064317000000301,
+      "first_content_seconds": 0.22725360000004002,
+      "first_generated_token_seconds": 0.22717980000015814,
+      "tokenization_seconds": 0.0005107999986648792,
+      "prefill_forward_seconds": 0.22317990000010468,
+      "decode_forward_seconds": 3.692868299996917,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.836746699998912,
+      "after_first_token_tokens_per_second": 16.420161383084753,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109696512,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 38,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 2,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.130676400000084,
+      "first_content_seconds": 0.1617630000000645,
+      "first_generated_token_seconds": 0.16169000000081724,
+      "tokenization_seconds": 0.000377200000002631,
+      "prefill_forward_seconds": 0.1591060999999172,
+      "decode_forward_seconds": 3.8501503999978013,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.9684750999986136,
+      "after_first_token_tokens_per_second": 15.875115356027308,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109303296,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 39,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 6,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.322656799999095,
+      "first_content_seconds": 0.09338799999932235,
+      "first_generated_token_seconds": 0.09331089999977848,
+      "tokenization_seconds": 0.0004871000001003267,
+      "prefill_forward_seconds": 0.09016850000080012,
+      "decode_forward_seconds": 4.106272099994385,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.228943500000241,
+      "after_first_token_tokens_per_second": 14.897337833904947,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109196800,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 41,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 4,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.008089099999779,
+      "first_content_seconds": 0.12176869999893825,
+      "first_generated_token_seconds": 0.12169469999935245,
+      "tokenization_seconds": 0.0005106999997224193,
+      "prefill_forward_seconds": 0.11854560000028869,
+      "decode_forward_seconds": 3.7727314999992814,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 3.88598550000097,
+      "after_first_token_tokens_per_second": 16.212103725035586,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109159936,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 38,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.3187527999998565,
+      "first_content_seconds": 0.17677180000100634,
+      "first_generated_token_seconds": 0.1766994000008708,
+      "tokenization_seconds": 0.0004929000006086426,
+      "prefill_forward_seconds": 0.1732159999992291,
+      "decode_forward_seconds": 3.9911463000098593,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.1416730000000825,
+      "after_first_token_tokens_per_second": 15.211244344978164,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109323776,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 41,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 12,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.633529299999282,
+      "first_content_seconds": 0.10141029999977036,
+      "first_generated_token_seconds": 0.10133319999840751,
+      "tokenization_seconds": 0.0005884999991394579,
+      "prefill_forward_seconds": 0.09777820000090287,
+      "decode_forward_seconds": 4.405317100001412,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.531641600000512,
+      "after_first_token_tokens_per_second": 13.902246814927484,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109655552,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 43,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 4,
+      "prompt_id": "tune-recipe",
+      "requested_tokens": 64,
+      "prompt_tokens": 44,
+      "output_tokens": 64,
+      "output": "30% of the seeds will be planted, and 70% will be harvested. Plan your garden layout to maximize sunlight and water.\n\nMarch: 25% of the seeds will be planted, and 75% will be harvested. Plan your garden layout to maximize sunlight and water.\n",
+      "wall_seconds": 4.223393800000849,
+      "first_content_seconds": 0.10353279999981169,
+      "first_generated_token_seconds": 0.1034510000008595,
+      "tokenization_seconds": 0.0003386000007594703,
+      "prefill_forward_seconds": 0.10064629999942554,
+      "decode_forward_seconds": 3.997672399998919,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.119594699999652,
+      "after_first_token_tokens_per_second": 15.292766543273133,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109495808,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 40,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 6,
+      "prompt_id": "tune-water",
+      "requested_tokens": 64,
+      "prompt_tokens": 49,
+      "output_tokens": 64,
+      "output": " Water from the surface of the Earth and the oceans evaporates into the atmosphere. This is the first stage of the water cycle.\n\n2. Condensation:  As the water vapor rises into the atmosphere, it cools and changes back into liquid water. This is the second stage of the water cycle.\n\n3. Prec",
+      "wall_seconds": 4.262283699999898,
+      "first_content_seconds": 0.1050998000009713,
+      "first_generated_token_seconds": 0.10502900000028603,
+      "tokenization_seconds": 0.0005008999996789498,
+      "prefill_forward_seconds": 0.10202729999946314,
+      "decode_forward_seconds": 4.032520199996725,
+      "model_forward_calls": 64,
+      "after_first_token_seconds": 4.1568795000002865,
+      "after_first_token_tokens_per_second": 15.155599290283892,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1109303296,
+        "ollama_peak_rss_sum_bytes": 108376064,
+        "samples": 40,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "repeat": 1
+    }
+  ],
+  "timing": [
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "thinking": "",
+      "wall_seconds": 3.3306579000000056,
+      "first_content_seconds": 0.11459479999939504,
+      "ollama_server_prefill_seconds": 0.090516,
+      "ollama_server_decode_seconds": 3.216248,
+      "ollama_server_decode_tokens_per_second": 79.59585206115946,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:01:46.547117Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3313662200,
+        "load_duration": 3647100,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 90516000,
+        "eval_count": 256,
+        "eval_duration": 3216248000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1107468288,
+        "ollama_peak_rss_sum_bytes": 111484928,
+        "samples": 32,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5736174999983632,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:01:43.2106696Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "wall_seconds": 17.830869900000835,
+      "first_content_seconds": 0.2552422000007937,
+      "first_generated_token_seconds": 0.25517150000086986,
+      "tokenization_seconds": 0.0005699000012100441,
+      "prefill_forward_seconds": 0.2513517999996111,
+      "decode_forward_seconds": 16.976012199986144,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 17.575235000000248,
+      "after_first_token_tokens_per_second": 14.509052083798391,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1120665600,
+        "ollama_peak_rss_sum_bytes": 111493120,
+        "samples": 163,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "wall_seconds": 16.308312600000136,
+      "first_content_seconds": 0.1892485000007582,
+      "first_generated_token_seconds": 0.18917279999914172,
+      "tokenization_seconds": 0.0003510000005917391,
+      "prefill_forward_seconds": 0.18595280000045022,
+      "decode_forward_seconds": 15.548019999991084,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 16.118693500000518,
+      "after_first_token_tokens_per_second": 15.820140757685591,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1120923648,
+        "ollama_peak_rss_sum_bytes": 111525888,
+        "samples": 149,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "thinking": "",
+      "wall_seconds": 3.5859708999996656,
+      "first_content_seconds": 0.10424559999955818,
+      "ollama_server_prefill_seconds": 0.074111,
+      "ollama_server_decode_seconds": 3.481458,
+      "ollama_server_decode_tokens_per_second": 73.53241084626039,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:02:24.930269Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3562964700,
+        "load_duration": 3945600,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 74111000,
+        "eval_count": 256,
+        "eval_duration": 3481458000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1119629312,
+        "ollama_peak_rss_sum_bytes": 112230400,
+        "samples": 34,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6152751999998145,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:02:21.3394757Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "thinking": "",
+      "wall_seconds": 1.9732571999993525,
+      "first_content_seconds": 0.19259520000014163,
+      "ollama_server_prefill_seconds": 0.182237,
+      "ollama_server_decode_seconds": 1.780944,
+      "ollama_server_decode_tokens_per_second": 71.87199597516823,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:02:27.529876Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1972072500,
+        "load_duration": 4775800,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 182237000,
+        "eval_count": 128,
+        "eval_duration": 1780944000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1119600640,
+        "ollama_peak_rss_sum_bytes": 112263168,
+        "samples": 20,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6009543000000122,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:02:25.5385624Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "wall_seconds": 8.300048299999617,
+      "first_content_seconds": 0.3892593999989913,
+      "first_generated_token_seconds": 0.3891688999992766,
+      "tokenization_seconds": 0.0005844000006618444,
+      "prefill_forward_seconds": 0.3856577999995352,
+      "decode_forward_seconds": 7.631603000003452,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.910514900000635,
+      "after_first_token_tokens_per_second": 16.0545807201488,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1119580160,
+        "ollama_peak_rss_sum_bytes": 111656960,
+        "samples": 77,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "wall_seconds": 8.663321800000631,
+      "first_content_seconds": 0.37602610000067216,
+      "first_generated_token_seconds": 0.3759542000007059,
+      "tokenization_seconds": 0.0006140000004961621,
+      "prefill_forward_seconds": 0.3724017999993521,
+      "decode_forward_seconds": 8.002039900000455,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 8.286952499998733,
+      "after_first_token_tokens_per_second": 15.325295999949248,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1118101504,
+        "ollama_peak_rss_sum_bytes": 111656960,
+        "samples": 80,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "thinking": "",
+      "wall_seconds": 1.8720739999989746,
+      "first_content_seconds": 0.1957884000003105,
+      "ollama_server_prefill_seconds": 0.165445,
+      "ollama_server_decode_seconds": 1.67632,
+      "ollama_server_decode_tokens_per_second": 76.3577359931278,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:02:47.0122574Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1849171900,
+        "load_duration": 3936000,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 165445000,
+        "eval_count": 128,
+        "eval_duration": 1676320000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1117708288,
+        "ollama_peak_rss_sum_bytes": 111964160,
+        "samples": 19,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6061300000001211,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:02:45.1339629Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "thinking": "",
+      "wall_seconds": 1.5991746999989118,
+      "first_content_seconds": 0.11396609999974316,
+      "ollama_server_prefill_seconds": 0.094614,
+      "ollama_server_decode_seconds": 1.48537,
+      "ollama_server_decode_tokens_per_second": 86.17381527834816,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:02:49.2067492Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1586539100,
+        "load_duration": 3298000,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 94614000,
+        "eval_count": 128,
+        "eval_duration": 1485370000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1117708288,
+        "ollama_peak_rss_sum_bytes": 112201728,
+        "samples": 16,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5873069999997824,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:02:47.5847614Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "wall_seconds": 7.939522399999987,
+      "first_content_seconds": 0.23016099999949802,
+      "first_generated_token_seconds": 0.23008500000105414,
+      "tokenization_seconds": 0.0004380999998829793,
+      "prefill_forward_seconds": 0.22665310000047612,
+      "decode_forward_seconds": 7.430917600009707,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.709039100000155,
+      "after_first_token_tokens_per_second": 16.474167318725552,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1118175232,
+        "ollama_peak_rss_sum_bytes": 112201728,
+        "samples": 74,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "wall_seconds": 7.835134200000539,
+      "first_content_seconds": 0.20163979999961157,
+      "first_generated_token_seconds": 0.20156649999989895,
+      "tokenization_seconds": 0.0005553999999392545,
+      "prefill_forward_seconds": 0.1978235999995377,
+      "decode_forward_seconds": 7.356194599995433,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.633174799999324,
+      "after_first_token_tokens_per_second": 16.637900130364006,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1118326784,
+        "ollama_peak_rss_sum_bytes": 112201728,
+        "samples": 72,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "thinking": "",
+      "wall_seconds": 1.5837768999990658,
+      "first_content_seconds": 0.08897289999913482,
+      "ollama_server_prefill_seconds": 0.07037,
+      "ollama_server_decode_seconds": 1.494907,
+      "ollama_server_decode_tokens_per_second": 85.62405554325453,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:03:07.1853058Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1572259500,
+        "load_duration": 3854000,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 70370000,
+        "eval_count": 128,
+        "eval_duration": 1494907000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1117351936,
+        "ollama_peak_rss_sum_bytes": 112287744,
+        "samples": 16,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5801743000010902,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:03:05.5792638Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "thinking": "",
+      "wall_seconds": 3.1332010999994964,
+      "first_content_seconds": 0.1053792999991856,
+      "ollama_server_prefill_seconds": 0.085428,
+      "ollama_server_decode_seconds": 3.02803,
+      "ollama_server_decode_tokens_per_second": 84.54341601635387,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:03:10.9336551Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3120393000,
+        "load_duration": 3862100,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 85428000,
+        "eval_count": 256,
+        "eval_duration": 3028030000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1117364224,
+        "ollama_peak_rss_sum_bytes": 112119808,
+        "samples": 30,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5902048000007198,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:03:07.777434Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "wall_seconds": 15.504300300000978,
+      "first_content_seconds": 0.22358600000006845,
+      "first_generated_token_seconds": 0.22351069999967876,
+      "tokenization_seconds": 0.0004819000005227281,
+      "prefill_forward_seconds": 0.21999649999997928,
+      "decode_forward_seconds": 14.731340099981026,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.28041470000062,
+      "after_first_token_tokens_per_second": 16.68802876141769,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1123332096,
+        "ollama_peak_rss_sum_bytes": 112119808,
+        "samples": 142,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.407816900000398,
+      "first_content_seconds": 0.6096641000003729,
+      "first_generated_token_seconds": 0.6095896000006178,
+      "tokenization_seconds": 0.0008393999996769708,
+      "prefill_forward_seconds": 0.6056599000003189,
+      "decode_forward_seconds": 2.6981482000010146,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 2.7978528999992704,
+      "after_first_token_tokens_per_second": 16.083761944744033,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1122996224,
+        "ollama_peak_rss_sum_bytes": 112119808,
+        "samples": 32,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.8731606999990618,
+      "first_content_seconds": 0.3135414000007586,
+      "ollama_server_prefill_seconds": 0.294266,
+      "ollama_server_decode_seconds": 0.55947,
+      "ollama_server_decode_tokens_per_second": 82.22067313707616,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:03:31.3164923Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 861526700,
+        "load_duration": 3902100,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 294266000,
+        "eval_count": 46,
+        "eval_duration": 559470000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118490624,
+        "ollama_peak_rss_sum_bytes": 112451584,
+        "samples": 10,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5616615999988426,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:03:30.4394153Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "thinking": "",
+      "wall_seconds": 3.1060717000000295,
+      "first_content_seconds": 0.0984387999997125,
+      "ollama_server_prefill_seconds": 0.079416,
+      "ollama_server_decode_seconds": 3.007677,
+      "ollama_server_decode_tokens_per_second": 85.1155227107166,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:03:35.0315203Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3094385000,
+        "load_duration": 3880100,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 79416000,
+        "eval_count": 256,
+        "eval_duration": 3007677000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118498816,
+        "ollama_peak_rss_sum_bytes": 111968256,
+        "samples": 30,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6000972000001639,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:03:31.9201467Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "wall_seconds": 15.783540499998708,
+      "first_content_seconds": 0.19355719999839494,
+      "first_generated_token_seconds": 0.19348269999863987,
+      "tokenization_seconds": 0.0005592999987129588,
+      "prefill_forward_seconds": 0.18963869999970484,
+      "decode_forward_seconds": 15.028558499985593,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.589505400001144,
+      "after_first_token_tokens_per_second": 16.357157809508266,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1124302848,
+        "ollama_peak_rss_sum_bytes": 111968256,
+        "samples": 145,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "wall_seconds": 7.7364679999991495,
+      "first_content_seconds": 0.2342733000004955,
+      "first_generated_token_seconds": 0.23418219999985013,
+      "tokenization_seconds": 0.0003870999989885604,
+      "prefill_forward_seconds": 0.23061460000099032,
+      "decode_forward_seconds": 7.225581699998656,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.50189329999921,
+      "after_first_token_tokens_per_second": 16.929059761488926,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1122832384,
+        "ollama_peak_rss_sum_bytes": 111968256,
+        "samples": 72,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "thinking": "",
+      "wall_seconds": 1.6236169000003429,
+      "first_content_seconds": 0.1097301999998308,
+      "ollama_server_prefill_seconds": 0.078469,
+      "ollama_server_decode_seconds": 1.513889,
+      "ollama_server_decode_tokens_per_second": 84.55045251005853,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:00.796634Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1598748600,
+        "load_duration": 3784300,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 78469000,
+        "eval_count": 128,
+        "eval_duration": 1513889000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1121857536,
+        "ollama_peak_rss_sum_bytes": 112578560,
+        "samples": 16,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5967904000008275,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:03:59.1427465Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "thinking": "",
+      "wall_seconds": 3.425808699999834,
+      "first_content_seconds": 0.1833796999999322,
+      "ollama_server_prefill_seconds": 0.160274,
+      "ollama_server_decode_seconds": 3.242293,
+      "ollama_server_decode_tokens_per_second": 78.95646692017039,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:04.8029347Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3410042600,
+        "load_duration": 3829100,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 160274000,
+        "eval_count": 256,
+        "eval_duration": 3242293000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1121869824,
+        "ollama_peak_rss_sum_bytes": 112087040,
+        "samples": 33,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5547176000000036,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:01.3723887Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "wall_seconds": 16.12703329999931,
+      "first_content_seconds": 0.3761561999999685,
+      "first_generated_token_seconds": 0.37604989999999816,
+      "tokenization_seconds": 0.0005246000000624917,
+      "prefill_forward_seconds": 0.37273569999888423,
+      "decode_forward_seconds": 15.194310800010498,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.750585100000535,
+      "after_first_token_tokens_per_second": 16.189874749477806,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1128816640,
+        "ollama_peak_rss_sum_bytes": 112103424,
+        "samples": 148,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "wall_seconds": 8.054786500000773,
+      "first_content_seconds": 0.37383070000032603,
+      "first_generated_token_seconds": 0.3737574000006134,
+      "tokenization_seconds": 0.0005149000007804716,
+      "prefill_forward_seconds": 0.37046639999971376,
+      "decode_forward_seconds": 7.40555279999171,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.68059170000015,
+      "after_first_token_tokens_per_second": 16.535184392108427,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1127211008,
+        "ollama_peak_rss_sum_bytes": 112103424,
+        "samples": 74,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):",
+      "thinking": "",
+      "wall_seconds": 2.1939861999999266,
+      "first_content_seconds": 0.21744389999912528,
+      "ollama_server_prefill_seconds": 0.197273,
+      "ollama_server_decode_seconds": 1.976537,
+      "ollama_server_decode_tokens_per_second": 64.75972875792358,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:31.8185167Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 2180658500,
+        "load_duration": 4202200,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 197273000,
+        "eval_count": 128,
+        "eval_duration": 1976537000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118400512,
+        "ollama_peak_rss_sum_bytes": 111648768,
+        "samples": 22,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6005387000004703,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:29.5994821Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.8588263000001461,
+      "first_content_seconds": 0.29012709999915387,
+      "ollama_server_prefill_seconds": 0.270477,
+      "ollama_server_decode_seconds": 0.568515,
+      "ollama_server_decode_tokens_per_second": 80.91255287899176,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:33.2737855Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 846911200,
+        "load_duration": 4382700,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 270477000,
+        "eval_count": 46,
+        "eval_duration": 568515000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118412800,
+        "ollama_peak_rss_sum_bytes": 112500736,
+        "samples": 9,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.573729200001253,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:32.3970417Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.667289199998777,
+      "first_content_seconds": 0.6818507999996655,
+      "first_generated_token_seconds": 0.681775999999445,
+      "tokenization_seconds": 0.000820099998236401,
+      "prefill_forward_seconds": 0.677683199999592,
+      "decode_forward_seconds": 2.8817468999950506,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 2.985085000000254,
+      "after_first_token_tokens_per_second": 15.074947614555757,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1124208640,
+        "ollama_peak_rss_sum_bytes": 112517120,
+        "samples": 35,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.574000700000397,
+      "first_content_seconds": 0.6096893000012642,
+      "first_generated_token_seconds": 0.6096185000005789,
+      "tokenization_seconds": 0.0008832000003167195,
+      "prefill_forward_seconds": 0.6056879000007029,
+      "decode_forward_seconds": 2.861893400000554,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 2.964018099999521,
+      "after_first_token_tokens_per_second": 15.182093523655363,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1125232640,
+        "ollama_peak_rss_sum_bytes": 112517120,
+        "samples": 34,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.8423010000005888,
+      "first_content_seconds": 0.29140929999994114,
+      "ollama_server_prefill_seconds": 0.266207,
+      "ollama_server_decode_seconds": 0.550624,
+      "ollama_server_decode_tokens_per_second": 83.54158191433719,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:41.9578522Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 824533500,
+        "load_duration": 3831800,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 266207000,
+        "eval_count": 46,
+        "eval_duration": 550624000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118240768,
+        "ollama_peak_rss_sum_bytes": 111902720,
+        "samples": 9,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5596368000005896,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:41.1115081Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-128-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "thinking": "",
+      "wall_seconds": 1.5924828999995952,
+      "first_content_seconds": 0.08942120000028808,
+      "ollama_server_prefill_seconds": 0.070051,
+      "ollama_server_decode_seconds": 1.502814,
+      "ollama_server_decode_tokens_per_second": 85.17354775773981,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:44.1656586Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1579670300,
+        "load_duration": 3875000,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 70051000,
+        "eval_count": 128,
+        "eval_duration": 1502814000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118240768,
+        "ollama_peak_rss_sum_bytes": 111943680,
+        "samples": 16,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5851850999988528,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:42.5544436Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "prompt_tokens": 50,
+      "output_tokens": 128,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are",
+      "wall_seconds": 8.513338700000531,
+      "first_content_seconds": 0.19090759999926377,
+      "first_generated_token_seconds": 0.19083560000035504,
+      "tokenization_seconds": 0.0004031000007671537,
+      "prefill_forward_seconds": 0.18747690000054718,
+      "decode_forward_seconds": 8.025060899990422,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 8.322035799999867,
+      "after_first_token_tokens_per_second": 15.26068897708924,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1119723520,
+        "ollama_peak_rss_sum_bytes": 111960064,
+        "samples": 79,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.9405994999997347,
+      "first_content_seconds": 0.7188691999999719,
+      "first_generated_token_seconds": 0.7186839999994845,
+      "tokenization_seconds": 0.0008745999984967057,
+      "prefill_forward_seconds": 0.7143225999989227,
+      "decode_forward_seconds": 3.115417199998774,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 3.2214703999998164,
+      "after_first_token_tokens_per_second": 13.968776494113547,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1123340288,
+        "ollama_peak_rss_sum_bytes": 111960064,
+        "samples": 37,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.9008221000003687,
+      "first_content_seconds": 0.33109870000043884,
+      "ollama_server_prefill_seconds": 0.302636,
+      "ollama_server_decode_seconds": 0.569537,
+      "ollama_server_decode_tokens_per_second": 80.76736015394961,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:04:58.1203474Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 879681000,
+        "load_duration": 3676600,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 302636000,
+        "eval_count": 46,
+        "eval_duration": 569537000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118625792,
+        "ollama_peak_rss_sum_bytes": 111480832,
+        "samples": 10,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5687851999991835,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:57.2154635Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "thinking": "",
+      "wall_seconds": 3.8083761999987473,
+      "first_content_seconds": 0.18412890000035986,
+      "ollama_server_prefill_seconds": 0.163997,
+      "ollama_server_decode_seconds": 3.624338,
+      "ollama_server_decode_tokens_per_second": 70.63358880987369,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:05:02.5298958Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3795778300,
+        "load_duration": 3888200,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 163997000,
+        "eval_count": 256,
+        "eval_duration": 3624338000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118638080,
+        "ollama_peak_rss_sum_bytes": 111747072,
+        "samples": 36,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5896737999992183,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:04:58.7167504Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "wall_seconds": 17.4046871999999,
+      "first_content_seconds": 0.45812279999881866,
+      "first_generated_token_seconds": 0.4580304999999498,
+      "tokenization_seconds": 0.0005572999998548767,
+      "prefill_forward_seconds": 0.4542841000002227,
+      "decode_forward_seconds": 16.365718899996864,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 16.94633889999932,
+      "after_first_token_tokens_per_second": 15.04749795839444,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1128574976,
+        "ollama_peak_rss_sum_bytes": 111779840,
+        "samples": 159,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "wall_seconds": 15.612638000000516,
+      "first_content_seconds": 0.2263559000002715,
+      "first_generated_token_seconds": 0.22628520000034769,
+      "tokenization_seconds": 0.0005104000010760501,
+      "prefill_forward_seconds": 0.2227831000000151,
+      "decode_forward_seconds": 14.83530070001143,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.385909200000242,
+      "after_first_token_tokens_per_second": 16.57360619286613,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1127522304,
+        "ollama_peak_rss_sum_bytes": 111779840,
+        "samples": 143,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.\n10. 10. Check the train's condition and maintenance before booking.\n11. 11. Check the train's condition and maintenance before booking.\n12. 12. Check the train's condition and maintenance before booking.\n13. 13. Check the train's condition and maintenance before booking.\n14. 14. Check the train's condition and maintenance before booking.\n15. 15. Check the train's condition and maintenance before booking.\n16. 16. Check the train's condition and maintenance before booking.\n1",
+      "thinking": "",
+      "wall_seconds": 3.169441399999414,
+      "first_content_seconds": 0.1094703999988269,
+      "ollama_server_prefill_seconds": 0.086463,
+      "ollama_server_decode_seconds": 3.060036,
+      "ollama_server_decode_tokens_per_second": 83.65914649370139,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:05:39.3462282Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3153828100,
+        "load_duration": 3891800,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 86463000,
+        "eval_count": 256,
+        "eval_duration": 3060036000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1121943552,
+        "ollama_peak_rss_sum_bytes": 112160768,
+        "samples": 31,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5807080000013229,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:05:36.17238Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-256-r2",
+      "repeat": 2
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "thinking": "",
+      "wall_seconds": 1.64496440000039,
+      "first_content_seconds": 0.0951930999999604,
+      "ollama_server_prefill_seconds": 0.087252,
+      "ollama_server_decode_seconds": 1.549668,
+      "ollama_server_decode_tokens_per_second": 82.5983371922244,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:05:41.5969372Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1644051900,
+        "load_duration": 3963800,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 87252000,
+        "eval_count": 128,
+        "eval_duration": 1549668000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1121964032,
+        "ollama_peak_rss_sum_bytes": 112328704,
+        "samples": 17,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5755653999985952,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:05:39.9334246Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "wall_seconds": 7.744993699998304,
+      "first_content_seconds": 0.2476234999994631,
+      "first_generated_token_seconds": 0.24751069999911124,
+      "tokenization_seconds": 0.0005632999982481124,
+      "prefill_forward_seconds": 0.24373170000035316,
+      "decode_forward_seconds": 7.22197509999387,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.497094300000754,
+      "after_first_token_tokens_per_second": 16.939896300889163,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1123110912,
+        "ollama_peak_rss_sum_bytes": 112345088,
+        "samples": 72,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-128-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "wall_seconds": 15.85310279999976,
+      "first_content_seconds": 0.36502069999914966,
+      "first_generated_token_seconds": 0.36494719999973313,
+      "tokenization_seconds": 0.0006045999998605112,
+      "prefill_forward_seconds": 0.3613937000009173,
+      "decode_forward_seconds": 14.935847199983982,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.487784799999645,
+      "after_first_token_tokens_per_second": 16.464588273463473,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1129484288,
+        "ollama_peak_rss_sum_bytes": 112345088,
+        "samples": 145,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "python-code-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "prompt_tokens": 121,
+      "hf_prompt_tokens": 121,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "\treturn [x for x in left if x != right] + [x for x in right if x != left]\n\nprint(merge_sorted([1, 3, 5], [2, 4, 6]))\n\n# Example 3: Sort a list of integers in ascending order.\ndef sort_list(lst):\n    return lst\n\nprint(sort_list([1, 3, 5], [2, 4, 6]))\n\n# Example 4: Sort a list of integers in descending order.\ndef sort_list_desc(lst):\n    return lst[::-1]\n\nprint(sort_list_desc([1, 3, 5], [2, 4, 6]))\n\n# Example 5: Sort a list of integers in ascending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_empty([], []))\n\n# Example 6: Sort a list of integers in descending order, but only if the list is empty.\ndef sort_list_empty(lst):\n    return lst\n\nprint(sort_list_",
+      "thinking": "",
+      "wall_seconds": 3.3246601999999257,
+      "first_content_seconds": 0.17525609999938752,
+      "ollama_server_prefill_seconds": 0.167084,
+      "ollama_server_decode_seconds": 3.149555,
+      "ollama_server_decode_tokens_per_second": 81.28132386956253,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:06:09.1391265Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3323171200,
+        "load_duration": 3648800,
+        "prompt_eval_count": 121,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 167084000,
+        "eval_count": 256,
+        "eval_duration": 3149555000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1126088704,
+        "ollama_peak_rss_sum_bytes": 111837184,
+        "samples": 32,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5726819999999861,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:06:05.7990993Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "python-code-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.8484066000000894,
+      "first_content_seconds": 0.27967940000053204,
+      "ollama_server_prefill_seconds": 0.271681,
+      "ollama_server_decode_seconds": 0.568489,
+      "ollama_server_decode_tokens_per_second": 80.91625343674195,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:06:10.5732423Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 847232500,
+        "load_duration": 3699600,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 271681000,
+        "eval_count": 46,
+        "eval_duration": 568489000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1126096896,
+        "ollama_peak_rss_sum_bytes": 112148480,
+        "samples": 9,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.552925599999071,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:06:09.7204752Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.48421849999977,
+      "first_content_seconds": 0.6706156999989616,
+      "first_generated_token_seconds": 0.6705408999987412,
+      "tokenization_seconds": 0.0011089999989053467,
+      "prefill_forward_seconds": 0.6659211999995023,
+      "decode_forward_seconds": 2.7147966000084125,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 2.8132675000015297,
+      "after_first_token_tokens_per_second": 15.995634968937555,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1126084608,
+        "ollama_peak_rss_sum_bytes": 112140288,
+        "samples": 33,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "wall_seconds": 3.4320432000004075,
+      "first_content_seconds": 0.5999012000011135,
+      "first_generated_token_seconds": 0.5998296000016126,
+      "tokenization_seconds": 0.000751900000977912,
+      "prefill_forward_seconds": 0.5963403000005201,
+      "decode_forward_seconds": 2.7346233000080247,
+      "model_forward_calls": 46,
+      "after_first_token_seconds": 2.8318583000000217,
+      "after_first_token_tokens_per_second": 15.890625600864158,
+      "ended_with_eos": true,
+      "memory": {
+        "python_peak_rss_bytes": 1125883904,
+        "ollama_peak_rss_sum_bytes": 112140288,
+        "samples": 33,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "database-context-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "prompt_tokens": 207,
+      "hf_prompt_tokens": 207,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 46,
+      "output": "3 steps are necessary.\n\n2. Creating a new member\n\nA new member is created by adding a new member to the database.\n\n3. Checking a backup\n\nA backup is created by checking the database.",
+      "thinking": "",
+      "wall_seconds": 0.849850200000219,
+      "first_content_seconds": 0.2873405999998795,
+      "ollama_server_prefill_seconds": 0.268351999,
+      "ollama_server_decode_seconds": 0.562354,
+      "ollama_server_decode_tokens_per_second": 81.7990091650455,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:06:18.98177Z",
+        "response": "",
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 838033200,
+        "load_duration": 3938000,
+        "prompt_eval_count": 207,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 268351999,
+        "eval_count": 46,
+        "eval_duration": 562354000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118396416,
+        "ollama_peak_rss_sum_bytes": 112197632,
+        "samples": 9,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.6026424000010593,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:06:18.1113263Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "database-context-256-r3",
+      "repeat": 3
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "hf_prompt_tokens": 50,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "thinking": "",
+      "wall_seconds": 3.238912099999652,
+      "first_content_seconds": 0.0956927999995969,
+      "ollama_server_prefill_seconds": 0.085899,
+      "ollama_server_decode_seconds": 3.143577,
+      "ollama_server_decode_tokens_per_second": 81.4358929334322,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:06:22.8096747Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 3237716400,
+        "load_duration": 5261200,
+        "prompt_eval_count": 50,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 85899000,
+        "eval_count": 256,
+        "eval_duration": 3143577000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 256,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118416896,
+        "ollama_peak_rss_sum_bytes": 113147904,
+        "samples": 31,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5778268000012758,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:06:19.5651046Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "forest-prose-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "prompt_tokens": 50,
+      "output_tokens": 256,
+      "output": "10 feet deep and is home to a wide variety of organisms, including insects, fungi, and lichens. These organisms are adapted to the soil and are often found in the darker, more shaded areas.\n\nBelow the forest floor, the canopy is 10 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the canopy, the forest floor is 15 feet deep and is home to a variety of shrubs and small trees like grasses and wildflowers. These plants are adapted to the soil and are often found in the lighter, more open areas.\n\nThe forest floor is also home to a variety of microorganisms, including bacteria, fungi, and protozoa. These organisms are essential for the ecosystem's balance and are often found in the darker, more shaded areas.\n\nAbove the forest floor, the forest floor is 20 feet deep and is home to a variety of trees, including broad-leafed trees like oak, maple, and pine. These trees are the tallest and most diverse of the forest's organisms.\n\nAbove the forest floor, the forest floor is 30 feet",
+      "wall_seconds": 16.08452539999962,
+      "first_content_seconds": 0.23039740000058373,
+      "first_generated_token_seconds": 0.23032509999939066,
+      "tokenization_seconds": 0.0005363000000215834,
+      "prefill_forward_seconds": 0.22639629999866884,
+      "decode_forward_seconds": 15.29102110000531,
+      "model_forward_calls": 256,
+      "after_first_token_seconds": 15.853816500000903,
+      "after_first_token_tokens_per_second": 16.08445512157817,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1124188160,
+        "ollama_peak_rss_sum_bytes": 113311744,
+        "samples": 147,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "forest-prose-256-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "pytorch_fp32",
+      "threads": 1,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "wall_seconds": 7.7427650000008725,
+      "first_content_seconds": 0.23324529999990773,
+      "first_generated_token_seconds": 0.2331702999999834,
+      "tokenization_seconds": 0.0004936000004818197,
+      "prefill_forward_seconds": 0.22973650000130874,
+      "decode_forward_seconds": 7.232492199997068,
+      "model_forward_calls": 128,
+      "after_first_token_seconds": 7.509037699999681,
+      "after_first_token_tokens_per_second": 16.912952774229034,
+      "ended_with_eos": false,
+      "memory": {
+        "python_peak_rss_bytes": 1122914304,
+        "ollama_peak_rss_sum_bytes": 113311744,
+        "samples": 72,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "pair_id": "travel-list-128-r1",
+      "repeat": 1
+    },
+    {
+      "variant": "ollama_f16",
+      "threads": 4,
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "prompt_tokens": 61,
+      "hf_prompt_tokens": 61,
+      "prompt_cached_tokens": 0,
+      "output_tokens": 128,
+      "output": "3. Book your train tickets in advance. The earlier you book, the better the chances of getting the best price.\n4. 4. Check the train schedules and prices before booking.\n5. 5. Check the train's condition and maintenance. Make sure the train is in good condition before booking.\n6. 6. Check the train's condition and maintenance before booking.\n7. 7. Check the train's condition and maintenance before booking.\n8. 8. Check the train's condition and maintenance before booking.\n9. 9. Check the train's condition and maintenance before booking.",
+      "thinking": "",
+      "wall_seconds": 1.6785189999991417,
+      "first_content_seconds": 0.1093762999989849,
+      "ollama_server_prefill_seconds": 0.084035,
+      "ollama_server_decode_seconds": 1.56924,
+      "ollama_server_decode_tokens_per_second": 81.56814763834723,
+      "raw_timing_record": {
+        "model": "cpu-ai-lab-smollm2:trained-f16",
+        "created_at": "2026-10-25T09:06:48.9144199Z",
+        "response": "",
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1660043500,
+        "load_duration": 3847600,
+        "prompt_eval_count": 61,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 84035000,
+        "eval_count": 128,
+        "eval_duration": 1569240000
+      },
+      "options": {
+        "num_gpu": 0,
+        "num_thread": 4,
+        "num_ctx": 2048,
+        "num_predict": 128,
+        "temperature": 0,
+        "seed": 20261026,
+        "repeat_penalty": 1.0,
+        "stop": []
+      },
+      "raw": true,
+      "memory": {
+        "python_peak_rss_bytes": 1118093312,
+        "ollama_peak_rss_sum_bytes": 113418240,
+        "samples": 17,
+        "ollama_process_names": [
+          "ollama app.exe",
+          "ollama.exe"
+        ],
+        "sample_interval_seconds": 0.1,
+        "note": "RSS samples, not exact peaks. Ollama includes service/app/runner processes by name; shared pages may be counted more than once. Python model remains resident during Ollama calls."
+      },
+      "cache_reset": {
+        "mechanism": "Explicit unload, verify absence, then model-only load without a prompt",
+        "wall_seconds_excluded_from_timing": 0.5698843999998644,
+        "load_response": {
+          "model": "cpu-ai-lab-smollm2:trained-f16",
+          "created_at": "2026-10-25T09:06:47.2310302Z",
+          "response": "",
+          "done": true,
+          "done_reason": "load"
+        },
+        "size_vram": 0,
+        "model_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+        "first_request_after_reload": true,
+        "note": "KV state is reset; first-request kernel initialization may increase timed Ollama latency."
+      },
+      "cpu_evidence": {
+        "size_vram": 0,
+        "digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c"
+      },
+      "pair_id": "travel-list-128-r1",
+      "repeat": 1
+    }
+  ],
+  "versions": {
+    "python": "3.12.14",
+    "torch": "2.8.0+cpu",
+    "transformers": "4.51.3",
+    "peft": "0.15.2",
+    "psutil": "7.0.0"
+  },
+  "cpu_evidence": {
+    "torch_cuda_build": null,
+    "torch_cuda_available": false,
+    "parameter_devices": [
+      "cpu"
+    ],
+    "buffer_devices": [
+      "cpu"
+    ],
+    "interop_threads": 1
+  },
+  "hf_prompt_token_counts": {
+    "tune-water": 49,
+    "tune-recipe": 44,
+    "forest-prose": 50,
+    "python-code": 121,
+    "travel-list": 61,
+    "database-context": 207
+  },
+  "thread_selection": {
+    "selected_threads": 1,
+    "total_wall_seconds_by_threads": {
+      "1": 16.36171690000083,
+      "2": 16.638200400000642,
+      "4": 16.791204900002413,
+      "6": 16.909644299998035,
+      "12": 17.622094999998808
+    },
+    "criterion": "Lowest summed wall time on separate tuning prompts; identical outputs and lengths required across candidates",
+    "tuning_groups": 4,
+    "confirmation_used_for_selection": false
+  },
+  "confirmation_schedule": [
+    {
+      "pair_id": "travel-list-256-r3",
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "repeat": 3,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-256-r2",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "repeat": 2,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "python-code-128-r1",
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "python-code-128-r2",
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "repeat": 2,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "travel-list-128-r2",
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "repeat": 2,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-128-r3",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "repeat": 3,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "travel-list-256-r1",
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "database-context-128-r3",
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "repeat": 3,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-256-r3",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "repeat": 3,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-128-r2",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "repeat": 2,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "python-code-256-r2",
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "repeat": 2,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "python-code-128-r3",
+      "prompt_id": "python-code",
+      "requested_tokens": 128,
+      "repeat": 3,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "database-context-256-r2",
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "repeat": 2,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "database-context-128-r2",
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "repeat": 2,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-128-r1",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 128,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "database-context-256-r1",
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "repeat": 1,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "python-code-256-r1",
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "travel-list-256-r2",
+      "prompt_id": "travel-list",
+      "requested_tokens": 256,
+      "repeat": 2,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "travel-list-128-r3",
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "repeat": 3,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "python-code-256-r3",
+      "prompt_id": "python-code",
+      "requested_tokens": 256,
+      "repeat": 3,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "database-context-128-r1",
+      "prompt_id": "database-context",
+      "requested_tokens": 128,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "database-context-256-r3",
+      "prompt_id": "database-context",
+      "requested_tokens": 256,
+      "repeat": 3,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    },
+    {
+      "pair_id": "forest-prose-256-r1",
+      "prompt_id": "forest-prose",
+      "requested_tokens": 256,
+      "repeat": 1,
+      "order": [
+        "ollama_f16",
+        "pytorch_fp32"
+      ]
+    },
+    {
+      "pair_id": "travel-list-128-r1",
+      "prompt_id": "travel-list",
+      "requested_tokens": 128,
+      "repeat": 1,
+      "order": [
+        "pytorch_fp32",
+        "ollama_f16"
+      ]
+    }
+  ],
+  "summary": {
+    "status": "measured",
+    "scheduled_pairs_observed": 24,
+    "fixed_work": {
+      "pairs": 18,
+      "median_paired_speedup": 4.766648396640694,
+      "min_paired_speedup": 3.671302262521543,
+      "max_paired_speedup": 5.353557896174448,
+      "ollama_faster_pairs": 18,
+      "pytorch_aggregate_tokens_per_second": 15.777984142894002,
+      "ollama_aggregate_tokens_per_second": 75.3188097455794,
+      "identical_output_pairs": 18
+    },
+    "by_token_budget": {
+      "128": {
+        "pairs": 9,
+        "median_paired_speedup": 4.708304751152346,
+        "min_paired_speedup": 3.671302262521543,
+        "max_paired_speedup": 5.345952976953596,
+        "ollama_faster_pairs": 9,
+        "pytorch_aggregate_tokens_per_second": 15.882999954449343,
+        "ollama_aggregate_tokens_per_second": 73.08785702230568,
+        "identical_output_pairs": 9
+      },
+      "256": {
+        "pairs": 9,
+        "median_paired_speedup": 4.92599042847216,
+        "min_paired_speedup": 4.5478095207079505,
+        "max_paired_speedup": 5.353557896174448,
+        "ollama_faster_pairs": 9,
+        "pytorch_aggregate_tokens_per_second": 15.72599528179191,
+        "ollama_aggregate_tokens_per_second": 76.48615131586779,
+        "identical_output_pairs": 9
+      }
+    },
+    "by_prompt": {
+      "database-context": {
+        "pairs": 0
+      },
+      "forest-prose": {
+        "pairs": 6,
+        "median_paired_speedup": 4.956573515086939,
+        "min_paired_speedup": 4.5478095207079505,
+        "max_paired_speedup": 5.345952976953596,
+        "ollama_faster_pairs": 6,
+        "pytorch_aggregate_tokens_per_second": 15.94213902493484,
+        "ollama_aggregate_tokens_per_second": 78.20332530587031,
+        "identical_output_pairs": 6
+      },
+      "python-code": {
+        "pairs": 6,
+        "median_paired_speedup": 4.59888351711479,
+        "min_paired_speedup": 3.671302262521543,
+        "max_paired_speedup": 4.768337768774119,
+        "ollama_faster_pairs": 6,
+        "pytorch_aggregate_tokens_per_second": 15.483250826086875,
+        "ollama_aggregate_tokens_per_second": 69.40527302345816,
+        "identical_output_pairs": 6
+      },
+      "travel-list": {
+        "pairs": 6,
+        "median_paired_speedup": 4.9371901039294785,
+        "min_paired_speedup": 4.612855141946461,
+        "max_paired_speedup": 5.353557896174448,
+        "ollama_faster_pairs": 6,
+        "pytorch_aggregate_tokens_per_second": 15.917078806284474,
+        "ollama_aggregate_tokens_per_second": 79.14284724020125,
+        "identical_output_pairs": 6
+      }
+    },
+    "included_pairs": [
+      {
+        "pair_id": "travel-list-256-r3",
+        "prompt_id": "travel-list",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 17.830869900000835,
+        "ollama_seconds": 3.3306579000000056,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 5.353557896174448
+      },
+      {
+        "pair_id": "forest-prose-256-r2",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 16.308312600000136,
+        "ollama_seconds": 3.5859708999996656,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 4.5478095207079505
+      },
+      {
+        "pair_id": "python-code-128-r1",
+        "prompt_id": "python-code",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 8.300048299999617,
+        "ollama_seconds": 1.9732571999993525,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 4.206267839794195
+      },
+      {
+        "pair_id": "python-code-128-r2",
+        "prompt_id": "python-code",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 8.663321800000631,
+        "ollama_seconds": 1.8720739999989746,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 4.627659910882463
+      },
+      {
+        "pair_id": "travel-list-128-r2",
+        "prompt_id": "travel-list",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 7.939522399999987,
+        "ollama_seconds": 1.5991746999989118,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 4.964762386501856
+      },
+      {
+        "pair_id": "forest-prose-128-r3",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 7.835134200000539,
+        "ollama_seconds": 1.5837768999990658,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 4.947119887911713
+      },
+      {
+        "pair_id": "travel-list-256-r1",
+        "prompt_id": "travel-list",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 15.504300300000978,
+        "ollama_seconds": 3.1332010999994964,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 4.9483897793867975
+      },
+      {
+        "pair_id": "forest-prose-256-r3",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 15.783540499998708,
+        "ollama_seconds": 3.1060717000000295,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 5.0815119625211995
+      },
+      {
+        "pair_id": "forest-prose-128-r2",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 7.7364679999991495,
+        "ollama_seconds": 1.6236169000003429,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 4.764959024507268
+      },
+      {
+        "pair_id": "python-code-256-r2",
+        "prompt_id": "python-code",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 16.12703329999931,
+        "ollama_seconds": 3.425808699999834,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 4.707511338855579
+      },
+      {
+        "pair_id": "python-code-128-r3",
+        "prompt_id": "python-code",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 8.054786500000773,
+        "ollama_seconds": 2.1939861999999266,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 3.671302262521543
+      },
+      {
+        "pair_id": "forest-prose-128-r1",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 8.513338700000531,
+        "ollama_seconds": 1.5924828999995952,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 5.345952976953596
+      },
+      {
+        "pair_id": "python-code-256-r1",
+        "prompt_id": "python-code",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 17.4046871999999,
+        "ollama_seconds": 3.8083761999987473,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 4.570107123347117
+      },
+      {
+        "pair_id": "travel-list-256-r2",
+        "prompt_id": "travel-list",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 15.612638000000516,
+        "ollama_seconds": 3.169441399999414,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 4.92599042847216
+      },
+      {
+        "pair_id": "travel-list-128-r3",
+        "prompt_id": "travel-list",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 7.744993699998304,
+        "ollama_seconds": 1.64496440000039,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 4.708304751152346
+      },
+      {
+        "pair_id": "python-code-256-r3",
+        "prompt_id": "python-code",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 15.85310279999976,
+        "ollama_seconds": 3.3246601999999257,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 121,
+        "ollama_prompt_tokens": 121,
+        "paired_speedup": 4.768337768774119
+      },
+      {
+        "pair_id": "forest-prose-256-r1",
+        "prompt_id": "forest-prose",
+        "requested_tokens": 256,
+        "pytorch_tokens": 256,
+        "ollama_tokens": 256,
+        "pytorch_seconds": 16.08452539999962,
+        "ollama_seconds": 3.238912099999652,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 50,
+        "ollama_prompt_tokens": 50,
+        "paired_speedup": 4.966027142262165
+      },
+      {
+        "pair_id": "travel-list-128-r1",
+        "prompt_id": "travel-list",
+        "requested_tokens": 128,
+        "pytorch_tokens": 128,
+        "ollama_tokens": 128,
+        "pytorch_seconds": 7.7427650000008725,
+        "ollama_seconds": 1.6785189999991417,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 61,
+        "ollama_prompt_tokens": 61,
+        "paired_speedup": 4.612855141946461
+      }
+    ],
+    "unmatched_or_early_stop_pairs": [
+      {
+        "pair_id": "database-context-128-r3",
+        "prompt_id": "database-context",
+        "requested_tokens": 128,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.407816900000398,
+        "ollama_seconds": 0.8731606999990618,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      },
+      {
+        "pair_id": "database-context-256-r2",
+        "prompt_id": "database-context",
+        "requested_tokens": 256,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.667289199998777,
+        "ollama_seconds": 0.8588263000001461,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      },
+      {
+        "pair_id": "database-context-128-r2",
+        "prompt_id": "database-context",
+        "requested_tokens": 128,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.574000700000397,
+        "ollama_seconds": 0.8423010000005888,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      },
+      {
+        "pair_id": "database-context-256-r1",
+        "prompt_id": "database-context",
+        "requested_tokens": 256,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.9405994999997347,
+        "ollama_seconds": 0.9008221000003687,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      },
+      {
+        "pair_id": "database-context-128-r1",
+        "prompt_id": "database-context",
+        "requested_tokens": 128,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.48421849999977,
+        "ollama_seconds": 0.8484066000000894,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      },
+      {
+        "pair_id": "database-context-256-r3",
+        "prompt_id": "database-context",
+        "requested_tokens": 256,
+        "pytorch_tokens": 46,
+        "ollama_tokens": 46,
+        "pytorch_seconds": 3.4320432000004075,
+        "ollama_seconds": 0.849850200000219,
+        "outputs_identical": true,
+        "pytorch_prompt_tokens": 207,
+        "ollama_prompt_tokens": 207,
+        "reasons": [
+          "At least one backend stopped before the requested token budget"
+        ]
+      }
+    ],
+    "all_requests": {
+      "pytorch_fp32": {
+        "requests": 24,
+        "natural_early_stops": 6,
+        "median_first_content_seconds": 0.31013144999997166,
+        "ttft_observed_requests": 24,
+        "sampled_peak_python_rss_bytes": 1129484288,
+        "sampled_peak_ollama_process_rss_sum_bytes": 113311744
+      },
+      "ollama_f16": {
+        "requests": 24,
+        "natural_early_stops": 6,
+        "median_first_content_seconds": 0.14492544999939128,
+        "ttft_observed_requests": 24,
+        "sampled_peak_python_rss_bytes": 1126096896,
+        "sampled_peak_ollama_process_rss_sum_bytes": 113418240
+      }
+    },
+    "interpretation": "Descriptive paired throughput; exact token counts do not imply identical token sequences or useful long-form answers. Every request is retained."
+  },
+  "cleanup": "Test model unloaded",
+  "finished_utc": "2026-10-25T09:06:48.969436+00:00"
+}

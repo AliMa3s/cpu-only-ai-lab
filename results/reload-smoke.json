@@ -1,0 +1,76 @@
+{
+  "purpose": "Functional reload and CLI checks on fixed illustrative inputs; not a quality benchmark",
+  "classifiers": [
+    {
+      "model": "135M LoRA",
+      "input": "Can we meet at the station at six?",
+      "result": {
+        "label": "ham",
+        "spam_score": 0.010532376356422901,
+        "message_truncated": false,
+        "device": "cpu",
+        "score_is_calibrated_probability": false
+      }
+    },
+    {
+      "model": "360M LoRA with validation-selected threshold",
+      "input": "Congratulations, you won a free cash prize! Call now to claim your reward.",
+      "result": {
+        "label": "ham",
+        "spam_score": 0.15776599943637848,
+        "message_truncated": false,
+        "device": "cpu",
+        "score_is_calibrated_probability": false,
+        "original_label": "ham",
+        "threshold_selected_on_validation": 0.5
+      }
+    },
+    {
+      "model": "Naive Bayes",
+      "input": "Can we meet at the station at six?",
+      "result": {
+        "label": "ham",
+        "log_scores": {
+          "ham": -51.47857685786079,
+          "spam": -58.77312314790884
+        },
+        "spam_minus_ham_log_score": -7.2945462900480535,
+        "scores_are_probabilities": false,
+        "score_description": "Unnormalized Naive Bayes log-scores; larger wins. These are not calibrated probabilities.",
+        "matched_vocabulary_token_count": 8,
+        "method": "multinomial_naive_bayes",
+        "device": "cpu",
+        "runtime": "Python standard library only"
+      }
+    },
+    {
+      "model": "Naive Bayes",
+      "input": "Congratulations, you won a free cash prize! Call now to claim your reward.",
+      "result": {
+        "label": "spam",
+        "log_scores": {
+          "ham": -87.9644249711528,
+          "spam": -60.998128438314716
+        },
+        "spam_minus_ham_log_score": 26.96629653283808,
+        "scores_are_probabilities": false,
+        "score_description": "Unnormalized Naive Bayes log-scores; larger wins. These are not calibrated probabilities.",
+        "matched_vocabulary_token_count": 12,
+        "method": "multinomial_naive_bayes",
+        "device": "cpu",
+        "runtime": "Python standard library only"
+      }
+    }
+  ],
+  "scratch_reload_generation": {
+    "prompt": "ROMEO:",
+    "generated": "\nI artain, who earr thou mose.\n\nSICINIUS:\nThat fair must, thing ",
+    "generated_hex": "0a492061727461696e2c2077686f20656172722074686f75206d6f73652e0a0a534943494e4955533a0a546861742066616972206d7573742c207468696e6720",
+    "new_bytes": 64,
+    "seconds": 0.14371070000015607,
+    "bytes_per_second_including_prompt": 445.3391431530881,
+    "temperature": 0.8,
+    "top_k": 40,
+    "seed": 20261032
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "experiment": "CPU-only byte transformer trained from random weights",
+  "timestamp_utc": "2026-10-25T09:49:28.506881+00:00",
+  "config": {
+    "seed": 20261025,
+    "threads": 4,
+    "width": 192,
+    "heads": 4,
+    "layers": 4,
+    "block_size": 128,
+    "dropout": 0.1,
+    "batch_size": 8,
+    "evaluation_batch_size": 16,
+    "steps": 1200,
+    "validation_every": 200,
+    "max_train_seconds": 360,
+    "learning_rate": 0.001,
+    "weight_decay": 0.01,
+    "gradient_clip": 1.0,
+    "train_fraction": 0.9,
+    "validation_fraction": 0.05,
+    "sample_prompt": "ROMEO:\n",
+    "sample_bytes": 256,
+    "temperature": 0.8,
+    "top_k": 40
+  },
+  "data": {
+    "source_url": "https://raw.githubusercontent.com/karpathy/char-rnn/6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e/data/tinyshakespeare/input.txt",
+    "source_revision": "6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e",
+    "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+    "total_bytes": 1115394,
+    "dataset": "tiny Shakespeare: subset of Shakespeare works distributed in karpathy/char-rnn",
+    "license_note": "Upstream repository README declares MIT; underlying Shakespeare works are public domain. Corpus kept local; no upstream code copied.",
+    "license_source": "https://github.com/karpathy/char-rnn/blob/6f9487a6fe5b420b7ca9afb0d7c078e37c1d1b4e/Readme.md#license",
+    "splits": {
+      "train": {
+        "start_byte_inclusive": 0,
+        "stop_byte_exclusive": 1003854,
+        "bytes": 1003854,
+        "sha256": "a9e24e23a1ec77744dad26844bfd5a09b6e041954e1eef0000e7f24cba6db735"
+      },
+      "validation": {
+        "start_byte_inclusive": 1003854,
+        "stop_byte_exclusive": 1059623,
+        "bytes": 55769,
+        "sha256": "2005a733cb87b490f256a123d9dc47073809546e912a45fd9a0eb504f7562f3e"
+      },
+      "test": {
+        "start_byte_inclusive": 1059623,
+        "stop_byte_exclusive": 1115394,
+        "bytes": 55771,
+        "sha256": "2762f01f8b72c92df265d3f3d1f16606421d6c7d11ae688a065f6a421915e43c"
+      }
+    },
+    "split_policy": "Contiguous source-byte intervals; train/validation/test never share source positions; no batch crosses a split. Natural repeated phrases may occur across the corpus.",
+    "tokenization": "fixed 256-byte vocabulary; no tokenizer fitting"
+  },
+  "model": {
+    "parameters": 1902720,
+    "trainable_parameters": 1902720,
+    "pretrained_weights_loaded": false,
+    "initialization_seed": 20261025,
+    "initial_state_sha256": "06e859fb7c0d26df03bb759bd14bba89d121d1e9197164d2a10670bfd6a0dbeb",
+    "selected_state_sha256": "f257177001eb0657d4b110213cd8e6a0cd65d04970b7ee9b23022134456d5b07",
+    "parameters_changed": true,
+    "checkpoint_sha256": "6ef34b1021ec88fbf72ad08562f643664031d64cc458f4d9e7a9716f01c45e69",
+    "checkpoint_bytes": 7615640,
+    "reload_state_sha256": "f257177001eb0657d4b110213cd8e6a0cd65d04970b7ee9b23022134456d5b07",
+    "reload_verified": true,
+    "architecture": "pre-norm causal transformer, untied input/output embeddings, learned positions, GELU, SDPA; fixed byte vocabulary256"
+  },
+  "before": {
+    "validation": {
+      "loss_nats_per_byte": 5.5231043807814855,
+      "bits_per_byte": 7.9681553004655585,
+      "byte_perplexity": 250.41120353613766,
+      "target_bytes": 55768,
+      "seconds": 1.4236451999986457,
+      "context_policy": "reset every block_size; each next-byte target scored once; last block masked"
+    },
+    "test": {
+      "loss_nats_per_byte": 5.526465242114656,
+      "bits_per_byte": 7.97300399844404,
+      "byte_perplexity": 251.2542166991532,
+      "target_bytes": 55770,
+      "seconds": 1.6469657000016014,
+      "context_policy": "reset every block_size; each next-byte target scored once; last block masked"
+    },
+    "test_unigram": {
+      "loss_nats_per_byte": 3.3621527355028857,
+      "byte_perplexity": 28.851233148885996,
+      "target_bytes": 55770,
+      "smoothing": "add-one; fitted on train bytes only"
+    },
+    "sample": {
+      "prompt": "ROMEO:\n",
+      "generated": "�*\u0007�1�\u000ed���\u001b4��\u001bF\u001b� v�d��M��1{v\u0013�}f�a���bʘ��GG�P��;\u0007C)�z�1һ���{,È��c��y�\b\u0013�d�FY�\u00054\u001da�b�7\u001a��B���\u00040\u00054I'��w�VK�:��!'.GY��}��hOf���!���\r\u0005M��\u0007���v\u0012v�<P�{a[�<}\u0007���vaU�a1!�1z\u0006��1A�}\u0012�HD���H�\u001b4��\u001b�x\"D,O��s��1U�?\u0006!��)����\\���R'\t��H\u001c�C����zq�\u001b'\u0018&?q\u0019q\u0018[�Ɯ�\u0000�\t",
+      "generated_hex": "e12a07fa31fa0e64819cca1b34b5881b461bbf2076dc64bf964d98cc317b7613e57d668561f3ecec62ca9885c44747e550b0ca3b074329da7af0bfbf31d2bba7999f7b2cc388bc9963c3da79990813bf649546599705341d618862b7371a97ee4282a5b5043005344927f1f777d9564be53abbae21272e4759e8f37da7f2684f66ffbfe72197f2c70d054d9aac07f0c0c67612769a3c50997b615be23c7d07e8cac576615591613121ac317a06c8f331419a7d12914844f0f0f248961b34e6ff1bdc7822442c4fb8bf73e4fe3155e43f06218a9129ff918be85cf3f6f3ac522709a9f3481c964398f3e8f3917a71e81b2718263f711971185bfac69cc000fa09",
+      "new_bytes": 256,
+      "seconds": 1.1904216999992059,
+      "bytes_per_second_including_prompt": 215.0498432615692,
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 20261032
+    }
+  },
+  "after": {
+    "validation": {
+      "loss_nats_per_byte": 1.9225898001734725,
+      "bits_per_byte": 2.773710770373972,
+      "byte_perplexity": 6.838646282782884,
+      "target_bytes": 55768,
+      "seconds": 1.6851322000002256,
+      "context_policy": "reset every block_size; each next-byte target scored once; last block masked"
+    },
+    "test": {
+      "loss_nats_per_byte": 1.9511765437462176,
+      "bits_per_byte": 2.814952723561536,
+      "byte_perplexity": 7.036962005663398,
+      "target_bytes": 55770,
+      "seconds": 1.683923100001266,
+      "context_policy": "reset every block_size; each next-byte target scored once; last block masked"
+    },
+    "sample": {
+      "prompt": "ROMEO:\n",
+      "generated": "If a can to boy, I withis reperself,\nAnd onstle and mustinks nects all strue.\n\nKis, O'es with my prom offullous my is comen the from!\nOf I would vinght, live theeval a seconsured,\nWhich their'd king issour did to-lord; tonguizen,\nThe and the the quech man!",
+      "generated_hex": "496620612063616e20746f20626f792c20492077697468697320726570657273656c662c0a416e64206f6e73746c6520616e64206d757374696e6b73206e6563747320616c6c2073747275652e0a0a4b69732c204f2765732077697468206d792070726f6d206f6666756c6c6f7573206d7920697320636f6d656e207468652066726f6d210a4f66204920776f756c642076696e6768742c206c697665207468656576616c2061207365636f6e73757265642c0a57686963682074686569722764206b696e67206973736f75722064696420746f2d6c6f72643b20746f6e6775697a656e2c0a54686520616e642074686520746865207175656368206d616e21",
+      "new_bytes": 256,
+      "seconds": 1.1613932000000204,
+      "bytes_per_second_including_prompt": 220.42491724593833,
+      "temperature": 0.8,
+      "top_k": 40,
+      "seed": 20261032
+    }
+  },
+  "selection": {
+    "criterion": "lowest full validation loss, including random initial model",
+    "best_step": 1200,
+    "best_validation_loss": 1.9225898001734725,
+    "test_used_for_selection": false
+  },
+  "training": {
+    "completed_steps": 1200,
+    "requested_steps": 1200,
+    "stop_reason": "step_budget",
+    "target_bytes_processed": 1228800,
+    "compute_seconds": 200.07359200000246,
+    "loop_seconds_including_validation": 209.96434210000007,
+    "compute_target_bytes_per_second": 6141.740085318131,
+    "wall_target_bytes_per_second": 5852.422309949931
+  },
+  "cpu_evidence": {
+    "torch_version": "2.8.0+cpu",
+    "cuda_build": null,
+    "cuda_available": false,
+    "model_devices": [
+      "cpu"
+    ],
+    "optimizer_tensor_devices": [
+      "cpu"
+    ],
+    "dtype": "float32",
+    "threads": 4,
+    "interop_threads": 1,
+    "logical_cpu_count": 24,
+    "physical_cpu_count": 12,
+    "platform": "Windows",
+    "python_version": "3.12.14",
+    "deterministic_algorithms": true
+  },
+  "limits": [
+    "One short run on a tiny Shakespeare corpus, not a general assistant.",
+    "Byte perplexity cannot be compared directly to subword-token perplexity.",
+    "Contiguous source splits avoid overlapping positions, but natural repeated phrases remain.",
+    "Memory is sampled process RSS, not an exact peak or whole-machine energy measurement.",
+    "Wall time budget is checked after steps; validation and final evaluation can extend total runtime."
+  ],
+  "timing": {
+    "entire_run_seconds": 220.33330079999905,
+    "peak_sampled_process_rss_bytes": 435159040
+  }
+}

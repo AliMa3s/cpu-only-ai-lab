@@ -1,6 +1,6 @@
 # CPU-only AI Lab
 
-Reproducible language-model adaptation and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
+Reproducible language-model training, adaptation, and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
 
 Read the [project goal and acceptance criteria](GOAL.md).
 
@@ -17,6 +17,61 @@ The training experiment does **not** train the 7B model. The pretrained 135M bas
 ## Results
 
 Measured on an AMD Ryzen 9 3900X (12 physical cores), approximately 32 GiB RAM, Windows 11. Model workloads ran sequentially. Numerical reports are in [`results/`](results/); downloaded weights, local adapters, and environments remain outside Git.
+
+### Follow-up: longer generation and real data
+
+![Measured CPU throughput, real-task macro F1, and learning from random weights](results/figures/followup.png)
+
+The longer-output experiment uses the original **trained extraction checkpoint**, separate from the SMS classifiers below. It retuned the PyTorch baseline on separate prompts, selecting **one thread** from 1, 2, 4, 6, and 12. Ollama used four threads. It then ran four predetermined prompt families at 128- and 256-token caps, three times each. **18/18 complete fixed-work pairs were faster**, with a **4.767x median paired speedup** and aggregate wall-clock throughput **15.78 -> 75.32 generated tokens/s**. The remaining six pairs all stopped naturally at 46 tokens and remain in the report; they do not contribute to the long-output speed figure. Output text matched between backends in all 24 pairs.
+
+| Output budget | Matched long-output pairs | PyTorch FP32 tokens/s | Ollama F16 tokens/s | Median paired speedup |
+| --- | ---: | ---: | ---: | ---: |
+| 128 | 9 | 15.88 | 73.09 | 4.708x |
+| 256 | 9 | 15.73 | 76.49 | 4.926x |
+
+Median first-content latency across all requests was **310 ms -> 145 ms**. These wall timings include prompt processing, with loading/reset excluded. The runtime and weight-storage precision both change; this is not an isolated kernel comparison. The 4.767x result and the earlier 3.779x result use different workloads and should not be combined. [Raw longer-output measurements](results/extended-benchmark.json), [full methods and commands](EXPERIMENTS.md).
+
+Manual inspection found poor general usefulness despite matching text: forest descriptions contradicted themselves, travel tips repeated, and generated sorting code contained obvious errors. Code was inspected, not executed. Faster generation and identical output do not establish useful long-form answers or correct code. The raw-completion workload also differs from the trained JSON task.
+
+The original longer-output report's Ollama RAM counter missed the separate `llama-server.exe` process. Its Ollama RSS total is **incomplete and must not be interpreted as inference RAM**. The raw report is preserved with a [correction note](results/extended-benchmark-notes.json). A separate corrected probe measured **462.67 MiB** sampled peak RSS across the Ollama process tree, including the native runner, and confirmed **zero VRAM**. Ollama reported a 333,929,511-byte model allocation; that is a different measure from process RSS. This probe had no resident PyTorch model, so it is not a matched memory comparison with the earlier paired benchmark. [Memory evidence](results/backend-memory.json).
+
+For a real task, 135M and 360M models were adapted to the public **UCI SMS Spam Collection**. Near-duplicate groups were reduced before seeded train/validation/test splits. Classification uses only two allowed next-token labels, not free-form answers. The held-out test has 512 messages, including 55 spam messages. Both models use exactly the same split manifests and 120-update training schedule.
+
+| Classifier | Test correct | Accuracy | Macro F1 |
+| --- | ---: | ---: | ---: |
+| Always predict the training-majority label | 457/512 | 89.26% | 0.472 |
+| 135M before adaptation | 442/512 | 86.33% | 0.556 |
+| 135M after adaptation | 503/512 | 98.24% | 0.954 |
+| 360M before adaptation | 215/512 | 41.99% | 0.341 |
+| 360M after adaptation | 502/512 | 98.05% | 0.951 |
+| Naive Bayes, same 389 unique rows seen by selected 135M checkpoint | 496/512 | 96.88% | 0.927 |
+| Naive Bayes, same 329 unique rows seen by selected 360M checkpoint | 488/512 | 95.31% | 0.896 |
+| Naive Bayes, all 1,400 available training rows | 507/512 | 99.02% | 0.974 |
+
+The 135M run used 120 updates with balanced four-example batches: 480 presentations of 389 unique records. The training loop, including validation, took **349.10 seconds**; the entire load/train/before-and-after evaluation run took **610.50 seconds**. Sampled peak process RSS was **1.88 GiB**. Naive Bayes fitting and validation selection on all available training data took **0.057 seconds**, excluding Python startup. The inexpensive classifier was the best measured choice on the full available training set; the LoRA model outperformed the baseline given only its 389 seen records. This does not establish a general algorithm ranking. [135M metrics and predictions by record hash](results/real-task-135m.json).
+
+The 360M model trained 819,200 adapter parameters on a 361,821,120-parameter base. It selected step **90** using validation results; the final 30 steps reduced validation macro F1. Training and validation took **886.67 seconds** (14 min 47 sec), **2.54x** the 135M loop time. The entire run took **1,576.45 seconds** (26 min 16 sec), with **3.41 GiB** sampled peak RSS. Its selected checkpoint had seen 329 unique messages. It produced one fewer correct test answer than the smaller model, so this run provides no accuracy reason to pay the extra CPU/RAM cost. This small difference is descriptive, not a statistical model ranking. [360M metrics](results/real-task-360m.json), [shared split manifest](results/real-task-splits.json).
+
+A follow-up selected decision thresholds on validation data only. It retained **0.5** for both trained models, so there was **no additional trained-model test improvement**. Original fixed-threshold metrics remain primary. [135M threshold analysis](results/real-task-135m-calibration.json), [360M threshold analysis](results/real-task-360m-calibration.json).
+
+These are historical public messages, not current production traffic. Pretraining contamination cannot be ruled out, near-duplicate grouping is heuristic, and one long test message was truncated to fit the input budget. Scores are conditional on two labels and are not calibrated production probabilities. Dataset attribution, split methodology, inference commands, and limitations are in [EXPERIMENTS.md](EXPERIMENTS.md).
+
+### Follow-up: training entirely from random weights
+
+A new **1,902,720-parameter byte-level transformer** was trained on CPU without loading pretrained weights or a learned tokenizer. It used 1,200 updates on the training portion of the tiny Shakespeare corpus, with contiguous 90%/5%/5% source splits. Every held-out next-byte target was scored once, and only validation loss selected the checkpoint.
+
+| Held-out measure | Random initialization | Train-only unigram baseline | Trained transformer |
+| --- | ---: | ---: | ---: |
+| Next-byte loss, nats | 5.5265 | 3.3622 | **1.9512** |
+| Byte perplexity | 251.25 | 28.85 | **7.04** |
+
+The training loop took **209.96 seconds** (3 min 30 sec), including validation; the entire run took **220.33 seconds**. It processed 1,228,800 training target bytes and used **415 MiB** sampled peak process RSS. All parameters and optimizer tensors were on CPU. Initial and trained state checksums differ, and reloading the saved safetensors checkpoint reproduced the selected state exactly. [Metrics and generated samples](results/scratch.json), [learning curve](results/scratch-learning-curve.json), [corpus provenance](results/scratch-data-provenance.json), [20-step runtime calibration](results/scratch-calibration.json).
+
+This demonstrates full CPU training and learned text patterns. Generated samples remain word-like but ungrammatical and unreliable; this is not a useful general assistant. Byte perplexity is not comparable to the subword-token losses of the other models. Natural repeated phrases can occur across the contiguous source splits.
+
+The expanded suite has **81 passing tests**. Saved classifiers and the scratch model also passed artifact-loading/CLI execution checks. Those checks are not an accuracy benchmark: the 360M classifier labeled an illustrative prize message as legitimate while Naive Bayes labeled it as spam, showing that the held-out score does not guarantee every new answer. [Recorded functional checks](results/reload-smoke.json).
+
+### Initial extraction proof and deployment experiments
 
 | CPU training measurement | Before | After |
 | --- | ---: | ---: |
@@ -240,6 +295,8 @@ Sampled process RSS is not an exact memory peak or whole-machine memory usage. N
 - [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)
 - [Hugging Face CPU training documentation](https://huggingface.co/docs/transformers/v5.20.2/cpu)
 - [SmolLM2-135M-Instruct model and license](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct)
+- [SmolLM2-360M-Instruct model and license](https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct)
+- [UCI SMS Spam Collection and CC BY 4.0 attribution](https://archive.ics.uci.edu/dataset/228/sms+spam+collection)
 - [PyTorch dynamic quantization](https://docs.pytorch.org/docs/stable/generated/torch.ao.quantization.quantize_dynamic.html)
 - [Ollama generate API and timing fields](https://docs.ollama.com/api/generate)
 - [Ollama running-model placement information](https://docs.ollama.com/api/ps)
