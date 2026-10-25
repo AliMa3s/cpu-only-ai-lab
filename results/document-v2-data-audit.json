@@ -1,0 +1,195 @@
+{
+  "format": "cpu-ai-lab-document-v2-data-audit-v1",
+  "source_sha256": {
+    "current_manifest": "d59241f1aeeaf6f98821725cbcfe478fb5b0637089f2fff2b9416d3fe0bde2f7",
+    "current_provenance": "5f3e13871f28e9dd603c75efcff4f496278707632a84ca193aa01d4be605a091",
+    "prior_manifest": "3d28a88ab92f99542dec9f7de9f1506d43321a2e804cfa48f09d4ef7a38bb280",
+    "prior_config": "3c55554a03bc77c63eff4b705b8b6d74a2896e0e7ac2930c5b5007e0f89c57c2",
+    "prior_metrics": "785d15b82f7f35c40baf54d7eef70e3f2b12a3c35da8210f2d5b3a633eb5a322",
+    "prior_training_source": "e664623e6ed80ec0448020a12786385c5a0d892870e41c64755601b8c5815d08"
+  },
+  "method": "Read-only analysis of public-schema manifests, provenance and prior run metadata; no raw text, tokenizer, model or training execution.",
+  "counts": {
+    "train": {
+      "examples": 640,
+      "articles": 350,
+      "strata": {
+        "answerable_long": 160,
+        "missing_long": 160,
+        "answerable_short": 160,
+        "missing_short": 160
+      }
+    },
+    "validation": {
+      "examples": 128,
+      "articles": 18,
+      "strata": {
+        "answerable_short": 32,
+        "answerable_long": 32,
+        "missing_long": 32,
+        "missing_short": 32
+      }
+    },
+    "test": {
+      "examples": 256,
+      "articles": 35,
+      "strata": {
+        "missing_short": 64,
+        "answerable_long": 64,
+        "missing_long": 64,
+        "answerable_short": 64
+      }
+    }
+  },
+  "context_token_lengths": {
+    "train": {
+      "short": {
+        "examples": 320,
+        "minimum": 33,
+        "median": 136.0,
+        "maximum": 192,
+        "total_context_tokens": 43137
+      },
+      "long": {
+        "examples": 320,
+        "minimum": 193,
+        "median": 236.5,
+        "maximum": 500,
+        "total_context_tokens": 80401
+      }
+    },
+    "validation": {
+      "short": {
+        "examples": 64,
+        "minimum": 92,
+        "median": 141.5,
+        "maximum": 189,
+        "total_context_tokens": 8954
+      },
+      "long": {
+        "examples": 64,
+        "minimum": 194,
+        "median": 227.5,
+        "maximum": 461,
+        "total_context_tokens": 15491
+      }
+    },
+    "test": {
+      "short": {
+        "examples": 128,
+        "minimum": 62,
+        "median": 138.0,
+        "maximum": 191,
+        "total_context_tokens": 17713
+      },
+      "long": {
+        "examples": 128,
+        "minimum": 193,
+        "median": 231.5,
+        "maximum": 492,
+        "total_context_tokens": 31758
+      }
+    }
+  },
+  "prior_selected_training_reconstruction": {
+    "selected_step": 75,
+    "batch_size": 4,
+    "seed": 20261027,
+    "presentations_before_selected_checkpoint": 300,
+    "unique_examples_before_selected_checkpoint": 300,
+    "ordered_selected_ids_sha256": "78aebe24b7896a195e0fcc217c4f420daf13b2506eedb9330e5590970040dec1",
+    "method": "Reconstruct document_task.py sampling: shuffle indices with random.Random(seed), consume sequentially, reshuffle the same index list when exhausted; stop after selected_step * batch_size presentations.",
+    "reshuffles_after_initial_order": 0,
+    "evidence_limit": "Reconstructed from saved configuration, selected step and original manifest order; the prior run did not save an observed per-update sample-ID trace. For this run, step 75 * batch 4 = 300 presentations from 400 prior training rows, with 0 reshuffles after the initial order."
+  },
+  "current_training_overlap": {
+    "all_prior_available_training_rows": {
+      "id": {
+        "current_rows_matching": 3,
+        "unique_shared": 3
+      },
+      "context_sha256": {
+        "current_rows_matching": 17,
+        "unique_shared": 17
+      },
+      "article_sha256": {
+        "current_rows_matching": 611,
+        "unique_shared": 334
+      }
+    },
+    "prior_selected_checkpoint_training_rows_reconstructed": {
+      "id": {
+        "current_rows_matching": 2,
+        "unique_shared": 2
+      },
+      "context_sha256": {
+        "current_rows_matching": 12,
+        "unique_shared": 12
+      },
+      "article_sha256": {
+        "current_rows_matching": 453,
+        "unique_shared": 252
+      }
+    },
+    "prior_validation": {
+      "id": {
+        "current_rows_matching": 0,
+        "unique_shared": 0
+      },
+      "context_sha256": {
+        "current_rows_matching": 2,
+        "unique_shared": 2
+      },
+      "article_sha256": {
+        "current_rows_matching": 29,
+        "unique_shared": 16
+      }
+    },
+    "prior_test": {
+      "id": {
+        "current_rows_matching": 0,
+        "unique_shared": 0
+      },
+      "context_sha256": {
+        "current_rows_matching": 0,
+        "unique_shared": 0
+      },
+      "article_sha256": {
+        "current_rows_matching": 0,
+        "unique_shared": 0
+      }
+    }
+  },
+  "checks": {
+    "current_validation_excludes_all_prior_training_and_validation_articles": true,
+    "current_test_excludes_all_prior_training_and_validation_articles": true,
+    "current_test_excludes_prior_test_ids": true,
+    "current_test_excludes_prior_test_contexts": true,
+    "train_four_equal_strata": true,
+    "train_unique_ids_and_contexts": true,
+    "train_disjoint_article_sha256": true,
+    "train_disjoint_context_sha256": true,
+    "train_disjoint_id": true,
+    "validation_four_equal_strata": true,
+    "validation_unique_ids_and_contexts": true,
+    "validation_disjoint_article_sha256": true,
+    "validation_disjoint_context_sha256": true,
+    "validation_disjoint_id": true,
+    "test_four_equal_strata": true,
+    "test_unique_ids_and_contexts": true,
+    "test_disjoint_article_sha256": true,
+    "test_disjoint_context_sha256": true,
+    "test_disjoint_id": true
+  },
+  "all_checks_passed": true,
+  "new_test_previous_article_overlap": {
+    "current_rows_matching": 256,
+    "unique_shared": 35
+  },
+  "limitations": [
+    "Continued adaptation intentionally reuses training topics and some prior examples; the current row count does not imply entirely new contexts.",
+    "New test questions and contexts differ from the previous test, but source articles were evaluated previously; the overlap count is recorded above.",
+    "Exact hash/ID separation does not establish factual independence or rule out semantic near duplicates and base-model pretraining exposure.",
+    "Longer passages here remain at most 512 model tokens under the recorded configuration, not multi-page documents."
+  ]
+}

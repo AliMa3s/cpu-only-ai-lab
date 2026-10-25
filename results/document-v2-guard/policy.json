@@ -1,0 +1,74 @@
+{
+  "format": "cpu-ai-lab-document-span-policy-v1",
+  "rule": {
+    "version": 1,
+    "name": "normalized_complete_context_substring",
+    "marker": "NOT_FOUND",
+    "normalization": "lowercase; remove ASCII punctuation; remove English articles a/an/the; collapse whitespace",
+    "matching": "nonempty normalized answer is a literal substring of normalized complete context",
+    "existing_exact_marker": "preserve as model abstention after stripping surrounding whitespace",
+    "otherwise": "return NOT_FOUND with origin guard; no gold answers or labels are inputs"
+  },
+  "rule_sha256": "a4e58ccf0497e51fbbb0a2871fec7c55288b04cae3ea19a512f50d3cfbe0d10b",
+  "prompt_sha256": "2afbe1fe440e41a0bd4d3660d75861e814670547f9040cdca7a4c479ad065cff",
+  "generation_config": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "seed": 20261028,
+    "train_size": 640,
+    "validation_size": 128,
+    "test_size": 256,
+    "short_context_tokens": 192,
+    "max_context_tokens": 512,
+    "max_prompt_tokens": 608,
+    "max_answer_tokens": 8,
+    "max_sequence_length": 624,
+    "batch_size": 4,
+    "loss_batch_size": 8,
+    "generation_batch_size": 8,
+    "generation_tokens": 16,
+    "training_threads": 12,
+    "evaluation_threads": 12,
+    "optimizer_steps": 160,
+    "validation_every": 40,
+    "learning_rate": 0.0002
+  },
+  "config_fingerprint_sha256": "0466dec325fc7d02ead96583a5e3644136815c0f589357dfdb83b5fdd1b97324",
+  "source": {
+    "document_v2_metrics_sha256": "01e19760f999429827646f0e988a31e14b480f175e315b8d52faa38c867a0916",
+    "document_v2_config_sha256": "df6484af65e9c03af9452348737c87de4bd994c9017fb91b75a98e78f0940c94",
+    "data_provenance_sha256": "5f3e13871f28e9dd603c75efcff4f496278707632a84ca193aa01d4be605a091",
+    "split_manifest_sha256": "d59241f1aeeaf6f98821725cbcfe478fb5b0637089f2fff2b9416d3fe0bde2f7",
+    "warmstart": {
+      "metrics_sha256": "785d15b82f7f35c40baf54d7eef70e3f2b12a3c35da8210f2d5b3a633eb5a322",
+      "split_manifest_sha256": "3d28a88ab92f99542dec9f7de9f1506d43321a2e804cfa48f09d4ef7a38bb280",
+      "adapter_sha256": {
+        "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+        "adapter_model.safetensors": "5338f3c9a41d3431c1cad58ec3b314a2bc0ff5643b842e582546b4ac6b35d1ec",
+        "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+      },
+      "selected_step": 75,
+      "all_saved_artifact_checksums_verified": true
+    },
+    "initial_prediction_sha256": {
+      "validation-initial-local.json": "e93b2c365d5257759d1a6422f53bd884cb95cc7189b5e0a19b99b69ff109992f",
+      "test-before-local.json": "8d296482bc1cb448193b512a9e567f54087cface2ff0b2e020013ab233bee252"
+    }
+  },
+  "guard_enabled": true,
+  "selected_policy": "warmstart_plus_span_guard",
+  "validation_gate": {
+    "accepted": true,
+    "checks": {
+      "strict_exact_match_improves": true,
+      "strict_token_f1_improves": true,
+      "answerable_exact_match_within_absolute_0_05": true,
+      "answerable_token_f1_within_absolute_0_05": true,
+      "explicit_abstention_recall_improves": true,
+      "nonzero_answer_coverage": true
+    },
+    "policy": "Strict validation EM, F1 and explicit missing-answer recall must improve; answerable EM and F1 may fall by at most 0.05 absolute; valid-answer coverage must remain positive. Initial adapter is fallback. Test data and standard-normalized scores do not select a checkpoint."
+  },
+  "selection_uses_test": false,
+  "development": "Post-hoc fixed-rule follow-up proposed after the primary LoRA validation failures; no rule/threshold search or test selection."
+}

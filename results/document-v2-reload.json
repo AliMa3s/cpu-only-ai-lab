@@ -1,0 +1,36 @@
+{
+  "selection": "First test record in each of four strata, fixed source order, no selection by output quality",
+  "examples": 4,
+  "matched": 4,
+  "all_artifact_checksums_verified": true,
+  "records": [
+    {
+      "id": "5ad3b147604f3c001a3fecd9",
+      "stratum": "missing_short",
+      "prediction_sha256": "76ab461a5c1563ce248b74bef436e99b9aac17714314fcba340751f6985cd6a8",
+      "expected_prediction_sha256": "76ab461a5c1563ce248b74bef436e99b9aac17714314fcba340751f6985cd6a8",
+      "matches_saved_batched_output": true
+    },
+    {
+      "id": "5727cb4b2ca10214002d9678",
+      "stratum": "answerable_long",
+      "prediction_sha256": "7990656496dbd8fb7601edacc231922b15eaab6121214cf0c29be5b49dc3ec9a",
+      "expected_prediction_sha256": "7990656496dbd8fb7601edacc231922b15eaab6121214cf0c29be5b49dc3ec9a",
+      "matches_saved_batched_output": true
+    },
+    {
+      "id": "5ad0220a77cf76001a686b2b",
+      "stratum": "missing_long",
+      "prediction_sha256": "8cde56de8fbddb5e6cd67062401f33868398f40a22c0e656c6de7335540dbac3",
+      "expected_prediction_sha256": "8cde56de8fbddb5e6cd67062401f33868398f40a22c0e656c6de7335540dbac3",
+      "matches_saved_batched_output": true
+    },
+    {
+      "id": "572a0b101d046914007796ec",
+      "stratum": "answerable_short",
+      "prediction_sha256": "722e46d79b514640fe1658b2efd83897125fb39198019b1020999ca740d9e664",
+      "expected_prediction_sha256": "722e46d79b514640fe1658b2efd83897125fb39198019b1020999ca740d9e664",
+      "matches_saved_batched_output": true
+    }
+  ]
+}

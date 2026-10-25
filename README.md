@@ -2,7 +2,7 @@
 
 Reproducible language-model training, adaptation, and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
 
-Read the [project goal and acceptance criteria](GOAL.md). The latest complete CPU pipeline is **2.38x faster with unchanged test predictions**; details and limits are below.
+Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipeline comparison achieved **2.38x faster execution with unchanged test predictions**. The latest document experiment tests longer passages and missing answers, with mixed results described below.
 
 ## What the experiments do
 
@@ -13,6 +13,7 @@ Read the [project goal and acceptance criteria](GOAL.md). The latest complete CP
 | Existing-model inference | Ollama `qwen2.5-coder:7b` | Tune CPU thread count while keeping model digest, quantization, context, and generation budget fixed; confirm the selected setting on separate prompts. |
 | Complete training pipeline | 135M SMS classifier | Tune threads and batching, then repeat the same 120 updates and all evaluation passes in fresh processes. |
 | Real document extraction | A new 135M LoRA adapter | Generate short answers from complete SQuAD passages; evaluate separate articles with exact match and token F1. |
+| Longer passages and missing answers | Existing document adapter, continued training, and a separate output guard | Test native unanswerable questions and passages up to 512 tokens; retain answer accuracy when learning or adding abstention. |
 | Training from random weights | 1.90M byte transformer | Learn text patterns on CPU without a pretrained checkpoint or learned tokenizer. |
 
 The training experiment does **not** train the 7B model. The pretrained 135M base was trained elsewhere; this project makes its local adaptation and inference CPU-only. The synthetic task measures copying fields into a specified format, not general reasoning, coding ability, or overall language-model quality.
@@ -21,7 +22,36 @@ The training experiment does **not** train the 7B model. The pretrained 135M bas
 
 Measured on an AMD Ryzen 9 3900X (12 physical cores), approximately 32 GiB RAM, Windows 11. Model workloads ran sequentially. Numerical reports are in [`results/`](results/); downloaded weights, local adapters, and environments remain outside Git.
 
-### Latest: 2.38x faster complete CPU training pipeline
+### Latest: longer passages and a limited missing-answer safeguard
+
+![Rejected training checkpoints and the limited effect of the span guard](results/figures/document-v2.png)
+
+The CPU pipeline now handles complete passages up to **512 context tokens** and an explicit `NOT_FOUND` response. The new SQuAD 2.0 experiment uses 640 training examples, 128 validation examples, and 256 test questions, equally divided between answerable/missing-answer and short/longer passages. Test passages in the longer group range from **193 to 492 tokens**. New validation articles were excluded from the previous adapter's training and validation; earlier test question IDs and passages were excluded from this test. Article topics still overlap historical evaluations. [Data audit](results/document-v2-data-audit.json), [provenance](results/document-v2-data-provenance.json).
+
+**Continued training did not meet the accuracy target.** The model completed 160 CPU updates and its validation response loss fell from 1.6016 to 0.5551. It learned to output the missing-answer marker, but also refused too many answerable questions. The last checkpoint's validation answerable exact match fell from **54.69% to 28.13%**. All four checkpoints failed the predeclared retention gate, so the original adapter was retained. The final trained adapter is saved locally for inspection; it was not selected. [All selection trials](results/document-v2-selection-trials.json), [training metrics](results/document-v2-metrics.json).
+
+Training and generated validation took **662.67 seconds** (11 min 3 sec); the full measured run took **993.50 seconds** (16 min 34 sec), excluding dataset preparation and Python startup. It processed 181,482 input tokens and used **3.68 GiB** sampled peak process RSS. Parameter and optimizer tensors stayed on CPU. The final trained state checksum differs from the initial state; the selected fallback's checksum matches the initial state.
+
+A separate fixed safeguard passed the same validation gate: keep the original adapter's answer only when its nonempty normalized text occurs within the complete passage; otherwise return `NOT_FOUND`. This rule was proposed after the training validation failures, fixed before its validation evaluation, and applied to the test only after selection. It changes output handling, not model weights or learned answerability.
+
+| Held-out measure | Original adapter | Same adapter + span guard |
+| --- | ---: | ---: |
+| Answerable exact answers | 66/128 (51.56%) | **66/128 (51.56%)** |
+| Answerable token F1 | 58.63% | **56.35%** |
+| Correct abstentions on missing answers | 0/128 | **15/128 (11.72%)** |
+| Incorrect answers on missing questions | 128/128 | **113/128 (88.28%)** |
+| Overall strict correct answers/abstentions | 66/256 (25.78%) | **81/256 (31.64%)** |
+| Answer coverage | 100% | **88.67%** |
+
+The guard also withheld 14 answers on answerable questions; those were already incorrect under exact match, although some received partial F1 credit. It preserved every previously exact-correct answer, added 15 correct abstentions, and reduced answerable token F1 by 2.28 percentage points. An article-cluster resampling analysis estimates the overall exact-score gain at **5.86 points**, with a 95% percentile interval of **2.73 to 9.47 points** on this filtered test. This describes one post-hoc policy comparison, not universal improvement. [Guard report](results/document-v2-guard/report.json), [paired analysis](results/document-v2-guard-analysis.json).
+
+**Reliable missing-answer recognition remains unsolved here.** Most missing questions still receive a wrong answer, often a plausible span that occurs in the passage. A guard abstention means no supported span was extracted; it does not prove the document lacks an answer. Normalized substring checks can also accept word fragments. Always abstaining would score 50% overall on this balanced sample while answering nothing correctly, which is why answer accuracy, abstention, and coverage are reported separately. These short paragraphs do not evaluate multi-page documents, retrieval, OCR, production prevalence, or general factual reliability.
+
+The selected model and the guard each reproduced all four fixed replay cases. The guard CLI distinguishes model-generated from guard-induced abstention. Its [saved policy](results/document-v2-guard/policy.json) must remain beside its hash-bound `report.json`; the original model weights remain local. See [reproduction and inference commands](EXPERIMENTS.md#longer-passages-and-questions-with-no-supported-answer) and [guard replay evidence](results/document-v2-guard/reload_verification.json).
+
+**195 tests passed**, including data exclusion, training-objective parity, checkpoint retention, strict abstention scoring, policy integrity, and paired analysis checks.
+
+### 2.38x faster complete CPU training pipeline
 
 ![Measured complete pipeline time and real document-answer quality](results/figures/pipeline-document.png)
 
@@ -54,8 +84,6 @@ The run trained 460,800 LoRA parameters for 100 updates, seeing all 400 training
 The implementation uses 12 threads, length-grouped batches of eight, and computes the vocabulary projection only at supervised answer positions. The latter preserves the response-only training objective; a test checks both loss and LoRA gradients against the ordinary full projection. These are transferred execution choices, with **no separate document-task speedup claim**. After adaptation, answers also became shorter (2,984 -> 815 generated tokens across the test), so before/after generation time is not a fixed-work speed comparison.
 
 The 52% exact score demonstrates learning but remains inadequate for unattended extraction. Even a copied passage span can answer the wrong question. This subset includes only answerable questions, complete passages of at most 192 tokens, and reference answers of at most five tokens. It does not test long documents, OCR, missing answers, or the full SQuAD benchmark; base-model pretraining contamination is possible. Raw source text stays local, while IDs, hashes, scores, and attribution are published. The saved adapter reproduced all three predetermined serial replay answers from the original batched evaluation. [Data provenance](results/document-data-provenance.json), [split manifest](results/document-split-manifest.json), [reload checks](results/document-reload.json), [training and inference commands](EXPERIMENTS.md#generative-extraction-from-real-wikipedia-passages).
-
-The complete suite has **123 passing tests**, including data separation, loss/gradient parity, workload comparisons, artifact integrity, and generated-answer scoring.
 
 ### Follow-up: longer generation and real data
 
@@ -108,7 +136,7 @@ The training loop took **209.96 seconds** (3 min 30 sec), including validation; 
 
 This demonstrates full CPU training and learned text patterns. Generated samples remain word-like but ungrammatical and unreliable; this is not a useful general assistant. Byte perplexity is not comparable to the subword-token losses of the other models. Natural repeated phrases can occur across the contiguous source splits.
 
-The expanded suite has **123 passing tests**. Saved classifiers and the scratch model also passed artifact-loading/CLI execution checks. Those checks are not an accuracy benchmark: the 360M classifier labeled an illustrative prize message as legitimate while Naive Bayes labeled it as spam, showing that the held-out score does not guarantee every new answer. [Recorded functional checks](results/reload-smoke.json).
+Saved classifiers and the scratch model also passed artifact-loading/CLI execution checks. Those checks are not an accuracy benchmark: the 360M classifier labeled an illustrative prize message as legitimate while Naive Bayes labeled it as spam, showing that the held-out score does not guarantee every new answer. [Recorded functional checks](results/reload-smoke.json).
 
 ### Initial extraction proof and deployment experiments
 

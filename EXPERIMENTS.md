@@ -223,3 +223,103 @@ After exporting the recorded reports, render the combined pipeline/document figu
 ```
 
 This reads `results/pipeline-comparison.json` and `results/document-metrics.json`, and writes PNG/SVG outputs in `results/figures/`.
+
+## Longer passages and questions with no supported answer
+
+The next document experiment continues the previously selected 135M document adapter on [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/), attributed to [Rajpurkar, Jia, and Liang (2018)](https://aclanthology.org/P18-2124/) and released under CC BY-SA 4.0. Its unanswerable questions were written by people to remain relevant to the paragraph while including plausible distractor answers. This experiment uses those native labels; it does not manufacture missing answers by deleting answer spans or cropping the source. Source revision and downloaded-file hashes are recorded and checked.
+
+The fixed subset contains 640 training examples, 128 validation examples, and 256 test examples. Every split is equally divided among four groups: answerable short passages, answerable longer passages, missing-answer short passages, and missing-answer longer passages. Short means at most 192 context tokens; longer means 193 through 512. The complete rendered prompt must fit 608 tokens, every answerable reference at most eight tokens, and the training sequence at most 624. Passages remain complete. These are longer paragraphs than in the first experiment, not long PDFs, complete books, multi-document retrieval, or OCR.
+
+The 400 training articles and 24 validation articles used in the previous document experiment are excluded from the new validation pool. This leaves 18 of the official training source's 442 articles, all reserved for new validation; 12 contain native unanswerable questions. New training uses the remaining article pool. The official development source supplies the local test. All previous 200 test IDs and context hashes are excluded from new test selection, as are cross-split overlaps. The official development articles were nevertheless used in the earlier evaluation, so fresh selected passages do not mean entirely new topics or a previously untouched benchmark. The public provenance and manifest record these exclusions, selected identities, article/context hashes, token lengths, and answerability labels.
+
+Balanced sampling deliberately imposes a 50/50 answerable/missing-answer ratio and equal short/long groups. This is an experimental control, not an estimate of production prevalence or a full SQuAD 2.0 score. Reference-length and context filters also change the source distribution. The warmstart is evaluated again on the same new prompt and subset as the trained candidate; the earlier 52% exact-match result cannot be compared directly with a mixed answerability score here.
+
+Training retains the existing rank-eight q/v adapter and uses a new AdamW optimizer with learning rate `0.0002`. The budget is fixed at 160 optimizer updates, global batch four, with one example from each group per update. This presents all 640 selected training records once. Targets are the first official answer for answerable examples and the exact text `NOT_FOUND` for native missing-answer examples, followed by EOS. Prompt and padding positions remain excluded from response-token loss. The same CPU-only FP32 path and response-position vocabulary projection are used. Training and evaluation run sequentially; the saved configuration records thread and batch settings.
+
+At baseline and every 40 updates, validation computes both response-token loss and generated-answer metrics. A candidate can replace the warmstart only when all predeclared validation checks pass: strict overall exact match and F1 must each improve, answerable exact match and F1 may each decrease by at most 0.05 absolute, explicit correct abstention on missing-answer questions must improve, and answer coverage must remain above zero. Among passing checkpoints, selection maximizes the harmonic mean of answerable exact match and explicit correct-abstention recall, then overall F1, overall exact match, and lower response-token loss. The original adapter remains the fallback if no trained checkpoint qualifies. Test results do not choose a checkpoint or relax these rules.
+
+Strict task scoring recognizes `NOT_FOUND` only after trimming surrounding whitespace, before normalizing ordinary answer text. A blank or malformed answer is tracked separately and does not count as deliberate abstention. For answerable questions, normalized exact match and token F1 use the best official reference. Standard SQuAD-style scores are additionally reported with the marker mapped to an empty answer; the [official scorer](https://github.com/rajpurkar/SQuAD-explorer/blob/master/evaluate-v2.0.py) also normalizes empty, punctuation-only, and article-only outputs to an empty answer, so those scores can differ from the stricter task contract.
+
+Reports separate answerable accuracy, explicit missing-answer recall, false answers on missing-answer questions, false abstentions on answerable questions, malformed outputs, coverage, and answer precision, with short/long breakdowns. An always-abstain policy reaches 50% overall EM/F1 on this balanced sample while answering no answerable question correctly; the harmonic selection metric and retention gates prevent treating that as success. The metrics describe this controlled subset, not calibrated confidence or a guarantee that the model can reliably recognize every unsupported question.
+
+Use the completed first document run as the warmstart. Data preparation checks the previous public split manifest, and training checks that its exclusions correspond to the supplied source adapter's experiment:
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_v2_data `
+  --config configs/document-v2.json --download-data `
+  --prior-manifest results/document-split-manifest.json `
+  --output artifacts/my-document-v2-data
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_v2 `
+  --config configs/document-v2.json --source-run artifacts/document-task-v1 `
+  --prepared-data artifacts/my-document-v2-data --output artifacts/my-document-v2-run
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_v2 `
+  --load artifacts/my-document-v2-run --threads 12 `
+  --context 'The meeting takes place in Paris on Tuesday.' `
+  --question 'What time does the meeting start?'
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_v2 `
+  --verify-reload artifacts/my-document-v2-run `
+  --prepared-data artifacts/my-document-v2-data --threads 12
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_v2 `
+  --export-run artifacts/my-document-v2-run --results-directory results `
+  --export-prefix my-document-v2
+```
+
+The example question intentionally asks for information absent from its passage; it is a functional usage example, not a promised model answer. Use new output directories. If the previous experiment was reproduced under another path, substitute that completed run and its matching split manifest together. Replay checks the first test example in each of the four groups in fixed source order, comparing reloaded serial generation with saved batched output. It does not select examples by correctness or change the chosen checkpoint.
+
+The run preserves both the selected adapter and the final trained adapter locally. Public exports contain configuration, dataset provenance, split manifest, sample schedule, all validation selection trials, training curve, aggregate/per-record metrics, and optional replay evidence. Raw passages, questions, answers, and model weights remain excluded. CPU process RSS is sampled, not an exact peak. Elapsed time includes loading the warmstart, baseline evaluation, training, generated validation, saving, and selected test evaluation; dataset preparation, Python startup/imports, and final report serialization are excluded. Differences in prompt/output lengths prevent interpreting before/after runtime as a matched-work speedup.
+
+### Bounded follow-up: a span-validity guard on the unchanged warmstart
+
+After early LoRA validation checkpoints lost substantial answerable accuracy, a separate deterministic policy was proposed. This is a post-hoc follow-up, not part of the original training protocol and not evidence that the model learned semantic abstention. The primary run, checkpoint rules, and reports remain unchanged. The follow-up reuses only the original warmstart's saved generations, and waits for the primary run to finish before scoring the policy.
+
+The fixed rule strips surrounding whitespace and preserves an exact model-generated `NOT_FOUND`. Otherwise it applies the same lowercase, punctuation/article-removal, and whitespace normalization used for answer scoring. A nonempty normalized output is retained only if it is a literal substring of the normalized complete context; every other output becomes `NOT_FOUND`, explicitly attributed to the guard. The rule accepts only context and model output: gold answers and answerability labels never enter the decision. It has no trained parameters, confidence threshold, or search over alternative rules.
+
+The 128 saved validation generations are checked first. The candidate must pass the identical predeclared validation gate used for LoRA checkpoints, including answerable EM/F1 retention. That decision and a fingerprinted policy recipe are saved before loading the 256 local test generations. Reports then show both the fixed candidate and the selected policy; if validation rejects the candidate, the selected policy remains the unguarded warmstart even if test scores would favor the guard. There is no additional model inference during offline scoring and no inference-speed claim.
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_guard `
+  --run artifacts/my-document-v2-run --prepared-data artifacts/my-document-v2-data `
+  --output artifacts/my-document-v2-guard
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_guard `
+  --load-policy artifacts/my-document-v2-guard/policy.json `
+  --source-run artifacts/document-task-v1 --threads 12 `
+  --context 'The meeting takes place in Paris on Tuesday.' `
+  --question 'What time does the meeting start?'
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_guard `
+  --verify-reload artifacts/my-document-v2-guard/policy.json `
+  --source-run artifacts/document-task-v1 --prepared-data artifacts/my-document-v2-data `
+  --threads 12
+```
+
+The offline command checks the completed primary report, generation configuration, dataset provenance, split manifest, saved local prediction hashes, identities, and recomputed warmstart scores. `report.json` binds `policy.json` by SHA256. The policy records its source adapter checksums, warmstart report hash, prompt fingerprint, rule definition, and generation configuration. Live loading verifies that source again, runs it on CPU, and distinguishes model-generated abstention from guard-induced abstention. Fixed replay uses the first test record from each of the four groups and separately checks the original model generation and the policy output against saved hashes. Public publication is limited to the policy, report, and optional replay evidence; these contain hashes and scores rather than source passages or generated answer strings.
+
+A guard-induced abstention means **no supported span was extracted**, not that the document necessarily lacks an answer. Wrong distractor spans and word fragments can pass a substring check. Partially correct non-span answers may be rejected. Report guard triggers separately by answerability and passage length, together with answer retention and remaining false answers. Any improvement is attributable to this limited output-validity policy over the existing model, not to improved underlying reading comprehension.
+
+### Audit, paired analysis, and figures for this milestone
+
+`scripts/profile_document_v2_data.py` uses only JSON manifests and saved settings to check the current split, length ranges, and previous training overlap. It reconstructs the earlier selected checkpoint's first 300 examples from its saved shuffle seed; this is explicitly reconstructed exposure rather than a sampler trace. The current training set shares two question IDs and 12 passages with that selected prior exposure. Continued adaptation intentionally reuses training material. New validation and test exclusions are checked independently.
+
+`scripts/analyze_document_v2.py` accepts either the primary metrics or the guard report. It aligns IDs, article/context/question hashes, lengths, and answerability before counting exact-score transitions. It resamples entire test articles jointly for baseline and selected policy, with replacement, using 10,000 seeded draws, then recomputes equal-weight means across the four strata. Draws lacking a stratum are skipped and counted, rather than silently replaced. Percentile 95% intervals describe variation under this article resampling scheme; they do not establish universal performance or select a checkpoint. The primary fallback comparison has identical predictions, so its paired-delta intervals are zero, which does not imply certainty about model accuracy. The separate guard analysis retains its own source-report checksum and comparison label.
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/profile_document_v2_data.py `
+  --current-manifest artifacts/my-document-v2-data/split_manifest.json `
+  --current-provenance artifacts/my-document-v2-data/data_provenance.json `
+  --output results/my-document-v2-data-audit.json
+
+& .\.venv\Scripts\python.exe scripts/analyze_document_v2.py `
+  --metrics results/document-v2-metrics.json --output results/my-document-v2-analysis.json
+
+& .\.venv\Scripts\python.exe scripts/analyze_document_v2.py `
+  --report results/document-v2-guard/report.json --output results/my-document-v2-guard-analysis.json
+
+& .\.venv\Scripts\python.exe scripts/plot_document_v2.py
+```
+
+The plotting command uses the published primary metrics, validation trials, and guard report to write `results/figures/document-v2.png` and `.svg`. It requires the existing optional plotting dependencies. Keep the guard's `policy.json` and hash-bound `report.json` together when publishing or moving them; the whitelist for publication is those two files plus `reload_verification.json`, without source passages, generated answer strings, or model weights.

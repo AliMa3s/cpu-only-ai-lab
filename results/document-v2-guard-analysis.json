@@ -1,0 +1,173 @@
+{
+  "format": "cpu-ai-lab-document-v2-paired-analysis-v1",
+  "status": "complete",
+  "source_metrics_sha256": "420067bde1230f08820434d717271783e66c6ee0841e2a3299c01e9d82f09784",
+  "source_report_sha256": "420067bde1230f08820434d717271783e66c6ee0841e2a3299c01e9d82f09784",
+  "comparison_kind": "warmstart_vs_validation_selected_span_policy",
+  "source_report_format": "cpu-ai-lab-document-span-guard-v1",
+  "selected_policy": "warmstart_plus_span_guard",
+  "policy_sha256": "35519ac74c099dda0f4cef8d7707ecf3d117a4deb596894ed22656563600bb56",
+  "paired_evidence": {
+    "examples": 256,
+    "article_clusters": 35,
+    "ordered_identity_sha256": "35be72cd23c1763da9d28514520dd43ff945db8970d7b060af6d78b192fe73e9",
+    "stratum_counts": {
+      "answerable_short": 64,
+      "answerable_long": 64,
+      "missing_short": 64,
+      "missing_long": 64
+    },
+    "same_ids_hashes_labels_lengths_and_order": true
+  },
+  "paired_correctness": {
+    "overall": {
+      "examples": 256,
+      "both_correct": 66,
+      "baseline_only_correct": 0,
+      "candidate_only_correct": 15,
+      "both_incorrect": 175,
+      "net_additional_correct": 15,
+      "candidate_minus_baseline_exact_match": 0.05859375
+    },
+    "by_stratum": {
+      "answerable_short": {
+        "examples": 64,
+        "both_correct": 36,
+        "baseline_only_correct": 0,
+        "candidate_only_correct": 0,
+        "both_incorrect": 28,
+        "net_additional_correct": 0,
+        "candidate_minus_baseline_exact_match": 0.0
+      },
+      "answerable_long": {
+        "examples": 64,
+        "both_correct": 30,
+        "baseline_only_correct": 0,
+        "candidate_only_correct": 0,
+        "both_incorrect": 34,
+        "net_additional_correct": 0,
+        "candidate_minus_baseline_exact_match": 0.0
+      },
+      "missing_short": {
+        "examples": 64,
+        "both_correct": 0,
+        "baseline_only_correct": 0,
+        "candidate_only_correct": 9,
+        "both_incorrect": 55,
+        "net_additional_correct": 9,
+        "candidate_minus_baseline_exact_match": 0.140625
+      },
+      "missing_long": {
+        "examples": 64,
+        "both_correct": 0,
+        "baseline_only_correct": 0,
+        "candidate_only_correct": 6,
+        "both_incorrect": 58,
+        "net_additional_correct": 6,
+        "candidate_minus_baseline_exact_match": 0.09375
+      }
+    }
+  },
+  "balanced_point_estimates": {
+    "baseline": {
+      "exact_match": 0.2578125,
+      "token_f1": 0.2931454613095238,
+      "answerable_exact_match": 0.515625,
+      "answerable_token_f1": 0.5862909226190476,
+      "missing_correct_abstention_recall": 0.0
+    },
+    "candidate": {
+      "exact_match": 0.31640625,
+      "token_f1": 0.34032738095238096,
+      "answerable_exact_match": 0.515625,
+      "answerable_token_f1": 0.5634672619047619,
+      "missing_correct_abstention_recall": 0.1171875
+    },
+    "candidate_minus_baseline": {
+      "exact_match": 0.05859375,
+      "token_f1": 0.04718191964285717,
+      "answerable_exact_match": 0.0,
+      "answerable_token_f1": -0.022823660714285654,
+      "missing_correct_abstention_recall": 0.1171875
+    }
+  },
+  "bootstrap": {
+    "seed": 20261029,
+    "attempted_replicates": 10000,
+    "retained_replicates": 10000,
+    "skipped_empty_stratum_replicates": 0,
+    "skipped_draw_indices_zero_based": [],
+    "clusters_per_draw": 35,
+    "stratum_order": [
+      "answerable_short",
+      "answerable_long",
+      "missing_short",
+      "missing_long"
+    ],
+    "confidence_level": 0.95,
+    "resampling": "Sample the observed number of article clusters with replacement; use the same cluster multiplicities for baseline and candidate. Retain all member records. Skip, retain indices for, and do not replace draws missing a stratum.",
+    "estimand": "Candidate minus baseline: equal weight 1/4 to each answerability/length stratum. Answerable subgroup scores weight its two length strata 1/2 each; missing recall weights its two length strata 1/2 each.",
+    "interval_method": "Percentile bounds at 0.025 and 0.975, with linear interpolation between sorted order statistics; rates and deltas are fractions, not percentage points.",
+    "delta_intervals": {
+      "exact_match": {
+        "point_estimate": 0.05859375,
+        "percentile_95_interval": [
+          0.027342538383995037,
+          0.09468284975213538
+        ],
+        "replicate_mean": 0.05904998117118666,
+        "replicate_min": 0.0078125,
+        "replicate_max": 0.13274400935125658
+      },
+      "token_f1": {
+        "point_estimate": 0.04718191964285717,
+        "percentile_95_interval": [
+          0.013596260892285066,
+          0.08573275814682725
+        ],
+        "replicate_mean": 0.047582069987610554,
+        "replicate_min": -0.012904522823931484,
+        "replicate_max": 0.12368705323547693
+      },
+      "answerable_exact_match": {
+        "point_estimate": 0.0,
+        "percentile_95_interval": [
+          0.0,
+          0.0
+        ],
+        "replicate_mean": 0.0,
+        "replicate_min": 0.0,
+        "replicate_max": 0.0
+      },
+      "answerable_token_f1": {
+        "point_estimate": -0.022823660714285654,
+        "percentile_95_interval": [
+          -0.04524866894759954,
+          -0.004682896426682797
+        ],
+        "replicate_mean": -0.022935822367152216,
+        "replicate_min": -0.07241758241758242,
+        "replicate_max": 0.0
+      },
+      "missing_correct_abstention_recall": {
+        "point_estimate": 0.1171875,
+        "percentile_95_interval": [
+          0.05468507676799007,
+          0.18936569950427076
+        ],
+        "replicate_mean": 0.11809996234237333,
+        "replicate_min": 0.015625,
+        "replicate_max": 0.26548801870251315
+      }
+    }
+  },
+  "limitations": [
+    "Descriptive resampling uncertainty for the fixed filtered historical test, not uncertainty over training seeds, production traffic, or unseen corpora.",
+    "Within-article examples remain together; independence between article clusters is still an assumption and related articles can share facts or templates.",
+    "Only observed article clusters are resampled. Filtering, balanced sampling, possible pretraining exposure and previous topic evaluation are not repaired by bootstrap intervals.",
+    "The equal-stratum estimand preserves the experiment's artificial 50/50 answerability mix; it does not estimate production prevalence.",
+    "Empty-stratum draws are skipped and reported, so any nonzero skip count conditions intervals on observing every stratum.",
+    "Intervals and paired counts are post-selection held-out descriptions. They never choose a checkpoint, alter a gate or trigger further tuning."
+  ],
+  "completed_utc": "2026-10-25T13:06:19.236610+00:00"
+}
