@@ -1,0 +1,500 @@
+{
+  "format": "cpu-reader-training-calibration-v1",
+  "created_utc": "2026-10-25T15:03:14.696578+00:00",
+  "config": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "reader_model_id": "deepset/minilm-uncased-squad2",
+    "reader_revision": "934656cdda79824eabf503ed56e15c01ddbdbe3f",
+    "reader_weights_sha256": "240478c7251d5e55be35feb47177054b960259b9328af662ea3cee87ce9755a6",
+    "reader_max_length": 512,
+    "reader_max_answer_tokens": 32,
+    "seed": 20261101,
+    "train_size": 2048,
+    "validation_size": 256,
+    "test_size": 512,
+    "short_context_tokens": 192,
+    "max_context_tokens": 512,
+    "max_prompt_tokens": 608,
+    "max_answer_tokens": 8,
+    "max_sequence_length": 624,
+    "max_questions_per_movie": 4,
+    "generation_batch_size": 8,
+    "generation_tokens": 16,
+    "reader_eval_batch_size": 16,
+    "training_batch_size": 8,
+    "training_threads": 4,
+    "evaluation_threads": 4,
+    "optimizer_steps": 256,
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "warmup_steps": 26,
+    "gradient_clip_norm": 1.0,
+    "training_seconds_limit": 900,
+    "peak_rss_limit_gib": 8,
+    "minimum_correct_answer_retention": 0.95,
+    "minimum_missing_answer_recall": 0.4,
+    "maximum_answerable_f1_loss": 0.02,
+    "benchmark_per_answerability": 6,
+    "benchmark_repetitions": 3
+  },
+  "threads": 4,
+  "microbatch_size": 2,
+  "declared_candidates": [
+    {
+      "threads": 4,
+      "microbatch_size": 4
+    },
+    {
+      "threads": 8,
+      "microbatch_size": 4
+    },
+    {
+      "threads": 12,
+      "microbatch_size": 4
+    },
+    {
+      "threads": 4,
+      "microbatch_size": 2
+    }
+  ],
+  "completed": true,
+  "eligible_for_selection": true,
+  "stop_reason": "eight_batches_complete",
+  "completed_updates": 8,
+  "planned_updates": 8,
+  "warmup_updates": 1,
+  "timed_updates": 7,
+  "median_timed_step_seconds": 8.937292599999637,
+  "full_calibration_seconds": 70.30172149999999,
+  "sampled_peak_process_rss_bytes": 2270371840,
+  "sampled_peak_process_rss_gib": 2.1144485473632812,
+  "rss_below_budget": true,
+  "global_batch_size": 8,
+  "input_tokens": 20468,
+  "padded_tokens": 28912,
+  "planned_global_batch_ids": [
+    [
+      "duorc:ParaphraseRC:cc68c8c2-a239-ece9-8c86-b8cb3bc145cd",
+      "duorc:ParaphraseRC:781cdee9-2da4-7976-762b-7404d6c5bd4b",
+      "duorc:ParaphraseRC:0a0cd6a1-6403-6e8a-0869-d4744786534d",
+      "duorc:ParaphraseRC:e6ddc5a8-779d-3036-b55c-3b24b4e4de44",
+      "duorc:ParaphraseRC:415da294-8a82-a0f0-a56a-8cc59fd6a4fe",
+      "duorc:ParaphraseRC:2376a9f3-4e9b-893a-c043-bfebc98e9939",
+      "duorc:ParaphraseRC:f0a687d7-8d27-15fc-deb0-7a4c3db8a26e",
+      "duorc:ParaphraseRC:763af46b-8a8b-01a3-c2a7-275a5ea513d8"
+    ],
+    [
+      "duorc:ParaphraseRC:42b1b2b1-e98f-eb26-72b7-539ef8218022",
+      "duorc:ParaphraseRC:0b9b230d-2261-5a44-d888-cdb6ed80ff09",
+      "duorc:ParaphraseRC:6821059b-bedc-497e-0740-be41d59686f4",
+      "duorc:ParaphraseRC:c6bb638c-4676-4678-c978-4500148b1c12",
+      "duorc:ParaphraseRC:92e645d0-baeb-f998-3d45-d73e5713bada",
+      "duorc:ParaphraseRC:d5e8a1d4-4cf5-33d3-bc12-b6389e67d68c",
+      "duorc:ParaphraseRC:43ababbf-3ffd-7a03-7c9e-807fd95a342b",
+      "duorc:ParaphraseRC:117a4cd5-8073-a506-06ef-e35efc3c7a3b"
+    ],
+    [
+      "duorc:ParaphraseRC:b353bd00-6fe7-1215-7678-a93bcc18abfb",
+      "duorc:ParaphraseRC:31450fa4-adea-ea7a-7a46-be02e8f6e3d7",
+      "duorc:ParaphraseRC:2bd9113c-3de8-8e40-018e-4dbe4c42449e",
+      "duorc:ParaphraseRC:e65ca840-a491-d124-39f1-ac6a211a7c86",
+      "duorc:ParaphraseRC:0e37ac30-2ad3-9082-f1bc-dcfb18ba014a",
+      "duorc:ParaphraseRC:4d917afc-01e6-14f1-9817-c06409995d3f",
+      "duorc:ParaphraseRC:0aacb45a-d62f-89f0-0154-f88dfb948125",
+      "duorc:ParaphraseRC:8bac03b5-7213-4f79-db08-0119bb8f9f51"
+    ],
+    [
+      "duorc:ParaphraseRC:b322d384-21c5-28a9-ad22-ae7b3c90484b",
+      "duorc:ParaphraseRC:dbd35901-c23d-a89e-53cd-0e08f6820ff9",
+      "duorc:ParaphraseRC:319be0ca-cab0-0a31-5fad-51b31a996baa",
+      "duorc:ParaphraseRC:235f7fff-8376-4421-03bc-98d5e4d0b420",
+      "duorc:ParaphraseRC:de5dedab-a720-aff5-f9e2-3a341d8b3848",
+      "duorc:ParaphraseRC:7f56239e-4a50-46f5-132d-36af3bff8413",
+      "duorc:ParaphraseRC:038af600-43f6-67b6-939c-563963395c8c",
+      "duorc:ParaphraseRC:7b33908f-2343-5b2e-e93c-29e3d5ca2444"
+    ],
+    [
+      "duorc:ParaphraseRC:a9beb957-817c-3c8d-d60a-d1e116ba9606",
+      "duorc:ParaphraseRC:e13fe77b-1b4b-25bc-4a52-e480d1f18043",
+      "duorc:ParaphraseRC:e5346eae-a700-6706-bcd3-f79eb5aa6e88",
+      "duorc:ParaphraseRC:21c10d3a-fbb9-e696-1a90-19b59d324f3a",
+      "duorc:ParaphraseRC:ddbd8738-d8c6-ab03-12e4-adad46e2572d",
+      "duorc:ParaphraseRC:f7952ab6-1eae-8441-f5e7-4baafdda6154",
+      "duorc:ParaphraseRC:f8dd2b23-1c1e-2136-56a8-531b4a07e10d",
+      "duorc:ParaphraseRC:48781b38-e850-c547-adca-e64ef1718f73"
+    ],
+    [
+      "duorc:ParaphraseRC:191b33b4-eb51-d742-2755-453dcabc1513",
+      "duorc:ParaphraseRC:5633f2a0-88f9-4a88-a5f9-050204ba7012",
+      "duorc:ParaphraseRC:62135952-963b-e623-8925-1627e90f5edb",
+      "duorc:ParaphraseRC:89200347-6d60-898f-fe49-2cb6442e8e1c",
+      "duorc:ParaphraseRC:d152addd-3416-a0f8-92c3-4f714bea7c20",
+      "duorc:ParaphraseRC:1f9529e7-4233-6abf-3382-84dc849ae904",
+      "duorc:ParaphraseRC:05c4f6ef-ce20-aad4-c185-67ead2a11d17",
+      "duorc:ParaphraseRC:3f16ddd4-07b8-ada4-f0d6-1c9c9dda7818"
+    ],
+    [
+      "duorc:ParaphraseRC:9c1e3d01-641d-3321-4c67-c6458f2eb5fe",
+      "duorc:ParaphraseRC:e5a47b2f-f1a6-afd0-2af5-c2fe34158cee",
+      "duorc:ParaphraseRC:9f53c9e7-4ee9-6e33-8d57-7eb6b8f57c42",
+      "duorc:ParaphraseRC:73188dbc-5ac7-ada1-4ca9-2e13b8cd6f63",
+      "duorc:ParaphraseRC:a9bd727e-241a-5cbd-8b24-8104aab9c5dd",
+      "duorc:ParaphraseRC:14621a30-0bee-7cb8-6d17-28a86857714f",
+      "duorc:ParaphraseRC:5ca2ce20-a976-6eee-adf7-bf47890c9dfd",
+      "duorc:ParaphraseRC:a16af941-e3d9-33d0-d6f3-3eddeb28ddb0"
+    ],
+    [
+      "duorc:ParaphraseRC:49995bc0-afb5-79af-9503-0468ba6f4ded",
+      "duorc:ParaphraseRC:91283034-d42f-9578-cd47-d388a47cbef4",
+      "duorc:ParaphraseRC:d1156d1d-84e5-1a3f-2565-8d43720a8078",
+      "duorc:ParaphraseRC:25586641-af9e-68c9-ad8c-e62dad0b14ed",
+      "duorc:ParaphraseRC:77d1d13d-1e08-729e-189c-14ea4298fb2e",
+      "duorc:ParaphraseRC:62a50b31-a190-67d9-607e-cea50a0e38ff",
+      "duorc:ParaphraseRC:22f07863-4d54-ce4c-3e25-52c3296359d1",
+      "duorc:ParaphraseRC:b2afa571-59c3-0604-cd50-7ed5db11f725"
+    ]
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "warmup": true,
+      "seconds": 9.338612699997611,
+      "learning_rate": 7.692307692307694e-07,
+      "gradient_norm_before_clipping": 32.72430419921875,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:cc68c8c2-a239-ece9-8c86-b8cb3bc145cd",
+        "duorc:ParaphraseRC:781cdee9-2da4-7976-762b-7404d6c5bd4b",
+        "duorc:ParaphraseRC:0a0cd6a1-6403-6e8a-0869-d4744786534d",
+        "duorc:ParaphraseRC:e6ddc5a8-779d-3036-b55c-3b24b4e4de44",
+        "duorc:ParaphraseRC:415da294-8a82-a0f0-a56a-8cc59fd6a4fe",
+        "duorc:ParaphraseRC:2376a9f3-4e9b-893a-c043-bfebc98e9939",
+        "duorc:ParaphraseRC:f0a687d7-8d27-15fc-deb0-7a4c3db8a26e",
+        "duorc:ParaphraseRC:763af46b-8a8b-01a3-c2a7-275a5ea513d8"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:2376a9f3-4e9b-893a-c043-bfebc98e9939",
+        "duorc:ParaphraseRC:781cdee9-2da4-7976-762b-7404d6c5bd4b",
+        "duorc:ParaphraseRC:cc68c8c2-a239-ece9-8c86-b8cb3bc145cd",
+        "duorc:ParaphraseRC:415da294-8a82-a0f0-a56a-8cc59fd6a4fe",
+        "duorc:ParaphraseRC:0a0cd6a1-6403-6e8a-0869-d4744786534d",
+        "duorc:ParaphraseRC:e6ddc5a8-779d-3036-b55c-3b24b4e4de44",
+        "duorc:ParaphraseRC:763af46b-8a8b-01a3-c2a7-275a5ea513d8",
+        "duorc:ParaphraseRC:f0a687d7-8d27-15fc-deb0-7a4c3db8a26e"
+      ],
+      "mean_loss": 1.6771873980760574,
+      "input_tokens": 2732,
+      "padded_tokens": 3760,
+      "global_padded_width": 470,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 2,
+      "warmup": false,
+      "seconds": 5.184137899999769,
+      "learning_rate": 1.5384615384615387e-06,
+      "gradient_norm_before_clipping": 66.47408294677734,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:42b1b2b1-e98f-eb26-72b7-539ef8218022",
+        "duorc:ParaphraseRC:0b9b230d-2261-5a44-d888-cdb6ed80ff09",
+        "duorc:ParaphraseRC:6821059b-bedc-497e-0740-be41d59686f4",
+        "duorc:ParaphraseRC:c6bb638c-4676-4678-c978-4500148b1c12",
+        "duorc:ParaphraseRC:92e645d0-baeb-f998-3d45-d73e5713bada",
+        "duorc:ParaphraseRC:d5e8a1d4-4cf5-33d3-bc12-b6389e67d68c",
+        "duorc:ParaphraseRC:43ababbf-3ffd-7a03-7c9e-807fd95a342b",
+        "duorc:ParaphraseRC:117a4cd5-8073-a506-06ef-e35efc3c7a3b"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:0b9b230d-2261-5a44-d888-cdb6ed80ff09",
+        "duorc:ParaphraseRC:42b1b2b1-e98f-eb26-72b7-539ef8218022",
+        "duorc:ParaphraseRC:92e645d0-baeb-f998-3d45-d73e5713bada",
+        "duorc:ParaphraseRC:6821059b-bedc-497e-0740-be41d59686f4",
+        "duorc:ParaphraseRC:c6bb638c-4676-4678-c978-4500148b1c12",
+        "duorc:ParaphraseRC:d5e8a1d4-4cf5-33d3-bc12-b6389e67d68c",
+        "duorc:ParaphraseRC:43ababbf-3ffd-7a03-7c9e-807fd95a342b",
+        "duorc:ParaphraseRC:117a4cd5-8073-a506-06ef-e35efc3c7a3b"
+      ],
+      "mean_loss": 2.2972967326641083,
+      "input_tokens": 2051,
+      "padded_tokens": 2680,
+      "global_padded_width": 335,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 3,
+      "warmup": false,
+      "seconds": 8.350021300000662,
+      "learning_rate": 2.307692307692308e-06,
+      "gradient_norm_before_clipping": 52.14955139160156,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:b353bd00-6fe7-1215-7678-a93bcc18abfb",
+        "duorc:ParaphraseRC:31450fa4-adea-ea7a-7a46-be02e8f6e3d7",
+        "duorc:ParaphraseRC:2bd9113c-3de8-8e40-018e-4dbe4c42449e",
+        "duorc:ParaphraseRC:e65ca840-a491-d124-39f1-ac6a211a7c86",
+        "duorc:ParaphraseRC:0e37ac30-2ad3-9082-f1bc-dcfb18ba014a",
+        "duorc:ParaphraseRC:4d917afc-01e6-14f1-9817-c06409995d3f",
+        "duorc:ParaphraseRC:0aacb45a-d62f-89f0-0154-f88dfb948125",
+        "duorc:ParaphraseRC:8bac03b5-7213-4f79-db08-0119bb8f9f51"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:0e37ac30-2ad3-9082-f1bc-dcfb18ba014a",
+        "duorc:ParaphraseRC:31450fa4-adea-ea7a-7a46-be02e8f6e3d7",
+        "duorc:ParaphraseRC:8bac03b5-7213-4f79-db08-0119bb8f9f51",
+        "duorc:ParaphraseRC:e65ca840-a491-d124-39f1-ac6a211a7c86",
+        "duorc:ParaphraseRC:b353bd00-6fe7-1215-7678-a93bcc18abfb",
+        "duorc:ParaphraseRC:4d917afc-01e6-14f1-9817-c06409995d3f",
+        "duorc:ParaphraseRC:0aacb45a-d62f-89f0-0154-f88dfb948125",
+        "duorc:ParaphraseRC:2bd9113c-3de8-8e40-018e-4dbe4c42449e"
+      ],
+      "mean_loss": 1.3069283962249756,
+      "input_tokens": 2669,
+      "padded_tokens": 3504,
+      "global_padded_width": 438,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 4,
+      "warmup": false,
+      "seconds": 10.03161270000055,
+      "learning_rate": 3.0769230769230774e-06,
+      "gradient_norm_before_clipping": 50.91666030883789,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:b322d384-21c5-28a9-ad22-ae7b3c90484b",
+        "duorc:ParaphraseRC:dbd35901-c23d-a89e-53cd-0e08f6820ff9",
+        "duorc:ParaphraseRC:319be0ca-cab0-0a31-5fad-51b31a996baa",
+        "duorc:ParaphraseRC:235f7fff-8376-4421-03bc-98d5e4d0b420",
+        "duorc:ParaphraseRC:de5dedab-a720-aff5-f9e2-3a341d8b3848",
+        "duorc:ParaphraseRC:7f56239e-4a50-46f5-132d-36af3bff8413",
+        "duorc:ParaphraseRC:038af600-43f6-67b6-939c-563963395c8c",
+        "duorc:ParaphraseRC:7b33908f-2343-5b2e-e93c-29e3d5ca2444"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:b322d384-21c5-28a9-ad22-ae7b3c90484b",
+        "duorc:ParaphraseRC:7f56239e-4a50-46f5-132d-36af3bff8413",
+        "duorc:ParaphraseRC:7b33908f-2343-5b2e-e93c-29e3d5ca2444",
+        "duorc:ParaphraseRC:dbd35901-c23d-a89e-53cd-0e08f6820ff9",
+        "duorc:ParaphraseRC:319be0ca-cab0-0a31-5fad-51b31a996baa",
+        "duorc:ParaphraseRC:de5dedab-a720-aff5-f9e2-3a341d8b3848",
+        "duorc:ParaphraseRC:235f7fff-8376-4421-03bc-98d5e4d0b420",
+        "duorc:ParaphraseRC:038af600-43f6-67b6-939c-563963395c8c"
+      ],
+      "mean_loss": 2.423644930124283,
+      "input_tokens": 2731,
+      "padded_tokens": 3968,
+      "global_padded_width": 496,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 5,
+      "warmup": false,
+      "seconds": 9.890025599997898,
+      "learning_rate": 3.846153846153847e-06,
+      "gradient_norm_before_clipping": 56.921165466308594,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:a9beb957-817c-3c8d-d60a-d1e116ba9606",
+        "duorc:ParaphraseRC:e13fe77b-1b4b-25bc-4a52-e480d1f18043",
+        "duorc:ParaphraseRC:e5346eae-a700-6706-bcd3-f79eb5aa6e88",
+        "duorc:ParaphraseRC:21c10d3a-fbb9-e696-1a90-19b59d324f3a",
+        "duorc:ParaphraseRC:ddbd8738-d8c6-ab03-12e4-adad46e2572d",
+        "duorc:ParaphraseRC:f7952ab6-1eae-8441-f5e7-4baafdda6154",
+        "duorc:ParaphraseRC:f8dd2b23-1c1e-2136-56a8-531b4a07e10d",
+        "duorc:ParaphraseRC:48781b38-e850-c547-adca-e64ef1718f73"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:21c10d3a-fbb9-e696-1a90-19b59d324f3a",
+        "duorc:ParaphraseRC:f8dd2b23-1c1e-2136-56a8-531b4a07e10d",
+        "duorc:ParaphraseRC:ddbd8738-d8c6-ab03-12e4-adad46e2572d",
+        "duorc:ParaphraseRC:a9beb957-817c-3c8d-d60a-d1e116ba9606",
+        "duorc:ParaphraseRC:f7952ab6-1eae-8441-f5e7-4baafdda6154",
+        "duorc:ParaphraseRC:48781b38-e850-c547-adca-e64ef1718f73",
+        "duorc:ParaphraseRC:e13fe77b-1b4b-25bc-4a52-e480d1f18043",
+        "duorc:ParaphraseRC:e5346eae-a700-6706-bcd3-f79eb5aa6e88"
+      ],
+      "mean_loss": 3.8069117963314056,
+      "input_tokens": 2816,
+      "padded_tokens": 3944,
+      "global_padded_width": 493,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 6,
+      "warmup": false,
+      "seconds": 8.647210700000869,
+      "learning_rate": 4.615384615384616e-06,
+      "gradient_norm_before_clipping": 42.49824523925781,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:191b33b4-eb51-d742-2755-453dcabc1513",
+        "duorc:ParaphraseRC:5633f2a0-88f9-4a88-a5f9-050204ba7012",
+        "duorc:ParaphraseRC:62135952-963b-e623-8925-1627e90f5edb",
+        "duorc:ParaphraseRC:89200347-6d60-898f-fe49-2cb6442e8e1c",
+        "duorc:ParaphraseRC:d152addd-3416-a0f8-92c3-4f714bea7c20",
+        "duorc:ParaphraseRC:1f9529e7-4233-6abf-3382-84dc849ae904",
+        "duorc:ParaphraseRC:05c4f6ef-ce20-aad4-c185-67ead2a11d17",
+        "duorc:ParaphraseRC:3f16ddd4-07b8-ada4-f0d6-1c9c9dda7818"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:89200347-6d60-898f-fe49-2cb6442e8e1c",
+        "duorc:ParaphraseRC:5633f2a0-88f9-4a88-a5f9-050204ba7012",
+        "duorc:ParaphraseRC:d152addd-3416-a0f8-92c3-4f714bea7c20",
+        "duorc:ParaphraseRC:05c4f6ef-ce20-aad4-c185-67ead2a11d17",
+        "duorc:ParaphraseRC:3f16ddd4-07b8-ada4-f0d6-1c9c9dda7818",
+        "duorc:ParaphraseRC:1f9529e7-4233-6abf-3382-84dc849ae904",
+        "duorc:ParaphraseRC:191b33b4-eb51-d742-2755-453dcabc1513",
+        "duorc:ParaphraseRC:62135952-963b-e623-8925-1627e90f5edb"
+      ],
+      "mean_loss": 1.4709689803421497,
+      "input_tokens": 2696,
+      "padded_tokens": 3616,
+      "global_padded_width": 452,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 7,
+      "warmup": false,
+      "seconds": 9.132789100000082,
+      "learning_rate": 5.384615384615385e-06,
+      "gradient_norm_before_clipping": 51.49101638793945,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:9c1e3d01-641d-3321-4c67-c6458f2eb5fe",
+        "duorc:ParaphraseRC:e5a47b2f-f1a6-afd0-2af5-c2fe34158cee",
+        "duorc:ParaphraseRC:9f53c9e7-4ee9-6e33-8d57-7eb6b8f57c42",
+        "duorc:ParaphraseRC:73188dbc-5ac7-ada1-4ca9-2e13b8cd6f63",
+        "duorc:ParaphraseRC:a9bd727e-241a-5cbd-8b24-8104aab9c5dd",
+        "duorc:ParaphraseRC:14621a30-0bee-7cb8-6d17-28a86857714f",
+        "duorc:ParaphraseRC:5ca2ce20-a976-6eee-adf7-bf47890c9dfd",
+        "duorc:ParaphraseRC:a16af941-e3d9-33d0-d6f3-3eddeb28ddb0"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:14621a30-0bee-7cb8-6d17-28a86857714f",
+        "duorc:ParaphraseRC:5ca2ce20-a976-6eee-adf7-bf47890c9dfd",
+        "duorc:ParaphraseRC:a9bd727e-241a-5cbd-8b24-8104aab9c5dd",
+        "duorc:ParaphraseRC:a16af941-e3d9-33d0-d6f3-3eddeb28ddb0",
+        "duorc:ParaphraseRC:9f53c9e7-4ee9-6e33-8d57-7eb6b8f57c42",
+        "duorc:ParaphraseRC:9c1e3d01-641d-3321-4c67-c6458f2eb5fe",
+        "duorc:ParaphraseRC:73188dbc-5ac7-ada1-4ca9-2e13b8cd6f63",
+        "duorc:ParaphraseRC:e5a47b2f-f1a6-afd0-2af5-c2fe34158cee"
+      ],
+      "mean_loss": 4.008483737707138,
+      "input_tokens": 2688,
+      "padded_tokens": 3728,
+      "global_padded_width": 466,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    },
+    {
+      "step": 8,
+      "warmup": false,
+      "seconds": 8.937292599999637,
+      "learning_rate": 6.153846153846155e-06,
+      "gradient_norm_before_clipping": 42.727176666259766,
+      "global_batch_ids": [
+        "duorc:ParaphraseRC:49995bc0-afb5-79af-9503-0468ba6f4ded",
+        "duorc:ParaphraseRC:91283034-d42f-9578-cd47-d388a47cbef4",
+        "duorc:ParaphraseRC:d1156d1d-84e5-1a3f-2565-8d43720a8078",
+        "duorc:ParaphraseRC:25586641-af9e-68c9-ad8c-e62dad0b14ed",
+        "duorc:ParaphraseRC:77d1d13d-1e08-729e-189c-14ea4298fb2e",
+        "duorc:ParaphraseRC:62a50b31-a190-67d9-607e-cea50a0e38ff",
+        "duorc:ParaphraseRC:22f07863-4d54-ce4c-3e25-52c3296359d1",
+        "duorc:ParaphraseRC:b2afa571-59c3-0604-cd50-7ed5db11f725"
+      ],
+      "microbatch_order_ids": [
+        "duorc:ParaphraseRC:62a50b31-a190-67d9-607e-cea50a0e38ff",
+        "duorc:ParaphraseRC:91283034-d42f-9578-cd47-d388a47cbef4",
+        "duorc:ParaphraseRC:d1156d1d-84e5-1a3f-2565-8d43720a8078",
+        "duorc:ParaphraseRC:77d1d13d-1e08-729e-189c-14ea4298fb2e",
+        "duorc:ParaphraseRC:25586641-af9e-68c9-ad8c-e62dad0b14ed",
+        "duorc:ParaphraseRC:22f07863-4d54-ce4c-3e25-52c3296359d1",
+        "duorc:ParaphraseRC:49995bc0-afb5-79af-9503-0468ba6f4ded",
+        "duorc:ParaphraseRC:b2afa571-59c3-0604-cd50-7ed5db11f725"
+      ],
+      "mean_loss": 2.275013953447342,
+      "input_tokens": 2085,
+      "padded_tokens": 3712,
+      "global_padded_width": 464,
+      "examples": 8,
+      "microbatch_sizes": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "microbatch_count": 4
+    }
+  ],
+  "train_data_sha256": "a5c30eec5bb6d31b58a661a17c2a20e72e9baf8e41321637ec2c1a15bae919c5",
+  "split_manifest_sha256": "4eff84991fd0a3de52e1f23911471c6cdb88fbcf59bfe0f1e20d97e322d29a9b",
+  "ordered_calibration_ids_sha256": "d56e15ebdc809e46fca99a72db3d5297fc2c23f1ea5ceee41636730a2a251447",
+  "reader_weights_sha256": "240478c7251d5e55be35feb47177054b960259b9328af662ea3cee87ce9755a6",
+  "software_sha256": {
+    "calibrate_reader_training.py": "819f8aebf7c3d06d5f35444b280c5f0e2c6c19c34437688761c9a710bcb1656d",
+    "reader_training.py": "df25464f9cb9ba03c31093727a0edce227dca43b11eab6647e5ad98267ea906b",
+    "reader_model.py": "71116120ca53a8db3860ed85ebb434db16a246085e7458fe60bc6bb19d0d1c56",
+    "reader_run.py": "482579173842416407dd0c42534993b9fdeacbf9ef5501434e2c2c2c7edaddcb"
+  },
+  "cpu": {
+    "cuda_build": null,
+    "cuda_available": false,
+    "parameter_devices": [
+      "cpu"
+    ],
+    "optimizer_devices": [
+      "cpu"
+    ]
+  },
+  "selection_rule": "Choose the lowest median of seven timed steps among completed candidates strictly below the fixed RSS budget; no quality metrics or validation/test outcomes enter the choice.",
+  "timing_scope": "Per step: scheduled LR, zero_grad, length-sorted microbatch collation/forward/backward with the original GLOBAL batch padded width, clipping, and AdamW update. Padded-token work is unchanged. One warmup update is excluded from median; loading/encoding stay in full calibration time.",
+  "data_access": "Only train.jsonl and provenance/manifest metadata are read. No validation/test row files, predictions or metrics are read.",
+  "limitations": [
+    "Eight early training batches are a bounded execution calibration, not a guarantee of later peak memory or time.",
+    "Microbatching preserves the global example-mean objective; dropout draws and floating-point reduction order can alter the optimization trajectory.",
+    "RSS is sampled full process resident memory. Each candidate must run in a separate fresh process."
+  ]
+}

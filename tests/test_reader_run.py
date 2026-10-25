@@ -66,8 +66,10 @@ class TinyModel(torch.nn.Module):
         return SimpleNamespace(loss=(self.weight - 1).square())
 
 
-def mocked_run(tmp_path, monkeypatch, *, guard="none"):
+def mocked_run(tmp_path, monkeypatch, *, guard="none", microbatch=None):
     config = configuration()
+    if microbatch is not None:
+        config["training_microbatch_size"] = microbatch
     if guard == "time":
         config["training_seconds_limit"] = 1
     splits = {name: fixture_rows(name, 8 if name == "train" else 4) for name in ("train", "validation", "test")}
@@ -168,6 +170,23 @@ def test_full_mock_run_trains_once_and_freezes_choice_before_all_test_prediction
     assert report["test"]["selected"]["paired_retention"]["exact_correct_retention"] == 1
     assert report["test"]["final"]["threshold_selected"] is None
     assert report["selection"]["test_used_for_selection"] is False
+
+
+def test_microbatch_runner_keeps_one_update_per_complete_global_batch(tmp_path, monkeypatch):
+    output = mocked_run(tmp_path, monkeypatch, microbatch=2)
+    report = task.read(output / "report.json")
+    curve = task.read(output / "training_curve.json")
+    assert report["training"]["completed_updates"] == 2
+    assert report["training"]["presentations"] == report["training"]["unique_examples_seen"] == 8
+    assert all(row["microbatch_sizes"] == [2, 2] and row["microbatch_count"] == 2 for row in curve)
+    assert all(row["padded_tokens"] == 4 * row["global_padded_width"] for row in curve)
+    assert report["training"]["weights_changed"]
+
+
+@pytest.mark.parametrize("microbatch", [0, -1, 5, True, 1.5])
+def test_invalid_configured_microbatch_rejected(microbatch):
+    with pytest.raises(ValueError, match="microbatch"):
+        task.validate_config({**configuration(), "training_microbatch_size": microbatch})
 
 
 @pytest.mark.parametrize("guard,updates,reason", [

@@ -1,0 +1,110 @@
+{
+  "format": "cpu-reader-training-calibration-selection-v1",
+  "selected": {
+    "threads": 12,
+    "microbatch_size": 4,
+    "eligible": true,
+    "completed_updates": 8,
+    "median_timed_step_seconds": 7.069331200000306,
+    "sampled_peak_process_rss_bytes": 3297374208,
+    "sampled_peak_process_rss_gib": 3.0709190368652344,
+    "input_tokens": 20468,
+    "padded_tokens": 28912
+  },
+  "candidates": [
+    {
+      "threads": 4,
+      "microbatch_size": 4,
+      "eligible": true,
+      "completed_updates": 8,
+      "median_timed_step_seconds": 8.949315199999546,
+      "sampled_peak_process_rss_bytes": 3434057728,
+      "sampled_peak_process_rss_gib": 3.1982154846191406,
+      "input_tokens": 20468,
+      "padded_tokens": 28912
+    },
+    {
+      "threads": 8,
+      "microbatch_size": 4,
+      "eligible": true,
+      "completed_updates": 8,
+      "median_timed_step_seconds": 7.224204300000565,
+      "sampled_peak_process_rss_bytes": 3277963264,
+      "sampled_peak_process_rss_gib": 3.0528411865234375,
+      "input_tokens": 20468,
+      "padded_tokens": 28912
+    },
+    {
+      "threads": 12,
+      "microbatch_size": 4,
+      "eligible": true,
+      "completed_updates": 8,
+      "median_timed_step_seconds": 7.069331200000306,
+      "sampled_peak_process_rss_bytes": 3297374208,
+      "sampled_peak_process_rss_gib": 3.0709190368652344,
+      "input_tokens": 20468,
+      "padded_tokens": 28912
+    },
+    {
+      "threads": 4,
+      "microbatch_size": 2,
+      "eligible": true,
+      "completed_updates": 8,
+      "median_timed_step_seconds": 8.937292599999637,
+      "sampled_peak_process_rss_bytes": 2270371840,
+      "sampled_peak_process_rss_gib": 2.1144485473632812,
+      "input_tokens": 20468,
+      "padded_tokens": 28912
+    }
+  ],
+  "source_sha256": {
+    "threads-4-micro-4.json": "8983d7e6b26433da3923f3182e70c6c06898eeebc7fb0dc5b9a3575329f04352",
+    "threads-8-micro-4.json": "ee46b257da7108da2f1ad2e3e0df4d0b18a1e933b665e2df5dd7c17e73cbe4d9",
+    "threads-12-micro-4.json": "e32c1b4f6c0e056661688648e171265bbcffe1c52462fd230983196f8b600691",
+    "threads-4-micro-2.json": "c162a59c59f891ef88636e4ac74988c4f817da75c5a8e462615eb5db03985f94"
+  },
+  "plan_sha256": "45236597ffd9c069cdb586bf03ab52a2f8561769ac852c3722a3b5cfdf6b87f7",
+  "original_config_sha256": "6877d3fc4dba42eb522ec01bb5f15448ee0e0dc925af2aa3df9dada276ccb1e5",
+  "optimized_config_sha256": "efd90712cce5323c6abe85130627c4ed17713537621340eff8beb31eafc46750",
+  "selector_software_sha256": "9b04c1d52462bfc472e5f58e0aef7499b4cce56c7b688c84471c9e90db9ab0b7",
+  "calibration_software_sha256": {
+    "calibrate_reader_training.py": "819f8aebf7c3d06d5f35444b280c5f0e2c6c19c34437688761c9a710bcb1656d",
+    "reader_training.py": "df25464f9cb9ba03c31093727a0edce227dca43b11eab6647e5ad98267ea906b",
+    "reader_model.py": "71116120ca53a8db3860ed85ebb434db16a246085e7458fe60bc6bb19d0d1c56",
+    "reader_run.py": "482579173842416407dd0c42534993b9fdeacbf9ef5501434e2c2c2c7edaddcb"
+  },
+  "train_data_sha256": "a5c30eec5bb6d31b58a661a17c2a20e72e9baf8e41321637ec2c1a15bae919c5",
+  "split_manifest_sha256": "4eff84991fd0a3de52e1f23911471c6cdb88fbcf59bfe0f1e20d97e322d29a9b",
+  "ordered_calibration_ids_sha256": "d56e15ebdc809e46fca99a72db3d5297fc2c23f1ea5ceee41636730a2a251447",
+  "verified": {
+    "all_four_predeclared_candidates": true,
+    "identical_eight_planned_global_batches": true,
+    "identical_input_and_padded_work_per_measured_update": true,
+    "global_mean_objective_and_padding_unchanged": true,
+    "cpu_only_evidence": true,
+    "medians_and_eligibility_recomputed": true,
+    "same_frozen_calibration_implementation": true
+  },
+  "changed_settings": {
+    "training_threads": {
+      "before": 12,
+      "after": 12
+    },
+    "training_microbatch_size": {
+      "before": null,
+      "after": 4
+    },
+    "training_seconds_limit": {
+      "before": 900,
+      "after": 1800
+    }
+  },
+  "selection_rule": "Lowest recomputed median of updates 2–8 among complete candidates strictly below 8 GiB sampled peak RSS; earlier predeclared candidate breaks exact ties.",
+  "validation_or_test_used_for_selection": false,
+  "training_loss_used_for_selection": false,
+  "limitations": [
+    "A seven-step median is a bounded timing sample, not a full-run speedup estimate.",
+    "The selected run retains the RSS guard; early calibration cannot guarantee later peak memory.",
+    "Source hashes and row-access declarations support the training-only protocol; this selector does not reconstruct historical process execution."
+  ]
+}

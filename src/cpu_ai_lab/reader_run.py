@@ -25,10 +25,11 @@ from . import document_v2_metrics as scoring
 from . import reader_data as data
 from . import reader_metrics as metrics
 from . import reader_model as reader
+from .reader_training import backward_batch
 from .training import PeakRSS, adapter_snapshot, write_json
 
 
-SOFTWARE = ("reader_run.py", "reader_data.py", "reader_model.py", "reader_metrics.py",
+SOFTWARE = ("reader_run.py", "reader_data.py", "reader_model.py", "reader_metrics.py", "reader_training.py",
             "document_v2.py", "document_v2_data.py", "document_v2_metrics.py")
 
 
@@ -62,6 +63,9 @@ def validate_config(config):
         raise ValueError("Balanced training requires even complete batches.")
     if config["optimizer_steps"] * config["training_batch_size"] != config["train_size"]:
         raise ValueError("This recipe performs exactly one scheduled pass over training examples.")
+    microbatch = config.get("training_microbatch_size", config["training_batch_size"])
+    if type(microbatch) is not int or not 1 <= microbatch <= config["training_batch_size"]:
+        raise ValueError("Training microbatch size must be between one and the global batch size.")
     if not 0 < config["warmup_steps"] < config["optimizer_steps"]:
         raise ValueError("Warmup must be shorter than training.")
     fixed = {"reader_model_id": reader.MODEL_ID, "reader_revision": reader.REVISION,
@@ -222,7 +226,7 @@ def run(config, output, prepared, source):
                         "selection": "Initial and final checkpoints each get a validation-only fixed-grid threshold. Among passing checkpoints prefer higher answerable F1, then missing recall, then initial on ties. Otherwise generator fallback.",
                         "diagnostic": "On failure rank the two diagnostic candidates by quality-constraint pass, paired retention, answerable F1, missing recall, initial on ties; never use test outcomes.",
                         "test_policy": "No test generation or reader forward pass before policy.json is serialized.",
-                        "training": "Full-parameter CPU AdamW, one balanced scheduled pass, fixed warmup/linear decay, gradient clipping. Time/RSS guards may stop early; actual updates are reported.",
+                        "training": "Full-parameter CPU AdamW, one balanced scheduled pass, fixed warmup/linear decay, gradient clipping. Microbatches preserve global padded width and example-mean loss; zero/clip/step occur once per global batch. Dropout draws and floating-point order can differ. Time/RSS guards may stop early; actual updates are reported.",
                         "interpretation": "Different architectures and prior training histories; gains cannot be attributed to architecture or this CPU adaptation alone."}
             write_json(output / "protocol.json", protocol)
             stages = {}
@@ -256,7 +260,6 @@ def run(config, output, prepared, source):
             curve, seen, stop_reason = [], set(), "scheduled_pass_complete"
             training_tick = time.perf_counter()
             model.train()
-            batch = None
             for step, indices in enumerate(batches, 1):
                 if step > 1 and time.perf_counter() - training_tick >= config["training_seconds_limit"]:
                     stop_reason = "time_budget_after_completed_update"
@@ -268,26 +271,24 @@ def run(config, output, prepared, source):
                        (config["optimizer_steps"] - step + 1) / (config["optimizer_steps"] - config["warmup_steps"]))
                 for group in optimizer.param_groups:
                     group["lr"] = rate
-                batch = reader.collate([features[i] for i in indices], tokenizer.pad_token_id, [positions[i] for i in indices])
                 optimizer.zero_grad(set_to_none=True)
                 tick = time.perf_counter()
-                loss = model(**batch).loss
-                if not bool(torch.isfinite(loss)):
-                    raise RuntimeError("Nonfinite reader training loss.")
-                loss.backward()
+                backward = backward_batch(model, features, positions, indices, tokenizer.pad_token_id,
+                                          config.get("training_microbatch_size", config["training_batch_size"]))
                 gradient = torch.nn.utils.clip_grad_norm_(model.parameters(), config["gradient_clip_norm"], error_if_nonfinite=True)
                 optimizer.step()
                 seen.update(indices)
-                curve.append({"step": step, "loss": float(loss.detach()), "learning_rate": rate,
+                curve.append({"step": step, "loss": backward["mean_loss"], "learning_rate": rate,
                               "gradient_norm_before_clipping": float(gradient), "compute_seconds": time.perf_counter() - tick,
-                              "input_tokens": sum(len(features[i]["input_ids"]) for i in indices),
-                              "padded_tokens": int(batch["input_ids"].numel())})
+                              "input_tokens": backward["input_tokens"], "padded_tokens": backward["padded_tokens"],
+                              "microbatch_sizes": backward["microbatch_sizes"], "microbatch_count": backward["microbatch_count"],
+                              "global_padded_width": backward["global_padded_width"]})
                 if step % 16 == 0 or step == 1 or step == len(batches):
                     print(json.dumps({"stage": "train_reader", "step": step, "planned": len(batches), "loss": curve[-1]["loss"],
                                       "seconds": time.perf_counter() - training_tick}), flush=True)
             stages["reader_training"] = time.perf_counter() - training_tick
             optimizer_devices = sorted({str(value.device) for state in optimizer.state.values() for value in state.values() if isinstance(value, torch.Tensor)})
-            del optimizer, batch, features, positions
+            del optimizer, features, positions
             gc.collect()
             model.eval()
             torch.set_num_threads(config["evaluation_threads"])

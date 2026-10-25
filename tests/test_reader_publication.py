@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import struct
+from types import SimpleNamespace
 
 import pytest
 
@@ -133,3 +134,32 @@ def test_checkpoint_ties_keep_initial_and_rejection_keeps_generator():
                                          "metrics": {"answerable_token_f1": 0.7, "correct_abstention_recall": 0.0}}}
     result = audit.choose_checkpoint({"initial": rejected, "final": rejected})
     assert result["kind"] == "generator" and result["checkpoint"] is None and result["diagnostic_checkpoint"] == "initial"
+
+
+@pytest.mark.parametrize("mutation", [None, "sizes", "count", "width", "padded_tokens"])
+def test_microbatch_audit_checks_global_padding_and_actual_partition(mutation):
+    by_id = {"a": {"reader_tokens": 5}, "b": {"reader_tokens": 7}, "c": {"reader_tokens": 8}, "d": {"reader_tokens": 9}}
+    item = {"microbatch_sizes": [2, 2], "microbatch_count": 2, "global_padded_width": 9, "padded_tokens": 36}
+    if mutation == "sizes":
+        item["microbatch_sizes"] = [1, 3]
+    elif mutation == "count":
+        item["microbatch_count"] = 1
+    elif mutation == "width":
+        item["global_padded_width"] = 8
+    elif mutation == "padded_tokens":
+        item["padded_tokens"] = 32
+    config = {"training_batch_size": 4, "training_microbatch_size": 2}
+    if mutation is None:
+        audit.audit_microbatch(audit.Audit(), item, list(by_id), by_id, config)
+    else:
+        with pytest.raises(ValueError, match="Audit failed"):
+            audit.audit_microbatch(audit.Audit(), item, list(by_id), by_id, config)
+
+
+def test_execution_comparison_is_optional_for_independent_reproduction():
+    cfg = {"training_microbatch_size": 4}
+    args = SimpleNamespace(calibrations=None, prior_run=None)
+    assert audit.audit_execution_comparison(audit.Audit(), args, cfg, None, None, None, None, None) is None
+    args.calibrations = Path("calibrations")
+    with pytest.raises(ValueError, match="requires both"):
+        audit.audit_execution_comparison(audit.Audit(), args, cfg, None, None, None, None, None)

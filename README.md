@@ -2,7 +2,7 @@
 
 Reproducible language-model training, adaptation, and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
 
-Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipeline comparison achieved **2.38x faster execution with unchanged test predictions**. The latest experiment trains a small CPU answer verifier: it detects more missing answers, but misses the predeclared quality target and is not enabled in the saved deployment policy.
+Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipeline comparison achieved **2.38x faster execution with unchanged test predictions**. The latest experiment adapts all **33.2 million parameters** of an extractive reader on CPU. Memory-bounded microbatches enabled a complete training pass, and held-out answer accuracy improved; the reader still fails the predeclared replacement gate because it loses too many of the generator's existing correct answers.
 
 ## What the experiments do
 
@@ -15,6 +15,7 @@ Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipel
 | Real document extraction | A new 135M LoRA adapter | Generate short answers from complete SQuAD passages; evaluate separate articles with exact match and token F1. |
 | Longer passages and missing answers | Existing document adapter, continued training, and a separate output guard | Test native unanswerable questions and passages up to 512 tokens; retain answer accuracy when learning or adding abstention. |
 | Learned answer verifier | Frozen document generator plus a 21-parameter logistic classifier | Learn when to withhold an answer, select thresholds on validation only, and measure complete request costs. |
+| Compact extractive reader | 33.2M MiniLM QA model | Adapt every reader parameter on CPU to fresh DuoRC movie plots, preserve the loss with memory-bounded microbatches, and compare answer quality, request latency and RAM with the retained generator. |
 | Training from random weights | 1.90M byte transformer | Learn text patterns on CPU without a pretrained checkpoint or learned tokenizer. |
 
 The training experiment does **not** train the 7B model. The pretrained 135M base was trained elsewhere; this project makes its local adaptation and inference CPU-only. The synthetic task measures copying fields into a specified format, not general reasoning, coding ability, or overall language-model quality.
@@ -23,7 +24,36 @@ The training experiment does **not** train the 7B model. The pretrained 135M bas
 
 Measured on an AMD Ryzen 9 3900X (12 physical cores), approximately 32 GiB RAM, Windows 11. Model workloads ran sequentially. Numerical reports are in [`results/`](results/); downloaded weights, local adapters, and environments remain outside Git.
 
-### Latest: a learned CPU verifier improves detection but misses its target
+### Latest: full-parameter CPU reader training with 4.38 GiB peak memory
+
+![Reader quality, CPU adaptation and request latency](results/figures/reader.png)
+
+We adapted all **33,212,930 trainable parameters** of a compact MiniLM reader using CPU FP32 and system RAM. The completed run performed **256 updates over 2,048 unique questions** in **1,766.17 seconds (29 min 26 sec)**. Loading, before/after evaluation, training, checkpoint saving/reloading and policy selection took **2,245.11 seconds (37 min 25 sec)**, excluding dataset preparation, downloads and Python startup. Sampled peak process RSS was **4.38 GiB**; parameters and optimizer tensors remained on CPU. [Complete report](results/reader/report.json), [training curve](results/reader/training_curve.json), [resolved settings](configs/reader-optimized.json).
+
+The first full-batch attempt exceeded its 8 GiB sampled RSS guard and stopped after 15 updates. We preserved that result, then implemented gradient accumulation with four-example microbatches and an effective batch of eight. A test caught that shortening microbatch padding would change BERT's QA loss; every microbatch now preserves the original global padded width. Loss and every parameter gradient match the full-batch objective in dropout-disabled tests. Active dropout draws and floating-point reduction order can still differ. Four training-only execution trials selected 12 threads/microbatch four, and the fresh run completed under its extended 30-minute training budget. This establishes a workable memory reduction; the partial and complete runs are different amounts of work, so their total times do not establish a training speedup. [Preserved first run](results/reader-batch8/report.json), [calibration and selection](results/reader-calibration/selection.json), [methods](EXPERIMENTS.md#memory-bounded-follow-up).
+
+The evaluation uses a fresh **DuoRC ParaphraseRC** subset: 2,048 training, 256 validation and 512 test questions, each split half native answerable and half native missing. Both models receive the same complete movie plot and question. Movie IDs, exact plots and question IDs are separated across splits, with historical document examples excluded. Answerable questions require an exact literal reference span within the declared token bounds, so this is a filtered extractive subset. The optimized rerun reuses the memory-limited run's test set; it is not an independent replication. [Provenance](results/reader/data_provenance.json), [split manifest](results/reader/split_manifest.json).
+
+At the same fixed null-score threshold of zero, local adaptation improved answerable exact match by **8.59 percentage points** and answerable F1 by **6.59 points**, while missing-answer recall fell by **3.91 points**. Mean held-out span loss fell from **2.2108 to 1.6592**; validation span loss fell from **2.5242 to 1.7580**. The table separates this fixed-threshold learning comparison from the diagnostic threshold chosen on validation.
+
+| Held-out configuration | Exact answerable answers | Answerable token F1 | Missing questions withheld | Generator-correct answers retained |
+| --- | ---: | ---: | ---: | ---: |
+| Retained generator / selected policy | 105/256 (41.02%) | 48.48% | 0/256 (0%) | 105/105 (100%) |
+| Initial reader, fixed threshold 0 | 131/256 (51.17%) | 61.97% | 203/256 (79.30%) | 77/105 (73.33%) |
+| CPU-adapted reader, fixed threshold 0 | 153/256 (59.77%) | 68.57% | 193/256 (75.39%) | 83/105 (79.05%) |
+| CPU-adapted diagnostic, always-answer | 161/256 (62.89%) | 74.02% | 0/256 (0%) | 85/105 (80.95%) |
+
+Joint bootstrap resampling of whole movie clusters gives a 95% interval of **+4.73 to +12.75 points** for the fixed-zero answerable accuracy gain and **+3.16 to +10.27 points** for its answerable F1 gain. The observed missing-recall change has an interval of **−10.81 to +2.65 points**. Across all answerable and missing questions combined, the exact-match change was **+2.34 points**, with an interval of **−1.61 to +6.21**, so a combined-score improvement remains uncertain. These intervals describe this filtered sample, not training-seed variability or arbitrary new documents. [Analysis and all intervals](results/reader/analysis.json).
+
+**The saved policy retains the generator.** On validation, even the trained reader's always-answer endpoint retained only **41/51 (80.39%)** of the generator's exact-correct cases, below the required 95%. Withholding predictions cannot restore those lost exact answers, so none of the 83 tested thresholds can pass all three gates: at least 95% paired retention, at least 40% missing recall, and at most two points of answerable F1 loss. The reader improves aggregate answer quality but exchanges some previously correct answers for different successes. The diagnostic always-answer result is deliberately labeled; it is not a missing-answer solution or an approved deployment policy. Test results never promote a rejected candidate. [All validation decisions](results/reader/selection.json), [frozen policy](results/reader/policy.json).
+
+The [reader initializer](https://huggingface.co/deepset/minilm-uncased-squad2) already had specialized SQuAD2 training on a GPU and carries the publisher's CC-BY-4.0 license. This project makes its **local adaptation and inference** CPU-only. Its training history differs from the 135M generator's, so their comparison does not isolate architecture alone. Raw plots, answer text and model weights stay local; source IDs, hashes, scores, configurations and checkpoint manifests are published. [Independent audit](results/reader/audit.json), [movie-cluster uncertainty analysis](results/reader/analysis.json), [reproduction commands](EXPERIMENTS.md#a-compact-extractive-reader-on-fresh-movie-plots).
+
+Across **36 paired requests** on 12 predetermined test questions, the trained diagnostic reader had a **median paired speed ratio of 8.926x**, exceeding the experimental 2x latency target. Median request latency was **581.66 ms for the generator versus 66.92 ms for the reader**. Tokenization, inference and decoding are included; loading and warmup are excluded. Both models receive the same complete inputs, but their answers and computational work differ. **This is the rejected candidate's speed, not an enabled deployment speedup or a claim of equivalent outputs.** All 36 predictions per arm replayed their respective saved batched outputs. Separate fresh-process probes measured **1.118 GiB generator versus 0.473 GiB reader** sampled peak RSS; each reproduced all 12 saved outputs. [Paired requests](results/reader/benchmark-paired.json), [generator memory probe](results/reader/benchmark-generator.json), [reader memory probe](results/reader/benchmark-reader.json).
+
+**367 tests passed.** The independent audit passed **486,321 checks**, reconstructing data/span alignment, training schedules, validation decisions and saved-output scores, verifying checkpoint changes and publication hashes, and checking that calibration and both runs preserve the intended comparison work. It does not rerun model inference. The saved deployment command also reloaded successfully on CPU and answered a simple new passage through the retained generator.
+
+### A learned CPU verifier improves detection but misses its target
 
 ![Verifier quality tradeoff and complete request latency](results/figures/document-verifier.png)
 

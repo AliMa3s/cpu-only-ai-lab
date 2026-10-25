@@ -269,6 +269,8 @@ def audit_schedule(audit, rows, schedule, curve, report, config):
         audit.equal(item["learning_rate"], rate, "fixed warmup/decay schedule")
         audit.equal(item["input_tokens"], sum(by_id[identifier]["reader_tokens"] for identifier in batch), "actual training token accounting")
         audit.equal(item["padded_tokens"], len(batch) * max(by_id[identifier]["reader_tokens"] for identifier in batch), "actual padded token accounting")
+        if "training_microbatch_size" in config or "microbatch_sizes" in item:
+            audit_microbatch(audit, item, batch, by_id, config)
         audit.check(all(math.isfinite(item[key]) and item[key] >= 0 for key in ("loss", "gradient_norm_before_clipping", "compute_seconds")), "finite training measurements")
     seen = {identifier for batch in schedule[:len(curve)] for identifier in batch}
     for key, expected_value in (("unique_examples_seen", len(seen)), ("presentations", len(curve) * config["training_batch_size"]),
@@ -277,6 +279,17 @@ def audit_schedule(audit, rows, schedule, curve, report, config):
         audit.equal(report["training"][key], expected_value, "training report " + key)
     if report["training"]["stop_reason"] == "scheduled_pass_complete":
         audit.equal(len(curve), len(schedule), "complete pass actually finished")
+
+
+def audit_microbatch(audit, item, batch, by_id, config):
+    size = config.get("training_microbatch_size", config["training_batch_size"])
+    audit.check(type(size) is int and 1 <= size <= len(batch), "valid configured microbatch size")
+    expected_sizes = [min(size, len(batch) - offset) for offset in range(0, len(batch), size)]
+    audit.equal(item["microbatch_sizes"], expected_sizes, "actual microbatch partitions preserve the global batch")
+    audit.equal(item["microbatch_count"], len(expected_sizes), "microbatch backward pass count")
+    width = max(by_id[identifier]["reader_tokens"] for identifier in batch)
+    audit.equal(item["global_padded_width"], width, "every microbatch preserves global padded width")
+    audit.equal(item["padded_tokens"], sum(expected_sizes) * width, "unchanged global QA cross-entropy padding work")
 
 
 def audit_benchmark(audit, value, rows, policy, report, config):
@@ -337,6 +350,99 @@ def privacy(audit, value):
         audit.check(not re.search(r"(?:^|[\s\"'])[A-Za-z]:[\\/]|(?:^|\s)/(?:Users|home|tmp)/|\\\\[^\s\\]+\\", value), "public artifact contains no private absolute path")
 
 
+def audit_execution_comparison(audit, args, config, protocol, artifacts, report, splits, provenance):
+    """Verify the training-only calibration and unchanged original global work."""
+    if "training_microbatch_size" not in config:
+        return None
+    if args.calibrations is None and args.prior_run is None:
+        return None
+    if args.calibrations is None or args.prior_run is None:
+        raise ValueError("Execution comparison requires both --calibrations and --prior-run; omit both for an independent run audit.")
+    chosen = read(args.calibrations / "selection.json")
+    plan = audit.checked_read(args.calibration_plan, chosen["plan_sha256"])
+    original = audit.checked_read(args.original_config, chosen["original_config_sha256"])
+    optimized = audit.checked_read(args.optimized_config, chosen["optimized_config_sha256"])
+    audit.equal(optimized, config, "calibration-chosen config equals actual optimized run semantically")
+    allowed = {"training_threads", "training_microbatch_size", "training_seconds_limit"}
+    audit.equal({key: value for key, value in config.items() if key not in allowed}, {key: value for key, value in original.items() if key not in allowed}, "only three declared execution settings changed")
+    audit.equal(plan["candidates"], [{"threads": threads, "microbatch_size": micro} for threads, micro in ((4, 4), (8, 4), (12, 4), (4, 2))], "four predeclared calibration candidates")
+    audit.check(plan["training_batches"] == 8 and plan["warmup_updates"] == 1 and plan["measured_updates"] == 7 and plan["global_batch_size"] == 8, "fixed calibration work")
+    audit.equal(config["training_seconds_limit"], plan["followup_training_seconds_limit"], "planned followup time budget")
+    audit.equal(config["peak_rss_limit_gib"], plan["followup_peak_rss_limit_gib"], "unchanged RSS budget")
+    audit.equal(chosen["selector_software_sha256"], digest((ROOT / "scripts/select_reader_calibration.py").read_text(encoding="utf-8")), "selector source checksum")
+    software = chosen["calibration_software_sha256"]
+    audit.equal(set(software), {"calibrate_reader_training.py", "reader_training.py", "reader_model.py", "reader_run.py"}, "calibration implementation manifest")
+    for name, expected in software.items():
+        folder = ROOT / ("scripts" if name == "calibrate_reader_training.py" else "src/cpu_ai_lab")
+        audit.equal(digest((folder / name).read_text(encoding="utf-8")), expected, "calibration frozen source " + name)
+    audit.check(chosen["validation_or_test_used_for_selection"] is False and chosen["training_loss_used_for_selection"] is False, "calibration selects only execution measurements")
+    schedule, rows = artifacts["sample_schedule.json"], splits["train"]
+    by_id = {row["id"]: row for row in rows}
+    row_indices = {row["id"]: index for index, row in enumerate(rows)}
+    summaries = []
+    for declared in plan["candidates"]:
+        threads, micro = declared["threads"], declared["microbatch_size"]
+        name = f"threads-{threads}-micro-{micro}.json"
+        candidate = audit.checked_read(args.calibrations / name, chosen["source_sha256"][name])
+        audit.equal(candidate["config"], {**original, "training_threads": threads, "evaluation_threads": threads}, "candidate changes only measured thread count")
+        audit.equal(candidate["software_sha256"], software, "identical calibration implementation")
+        audit.equal(candidate["planned_global_batch_ids"], schedule[:8], "calibration uses only first eight scheduled train batches")
+        audit.equal(candidate["ordered_calibration_ids_sha256"], digest(json.dumps(schedule[:8], separators=(",", ":"))), "calibration ordered-ID binding")
+        audit.equal(candidate["train_data_sha256"], provenance["local_data_sha256"]["train"], "calibration training data binding")
+        audit.equal(candidate["split_manifest_sha256"], provenance["split_manifest_sha256"], "calibration split manifest binding")
+        audit.equal(candidate["reader_weights_sha256"], config["reader_weights_sha256"], "calibration starts from same initializer")
+        audit.check("No validation/test row files" in candidate["data_access"], "TRAIN-only calibration access declaration")
+        audit.check(datetime.fromisoformat(candidate["created_utc"]) < datetime.fromisoformat(protocol["created_utc"]), "calibration completed before optimized protocol")
+        steps = candidate["steps"]
+        for index, step in enumerate(steps):
+            batch = schedule[index]
+            audit.equal(step["global_batch_ids"], batch, "calibration global update identity")
+            audit.equal(step["microbatch_order_ids"], sorted(batch, key=lambda identifier: (by_id[identifier]["reader_tokens"], row_indices[identifier])), "calibration deterministic within-batch order")
+            audit_microbatch(audit, step, batch, by_id, {**config, "training_microbatch_size": micro})
+            audit.equal(step["input_tokens"], sum(by_id[identifier]["reader_tokens"] for identifier in batch), "calibration unchanged actual input work")
+            audit.equal(step["learning_rate"], artifacts["training_curve.json"][index]["learning_rate"], "calibration unchanged learning-rate schedule")
+            audit.equal(step["warmup"], index == 0, "only first calibration update is warmup")
+        median = statistics.median(step["seconds"] for step in steps[1:]) if len(steps) > 1 else None
+        peak = candidate["sampled_peak_process_rss_bytes"]
+        eligible = len(steps) == 8 and peak < config["peak_rss_limit_gib"] * 1024**3
+        audit.equal(candidate["median_timed_step_seconds"], median, "recomputed calibration median")
+        audit.equal(candidate["eligible_for_selection"], eligible, "recomputed calibration eligibility")
+        audit.equal(candidate["sampled_peak_process_rss_gib"], peak / 1024**3, "calibration RSS units")
+        audit.check(candidate["cpu"]["cuda_build"] is None and candidate["cpu"]["cuda_available"] is False and candidate["cpu"]["parameter_devices"] == ["cpu"] and candidate["cpu"]["optimizer_devices"] == ["cpu"], "calibration CPU runtime evidence")
+        summaries.append({"threads": threads, "microbatch_size": micro, "eligible": eligible, "completed_updates": len(steps), "median_timed_step_seconds": median,
+                          "sampled_peak_process_rss_bytes": peak, "sampled_peak_process_rss_gib": peak / 1024**3,
+                          "input_tokens": sum(step["input_tokens"] for step in steps), "padded_tokens": sum(step["padded_tokens"] for step in steps)})
+        privacy(audit, candidate)
+    audit.equal(chosen["candidates"], summaries, "all calibration candidate summaries")
+    selected_index = min((index for index, value in enumerate(summaries) if value["eligible"]), key=lambda index: (summaries[index]["median_timed_step_seconds"], index))
+    winner = summaries[selected_index]
+    audit.equal(chosen["selected"], winner, "independent fastest eligible calibration winner")
+    audit.equal(config["training_threads"], winner["threads"], "actual selected thread count")
+    audit.equal(config["training_microbatch_size"], winner["microbatch_size"], "actual selected microbatch size")
+    privacy(audit, chosen)
+
+    previous = read(args.prior_run / "report.json")
+    for name in ("data_provenance.json", "split_manifest.json", "sample_schedule.json", "initial-validation-decoded.json", "initial-test-decoded.json"):
+        audit.equal(file_hash(args.prior_run / name), previous["artifact_sha256"][name], "original preserved artifact binding")
+        audit.equal(file_hash(args.run / name), file_hash(args.prior_run / name), "unchanged cross-run " + name)
+    audit.equal(read(args.prior_run / "resolved_config.json"), original, "original run matches calibration starting config")
+    audit.equal(report["training"]["initial_state_sha256"], previous["training"]["initial_state_sha256"], "both runs restart from identical initial reader tensor bytes")
+    audit.equal(report["reader_manifests"]["initial"]["files_sha256"]["model.safetensors"], previous["reader_manifests"]["initial"]["files_sha256"]["model.safetensors"], "identical saved initial weights")
+    for name in ("validation", "test"):
+        old = previous[name]["generator"]
+        current = report[name]["generator"]
+        audit.equal({key: value for key, value in current.items() if key != "seconds"}, {key: value for key, value in old.items() if key != "seconds"}, "unchanged cross-run generator predictions and scores")
+    old_curve = audit.checked_read(args.prior_run / "training_curve.json", previous["artifact_sha256"]["training_curve.json"])
+    for before, after in zip(old_curve, artifacts["training_curve.json"], strict=False):
+        for key in ("step", "learning_rate", "input_tokens", "padded_tokens"):
+            audit.equal(before[key], after[key], "identical original-prefix work and objective schedule")
+    audit.equal(len(artifacts["training_curve.json"]), config["optimizer_steps"], "optimized run completes every planned global update")
+    return {"calibration_selection_sha256": file_hash(args.calibrations / "selection.json"), "calibration_source_sha256": chosen["source_sha256"],
+            "original_report_sha256": file_hash(args.prior_run / "report.json"), "original_updates_compared": len(old_curve),
+            "optimized_updates_checked": len(artifacts["training_curve.json"]), "unchanged_data_schedule_initial_weights_and_generator_outputs": True,
+            "selected_execution": {"training_threads": winner["threads"], "training_microbatch_size": winner["microbatch_size"]}}
+
+
 def run(args):
     audit = Audit()
     directory = args.run
@@ -347,7 +453,8 @@ def run(args):
     config, protocol, policy, selection = [artifacts[name + ".json"] for name in ("resolved_config", "protocol", "policy", "selection")]
     audit.equal(config, protocol["config"], "protocol config")
     audit.equal(config, policy["generation_config"], "policy config")
-    audit.equal(set(protocol["software_sha256"]), SOFTWARE, "frozen software manifest")
+    software = SOFTWARE | ({"reader_training.py"} if "training_microbatch_size" in config or "reader_training.py" in protocol["software_sha256"] else set())
+    audit.equal(set(protocol["software_sha256"]), software, "frozen software manifest")
     for name, expected in protocol["software_sha256"].items():
         audit.equal(digest((ROOT / "src/cpu_ai_lab" / name).read_text(encoding="utf-8")), expected, "frozen source " + name)
     for name in ("selection", "protocol"):
@@ -465,6 +572,7 @@ def run(args):
     audit.equal(initial["initializer"]["weights_sha256"], config["reader_weights_sha256"], "pinned reader initializer")
     initializer = args.model_cache / ("models--" + config["reader_model_id"].replace("/", "--")) / "snapshots" / config["reader_revision"] / "model.safetensors"
     audit.equal(file_hash(initializer), config["reader_weights_sha256"], "actual pinned initializer weight bytes")
+    execution_comparison = audit_execution_comparison(audit, args, config, protocol, artifacts, report, splits, provenance)
 
     benchmark_hashes = {}
     for name in sorted(BENCHMARKS):
@@ -501,6 +609,7 @@ def run(args):
             "choice": choice, "historical_exclusions": {"ids": len(old_ids), "contexts": len(old_contexts)},
             "report_sha256": file_hash(directory / "report.json"), "audit_script_sha256": digest(Path(__file__).read_text(encoding="utf-8")),
             "benchmark_sha256": benchmark_hashes, "public_sha256": public_hashes,
+            "execution_comparison": execution_comparison,
             "limitations": ["No model inference or training is repeated; saved best-span/null scores cannot prove the maximizing decoder choice without full logits.",
                             "Tensor bytes prove that saved weights changed; CPU execution is supported by recorded runtime/device evidence and frozen code, not remote hardware attestation.",
                             "Generator token counts and span-eligibility limits are hash-bound preparation metadata; reader tokenizer lengths/alignment are independently recomputed.",
@@ -514,6 +623,11 @@ def main():
     parser.add_argument("--source", type=Path, default=ROOT / "artifacts/document-task-v1")
     parser.add_argument("--source-cache", type=Path, default=ROOT / ".cache/duorc-research")
     parser.add_argument("--model-cache", type=Path, default=ROOT / ".cache/huggingface/hub")
+    parser.add_argument("--calibrations", type=Path, help="Optional execution comparison; also requires --prior-run.")
+    parser.add_argument("--calibration-plan", type=Path, default=ROOT / "configs/reader-training-calibration.json")
+    parser.add_argument("--original-config", type=Path, default=ROOT / "configs/reader.json")
+    parser.add_argument("--optimized-config", type=Path, default=ROOT / "configs/reader-optimized.json")
+    parser.add_argument("--prior-run", type=Path, help="Original execution run for an optional --calibrations comparison.")
     parser.add_argument("--prior-manifests", type=Path, nargs="+", default=[ROOT / "results/document-split-manifest.json", ROOT / "results/document-v2-split-manifest.json", ROOT / "results/document-verifier/split_manifest.json"])
     parser.add_argument("--public", type=Path)
     parser.add_argument("--output", type=Path)

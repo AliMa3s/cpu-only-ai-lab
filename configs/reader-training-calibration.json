@@ -1,0 +1,20 @@
+{
+  "format": "cpu-reader-training-calibration-plan-v1",
+  "reason": "The initial full-batch run exceeded its 8 GiB sampled RSS guard after 15 updates. This execution-only follow-up was chosen before inspecting test scores.",
+  "training_source": "configs/reader.json",
+  "training_batches": 8,
+  "warmup_updates": 1,
+  "measured_updates": 7,
+  "global_batch_size": 8,
+  "candidates": [
+    {"threads": 4, "microbatch_size": 4},
+    {"threads": 8, "microbatch_size": 4},
+    {"threads": 12, "microbatch_size": 4},
+    {"threads": 4, "microbatch_size": 2}
+  ],
+  "selection": "Among candidates completing identical eight scheduled training updates below 8 GiB sampled peak RSS, choose the lowest median of updates 2-8; earlier candidate breaks exact ties. No validation/test score or loss selects a configuration.",
+  "followup_training_seconds_limit": 1800,
+  "followup_peak_rss_limit_gib": 8,
+  "unchanged": "Initializer, data, global sample/update schedule, AdamW settings, learning-rate schedule, clipping, full-parameter objective, inference settings and validation quality rules.",
+  "microbatch_semantics": "Within each global batch, sort by input length and accumulate each microbatch mean loss weighted by its share of examples; step optimizer once per global batch. Every microbatch is padded to the original GLOBAL batch maximum length because BERT QA cross entropy includes padded output positions in its softmax denominator. This reduces simultaneous activation memory without reducing padded-token work or changing the loss objective. Dropout draws and floating-point accumulation order can differ from full-batch training."
+}

@@ -459,13 +459,14 @@ $env:PYTHONNOUSERSITE = '1'
 $env:OPENBLAS_NUM_THREADS = '1'
 $env:OMP_NUM_THREADS = '1'
 
+$env:HF_HUB_OFFLINE = '0'
 & .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run --prepare-model
 & .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_data `
   --config configs/reader.json --download-data --output artifacts/my-reader-data
 
 $env:HF_HUB_OFFLINE = '1'
 & .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
-  --config configs/reader.json --prepared-data artifacts/my-reader-data `
+  --config configs/reader-optimized.json --prepared-data artifacts/my-reader-data `
   --source-run artifacts/document-task-v1 --output artifacts/my-reader-run
 
 & .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
@@ -488,3 +489,61 @@ The paired benchmark uses the first six test questions in each answerability cla
 Paired-mode RSS includes both models. Separate fresh-process generator-only and reader-only probes provide comparable full-process sampled RAM figures. The benchmark measures the diagnostic reader even if validation rejected it; the selected fallback's runtime must not be confused with the candidate's speed. Reload checks compare serial predictions with saved batched outputs, using raw generation hashes separately from trimmed display text. All model workloads run sequentially.
 
 The initial full-batch run is preserved in `results/reader-batch8`. Its sampled process RSS reached 8.13 GiB, stopping training after 15 of 256 planned updates (120 examples). The run still completed evaluation and benchmarks, and its selected policy retained the generator. This partial run is evidence of a resource limit, not completion of the planned training pass. A follow-up execution calibration was declared before inspecting its test scores; it uses only the first eight scheduled training batches to choose a thread count and microbatch size under the same memory guard.
+
+### Memory-bounded follow-up
+
+The original source and first-run evidence are preserved at commit `bb193a7`. Its strict code fingerprints intentionally require that revision for replay. The follow-up adds gradient accumulation: each global batch still has eight examples and one optimizer update, but backward passes release activations after smaller microbatches. Each mean microbatch loss is weighted by its fraction of the global batch. Every microbatch keeps the original global batch's padded width: the underlying BERT QA cross entropy includes padded output positions in its softmax denominator, so reducing that width would change the objective. Tests compare the global loss and every parameter gradient with dropout disabled. Active dropout draws and floating-point accumulation order can still differ between execution arrangements.
+
+The follow-up reuses the original run's train, validation and 512-question test sets. It is an execution rerun, not an independent held-out replication. The resource fix and calibration plan were fixed before inspecting the first run's test quality; neither run's test scores chose the microbatch/thread setting or changed the quality criteria.
+
+`configs/reader-training-calibration.json` declares four candidates: 4/8/12 threads with microbatch size four, and four threads with microbatch size two. Each candidate starts from the same initializer in a fresh process and consumes the same first eight scheduled training batches. The first update warms up; median time over the remaining seven selects the fastest candidate that finishes all eight below 8 GiB sampled RSS. Only training rows and provenance metadata are read; no validation/test outcome or training loss selects the execution setting. The complete follow-up starts again from the initializer, retains the same data, effective batch, 256-update schedule, learning-rate/optimizer settings and quality criteria, and raises the training time guard from 900 to 1,800 seconds. The initial eight-batch calibration cannot guarantee later peak memory or completion time.
+
+Training timings include microbatch collation, forward/backward, clipping and the optimizer step. Calibration additionally includes scheduled learning-rate assignment and gradient zeroing; the main run's per-update `compute_seconds` starts after those operations. Compare complete training-stage times with this scope difference in mind. The preserved partial run and the full follow-up perform different numbers of updates, so their total durations are not a fixed-work speed comparison.
+
+The recorded calibration selected **12 threads and microbatch size four**, at a 7.07-second median update and 3.07 GiB sampled peak process RSS. The four medians in declared order were 8.95, 7.22, 7.07 and 8.94 seconds. All candidates completed the same eight updates, with 20,468 input tokens and 28,912 padded tokens. These short sequential trials are execution tuning evidence, not a statistically established training speedup. See [raw trials and verified selection](results/reader-calibration/selection.json).
+
+To repeat calibration, use a new output folder and run each candidate in a separate process with other model jobs stopped:
+
+```powershell
+$plan = Get-Content configs/reader-training-calibration.json -Raw | ConvertFrom-Json
+foreach ($candidate in $plan.candidates) {
+  $output = 'results/my-reader-calibration/threads-{0}-micro-{1}.json' -f $candidate.threads,$candidate.microbatch_size
+  & .\.venv\Scripts\python.exe scripts/calibrate_reader_training.py `
+    --prepared-data artifacts/my-reader-data --threads $candidate.threads `
+    --microbatch-size $candidate.microbatch_size --output $output
+  if ($LASTEXITCODE -ne 0) { throw 'Calibration failed' }
+}
+& .\.venv\Scripts\python.exe scripts/select_reader_calibration.py `
+  --calibrations results/my-reader-calibration `
+  --output results/my-reader-calibration/selection.json `
+  --optimized-config configs/my-reader-optimized.json
+```
+
+Use that newly selected configuration for the training command above if repeating calibration. To export and independently check a completed run, then produce uncertainty estimates and the figure:
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/export_reader.py `
+  --run artifacts/my-reader-run --output results/my-reader
+& .\.venv\Scripts\python.exe scripts/audit_reader.py `
+  --run artifacts/my-reader-run --prepared artifacts/my-reader-data `
+  --public results/my-reader --output results/my-reader/audit.json
+& .\.venv\Scripts\python.exe scripts/analyze_reader.py `
+  --report results/my-reader/report.json --output results/my-reader/analysis.json
+& .\.venv\Scripts\python.exe scripts/plot_reader.py `
+  --report results/my-reader/report.json --selection results/my-reader/selection.json `
+  --benchmark results/my-reader/benchmark-paired.json --output results/figures/my-reader
+```
+
+The analysis resamples whole movie clusters 10,000 times with seed 20261102, using the same draws for every model. Questions retain equal weight; descriptive passage-length groups are not artificially rebalanced. Percentile intervals describe uncertainty in this filtered sample, not training-seed variation, production prevalence or performance on arbitrary documents.
+
+The ordinary audit checks a completed run independently of earlier execution trials. To additionally verify the recorded calibration selection, equality of the two runs' data and global schedules, unchanged generator/initial-reader outputs, and unchanged work in the first 15 updates, explicitly supply both comparison sources:
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/audit_reader.py `
+  --run artifacts/reader-optimized --prepared artifacts/reader-data --public results/reader `
+  --calibrations results/reader-calibration --prior-run artifacts/reader-run `
+  --calibration-plan configs/reader-training-calibration.json `
+  --original-config configs/reader.json --optimized-config configs/reader-optimized.json
+```
+
+For a new calibration comparison, replace those paths with the newly generated trial folder, configurations and preserved prior run. Saved audit outputs refuse differing overwrites; choose a new output path when recording an audit with different options.

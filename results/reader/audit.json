@@ -1,0 +1,73 @@
+{
+  "format": "cpu-reader-audit-v1",
+  "passed": true,
+  "checks": 486321,
+  "counts": {
+    "train": 2048,
+    "validation": 256,
+    "test": 512
+  },
+  "completed_updates": 256,
+  "choice": {
+    "kind": "generator",
+    "checkpoint": null,
+    "threshold": null,
+    "diagnostic_checkpoint": "final",
+    "diagnostic_threshold": "always_answer"
+  },
+  "historical_exclusions": {
+    "ids": 3177,
+    "contexts": 3161
+  },
+  "report_sha256": "015ceddb15babcc5778dc24f8c0352baaf34d10559540e25e6bb96c16cd279aa",
+  "audit_script_sha256": "0912a16b5eb5ec72a2ef97ab66f98df34e54568aa47a863bc3f57506fb0f841d",
+  "benchmark_sha256": {
+    "benchmark-generator.json": "5aa958e988eab7de43c237d42037a5e2d6dcf5bf28d72a03791fca7c3bbd8fe4",
+    "benchmark-paired.json": "2bbdcd04449f6e821bbeaee67b1441a4547bc152dc9d71ba2043b620db294759",
+    "benchmark-reader.json": "f1b1d78c31187c692a502973549184a1d359753583d4bab172021ae764ac460d"
+  },
+  "public_sha256": {
+    "analysis.json": "11efb434f4300e82aeb7de05ee344b10e3c89d5ccb48117e77770ab77c587455",
+    "benchmark-generator.json": "5aa958e988eab7de43c237d42037a5e2d6dcf5bf28d72a03791fca7c3bbd8fe4",
+    "benchmark-paired.json": "2bbdcd04449f6e821bbeaee67b1441a4547bc152dc9d71ba2043b620db294759",
+    "benchmark-reader.json": "f1b1d78c31187c692a502973549184a1d359753583d4bab172021ae764ac460d",
+    "data_provenance.json": "c608ffa44518e1c000b9bbfeae6193462f579d89064ac7a7fce9b241f3f396aa",
+    "final-test-decoded.json": "d7913915aaf5021fe801bbcd6f55dc0393aa04c818fdcd5487354204ad6940ca",
+    "final-validation-decoded.json": "fd051e74a2ed33c482d0e2ae7eec3a17d891410991b31381033432749954c4d4",
+    "generator-test.json": "1443a2b2a6a28d2f2a16be66d212f14ac8ac7614ff825eaa544e98de27584249",
+    "generator-validation.json": "effe9c380854aa300c1858ea5ec6199126e767d051a9816c4bfb535af3847e43",
+    "initial-test-decoded.json": "2e41fa83a84f200b82c16e9fe8000b8ecb882f10f8583a5f1c557eec14a9b0fe",
+    "initial-validation-decoded.json": "cd8218ff12067f998ee752287e3c39d11a7e815c9846fc5803fce08ff8df6e52",
+    "policy.json": "bfa54a7ba85f56e0c564be922bc3cdb3abc83b7e41b3c55e6e5d38578d4baa01",
+    "protocol.json": "76b1bf67e314936a0a6978e533df6f3a28699713fe27047f76a5fb090d03850f",
+    "report.json": "015ceddb15babcc5778dc24f8c0352baaf34d10559540e25e6bb96c16cd279aa",
+    "resolved_config.json": "f5f9abe4b031025353ed49a9db97f86ce589ac08bcb8865a1d4322ceda1ce3c7",
+    "sample_schedule.json": "b06dd1a5a5837cc8d7534ca75b91d1692f6b389661ddbc3e28d66236c6ca0eb0",
+    "selection.json": "f9e11044338b473b22dfa7a28cc91889516e1f8b9a20d6d519d923f0514240a9",
+    "split_manifest.json": "4eff84991fd0a3de52e1f23911471c6cdb88fbcf59bfe0f1e20d97e322d29a9b",
+    "training_curve.json": "ff39570333c42257d00ad884b613bbbdc49eb9672d0095f5ff1961098d688116"
+  },
+  "execution_comparison": {
+    "calibration_selection_sha256": "2776c92112aaed4a5ef63d1baeedc60102e0089e5af8bd0cbff5f9a9873ad759",
+    "calibration_source_sha256": {
+      "threads-4-micro-4.json": "8983d7e6b26433da3923f3182e70c6c06898eeebc7fb0dc5b9a3575329f04352",
+      "threads-8-micro-4.json": "ee46b257da7108da2f1ad2e3e0df4d0b18a1e933b665e2df5dd7c17e73cbe4d9",
+      "threads-12-micro-4.json": "e32c1b4f6c0e056661688648e171265bbcffe1c52462fd230983196f8b600691",
+      "threads-4-micro-2.json": "c162a59c59f891ef88636e4ac74988c4f817da75c5a8e462615eb5db03985f94"
+    },
+    "original_report_sha256": "7d18cf24d0c623a324e574ae5c5973821a73cd15e0cd815ab589168ce07f0b52",
+    "original_updates_compared": 15,
+    "optimized_updates_checked": 256,
+    "unchanged_data_schedule_initial_weights_and_generator_outputs": true,
+    "selected_execution": {
+      "training_threads": 12,
+      "training_microbatch_size": 4
+    }
+  },
+  "limitations": [
+    "No model inference or training is repeated; saved best-span/null scores cannot prove the maximizing decoder choice without full logits.",
+    "Tensor bytes prove that saved weights changed; CPU execution is supported by recorded runtime/device evidence and frozen code, not remote hardware attestation.",
+    "Generator token counts and span-eligibility limits are hash-bound preparation metadata; reader tokenizer lengths/alignment are independently recomputed.",
+    "Saved timestamps support policy-before-test ordering but are not cryptographic proof of chronology."
+  ]
+}
