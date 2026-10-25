@@ -1,0 +1,107 @@
+{
+  "format": "cpu-ai-lab-ollama-deployment-v1",
+  "exported_utc": "2026-10-25T08:33:24.000983+00:00",
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "model_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "adapter_directory": "../train-run/adapter",
+  "adapter_sha256": {
+    "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+    "adapter_model.safetensors": "9c7e61cb6a188a37b99b2be7f691441655e114b51102b8b7ce18a756c557e9ed",
+    "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+  },
+  "training_metrics_sha256": "49b6e5345d9dd5e475a1896023d6713fac4e56460041d459f054aa266dd2dbd3",
+  "model_directory": "model",
+  "model_files_sha256": {
+    "config.json": "1c114e7e1c69b477b31263e8edd7aee5d46d5517788247a90e5424a97e3d69bd",
+    "generation_config.json": "de18ea024cebdd39747ad7b551645b00fb44e0b1e2d1c7f1729e4765593c91af",
+    "merges.txt": "0b54e8aa4e53d5383e2e4bc635a56b43f9647f7b13832d5d9ecd8f82dac4f510",
+    "model.safetensors": "91e87caf72f72634e002db1469b4902906c98f40828e188c0167ae8261b54a54",
+    "special_tokens_map.json": "68d920624c05998fa87a133555aff625768fc69f1b41baf0592f8d09b60896b3",
+    "tokenizer.json": "7d27c493c729a66ecefc837280b05d948b1ed50d130eebdbf911b1b36cf38ed7",
+    "tokenizer_config.json": "4ab8a5c09082de3362e1f12467e02d47e7ed9fd4e81eac370662b286dbb84bbd",
+    "vocab.json": "82b84012e3add4d01d12ba14442026e49b8cbbaead1f79ecf3d919784f82dc79"
+  },
+  "dtype": "float16",
+  "merge_dtype": "float32",
+  "modelfile": "Modelfile",
+  "modelfile_sha256": "c34acb81033dfa2e3a5af4ef8c3870717cb04429471f83d5949d2040644ab949",
+  "template_scope": "Tokenizer-verified single-turn ChatML; benchmarks must send tokenizer-rendered prompts with raw=true.",
+  "template_probe_sha256": "6c6330419693d8ffbc8c05902b5858dd2c81722dff0804e6463467a8a7ebabc2",
+  "ollama_model": "cpu-ai-lab-smollm2:trained-f16",
+  "ollama_created": true,
+  "ollama_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+  "create_requested": true,
+  "cpu_evidence": {
+    "torch_cuda_build": null,
+    "cuda_available": false,
+    "parameter_devices": [
+      "cpu"
+    ],
+    "parameter_dtypes": [
+      "torch.float16"
+    ]
+  },
+  "versions": {
+    "torch": "2.8.0+cpu",
+    "transformers": "4.51.3",
+    "peft": "0.15.2"
+  },
+  "notes": [
+    "FP16 rounding is a numerical change; validate task quality before selecting this deployment.",
+    "Export and import do not benchmark inference. Benchmark requests must force num_gpu=0 and verify zero VRAM.",
+    "The trained adapter is merged into the original pinned base on CPU in FP32 before the FP16 cast.",
+    "No remote download, model upload, or replacement of an existing Ollama name is requested."
+  ],
+  "create_error": null,
+  "create_seconds": 0.7937627000010252,
+  "import_attempts": [
+    {
+      "format": "safetensors",
+      "status": "failed",
+      "error": {
+        "type": "CalledProcessError",
+        "message": "Command '['ollama', 'create', 'cpu-ai-lab-smollm2:trained-f16', '-f', 'Modelfile']' returned non-zero exit status 1."
+      },
+      "seconds": 0.05743129999973462
+    },
+    {
+      "format": "gguf",
+      "started_utc": "2026-10-25T08:38:47.259622+00:00",
+      "status": "complete",
+      "ollama_digest": "f3833121f88a2fa49876fd77e190e78a64fddc0ef7791810d6575b380242316c",
+      "seconds": 0.7937627000010252
+    }
+  ],
+  "converter": {
+    "file": "convert_hf_to_gguf.py",
+    "sha256": "c9f5f413dcb77b1272f80b26a270ef44c82612a2af7c70712cfdd8446b0788f2",
+    "source_commit": "b3fa69955ea81c3b60e77e3c1e2224c4a826ffb9",
+    "source_commit_verified": false,
+    "source_url": "https://github.com/ggml-org/llama.cpp/blob/b3fa69955ea81c3b60e77e3c1e2224c4a826ffb9/convert_hf_to_gguf.py",
+    "provenance_note": "Commit supplied for an extracted source archive; script SHA-256 records exact executed bytes."
+  },
+  "conversion_status": "complete",
+  "conversion_error": {
+    "type": "CalledProcessError",
+    "returncode": 1,
+    "message": "Conversion failed; inspect local command output. Existing files were retained."
+  },
+  "conversion_seconds": 5.101124900000286,
+  "gguf_file": "model-f16.gguf",
+  "gguf_sha256": "c8e64b65018bf90f742c64750c535b271fe024cf83cd6e928ab2ca9480739154",
+  "import_format": "gguf",
+  "safetensors_modelfile_sha256": "7f70c855067aaa7dabbd2ed4eea05151c4180eda21ba2e8cf9378b03f2dd5254",
+  "ollama_details": {
+    "parent_model": "model-f16.gguf",
+    "format": "gguf",
+    "family": "llama",
+    "families": [
+      "llama"
+    ],
+    "parameter_size": "134.52M",
+    "quantization_level": "F16",
+    "context_length": 8192,
+    "embedding_length": 576,
+    "runner": "llamacpp"
+  }
+}

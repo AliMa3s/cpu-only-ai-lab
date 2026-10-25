@@ -1,0 +1,1038 @@
+{
+  "status": "complete",
+  "experiment": "FP32 LoRA unmerged versus FP32 adapter merged; no quantization",
+  "settings": {
+    "training_dir": "artifacts/train-run",
+    "output": "results/merge.json",
+    "threads": 4,
+    "tokens": 32,
+    "prompts": 2,
+    "repeats": 3,
+    "warmups": 1,
+    "quality_examples": 0,
+    "quality_tokens": 40,
+    "seed": 31415
+  },
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "model_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "adapter_sha256": {
+    "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+    "adapter_model.safetensors": "9c7e61cb6a188a37b99b2be7f691441655e114b51102b8b7ce18a756c557e9ed",
+    "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+  },
+  "versions": {
+    "python": "3.12.14",
+    "torch": "2.8.0+cpu",
+    "transformers": "4.51.3",
+    "peft": "0.15.2"
+  },
+  "cpu_only": {
+    "torch_cuda_build": null,
+    "cuda_available": false,
+    "tensor_devices": [
+      "cpu"
+    ],
+    "threads": 4
+  },
+  "merge_seconds_including_deepcopy": 0.22239950000039244,
+  "timing_definition": "Model.generate wall time on pretokenized batch-one inputs; includes prompt processing and generation, excludes tokenization, loading, copying, merging and warmup.",
+  "test_examples_evaluated": 32,
+  "test_examples_available": 32,
+  "dataset_sha256": {
+    "validation": "51fb38cee694fd2f7fca412e3726addbf69f00103f9500432891e36b960bfc1a",
+    "test": "72db18bb370bb8925bf4883113a3619de7933796df16fceb574a7cca6b0a6cb9"
+  },
+  "limitations": [
+    "Both model variants remain resident; this is not a per-variant RAM measurement.",
+    "Fixed-token timing differs from naturally stopped quality evaluation.",
+    "Short paired measurements on one machine do not establish statistical significance or broad quality equivalence.",
+    "No checkpoint or training hyperparameters are selected using this test set."
+  ],
+  "logit_probes": [
+    {
+      "prompt_index": 0,
+      "max_absolute_difference": 9.059906005859375e-05,
+      "mean_absolute_difference": 9.6331341410405e-06,
+      "next_token_argmax_equal": true
+    },
+    {
+      "prompt_index": 1,
+      "max_absolute_difference": 9.059906005859375e-05,
+      "mean_absolute_difference": 9.828171641856898e-06,
+      "next_token_argmax_equal": true
+    }
+  ],
+  "benchmark_records": [
+    {
+      "pair": 0,
+      "repeat": 2,
+      "prompt_index": 1,
+      "variant": "unmerged",
+      "seconds": 2.1109396000010747,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 15.159126296168639,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 0,
+      "repeat": 2,
+      "prompt_index": 1,
+      "variant": "merged",
+      "seconds": 2.0969294000005902,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 15.260408862592605,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 1,
+      "repeat": 0,
+      "prompt_index": 1,
+      "variant": "merged",
+      "seconds": 2.042449700000361,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 15.667460500982884,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 1,
+      "repeat": 0,
+      "prompt_index": 1,
+      "variant": "unmerged",
+      "seconds": 2.279927499999758,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 14.035534024657977,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 2,
+      "repeat": 0,
+      "prompt_index": 0,
+      "variant": "unmerged",
+      "seconds": 2.25100250000105,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 14.21588825422676,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    },
+    {
+      "pair": 2,
+      "repeat": 0,
+      "prompt_index": 0,
+      "variant": "merged",
+      "seconds": 2.2354708000002574,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 14.314658012977095,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    },
+    {
+      "pair": 3,
+      "repeat": 1,
+      "prompt_index": 1,
+      "variant": "merged",
+      "seconds": 2.128570099999706,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 15.033566430348907,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 3,
+      "repeat": 1,
+      "prompt_index": 1,
+      "variant": "unmerged",
+      "seconds": 2.1764407999999094,
+      "output_tokens": 32,
+      "prompt_tokens": 70,
+      "tokens_per_second": 14.702903933799318,
+      "output": "{\"user\":4228,\"ticket\":6967}\nuser\nWhat is the status of the user's ticket?\n"
+    },
+    {
+      "pair": 4,
+      "repeat": 1,
+      "prompt_index": 0,
+      "variant": "unmerged",
+      "seconds": 2.1402205000013055,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 14.95173044084966,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    },
+    {
+      "pair": 4,
+      "repeat": 1,
+      "prompt_index": 0,
+      "variant": "merged",
+      "seconds": 2.0390851000011025,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 15.693312652808212,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    },
+    {
+      "pair": 5,
+      "repeat": 2,
+      "prompt_index": 0,
+      "variant": "merged",
+      "seconds": 2.0812088000002404,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 15.375679749190136,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    },
+    {
+      "pair": 5,
+      "repeat": 2,
+      "prompt_index": 0,
+      "variant": "unmerged",
+      "seconds": 2.157471099999384,
+      "output_tokens": 32,
+      "prompt_tokens": 71,
+      "tokens_per_second": 14.83218013905685,
+      "output": "{\"user\":7653,\"ticket\":9977}\nuser\nWhat is the user's name?\n{\"user\":"
+    }
+  ],
+  "test": {
+    "unmerged": {
+      "loss": {
+        "loss": 0.00041629142469901126,
+        "target_tokens": 544,
+        "perplexity": 1.0004163780859991,
+        "seconds": 5.5014460000002146
+      },
+      "generation": {
+        "examples": 32,
+        "json_exact_match_rate": 1.0,
+        "valid_json_rate": 1.0,
+        "text_exact_match_rate": 1.0,
+        "generated_tokens_including_eos": 544,
+        "seconds": 37.90858350000053,
+        "end_to_end_generated_tokens_per_second": 14.350311981453814,
+        "records": [
+          {
+            "id": "test-0004",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 4585 was opened by user 7965. Status: closed.",
+            "expected": "{\"user\":7965,\"ticket\":4585}",
+            "generated": "{\"user\":7965,\"ticket\":4585}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.182650900000226,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0019",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 4841 was opened by user 5681. Status: closed.",
+            "expected": "{\"user\":5681,\"ticket\":4841}",
+            "generated": "{\"user\":5681,\"ticket\":4841}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0789141999994172,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0008",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 8478 and the ticket number is 3184.",
+            "expected": "{\"user\":8478,\"ticket\":3184}",
+            "generated": "{\"user\":8478,\"ticket\":3184}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2179412000004959,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0020",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 5451 and the ticket number is 6502.",
+            "expected": "{\"user\":5451,\"ticket\":6502}",
+            "generated": "{\"user\":5451,\"ticket\":6502}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.20771650000097,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0003",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=1090; ticket=2746; status=open.",
+            "expected": "{\"user\":1090,\"ticket\":2746}",
+            "generated": "{\"user\":1090,\"ticket\":2746}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.087064499999542,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0009",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8612; ticket=9702; status=open.",
+            "expected": "{\"user\":8612,\"ticket\":9702}",
+            "generated": "{\"user\":8612,\"ticket\":9702}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1403818999988289,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0026",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 7797 and the ticket number is 7678.",
+            "expected": "{\"user\":7797,\"ticket\":7678}",
+            "generated": "{\"user\":7797,\"ticket\":7678}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.22888039999998,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0005",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: open. The user number is 3881 and the ticket number is 9486.",
+            "expected": "{\"user\":3881,\"ticket\":9486}",
+            "generated": "{\"user\":3881,\"ticket\":9486}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2388087999988784,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0011",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 9270 and the ticket number is 7991.",
+            "expected": "{\"user\":9270,\"ticket\":7991}",
+            "generated": "{\"user\":9270,\"ticket\":7991}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2350124999993568,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0000",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=4185; ticket=7291; status=open.",
+            "expected": "{\"user\":4185,\"ticket\":7291}",
+            "generated": "{\"user\":4185,\"ticket\":7291}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1923840999988897,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0021",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=6238; ticket=9849; status=pending.",
+            "expected": "{\"user\":6238,\"ticket\":9849}",
+            "generated": "{\"user\":6238,\"ticket\":9849}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1863807999998244,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0002",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 4997 and the ticket number is 3417.",
+            "expected": "{\"user\":4997,\"ticket\":3417}",
+            "generated": "{\"user\":4997,\"ticket\":3417}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1698376000003918,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0030",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=7883; ticket=7381; status=pending.",
+            "expected": "{\"user\":7883,\"ticket\":7381}",
+            "generated": "{\"user\":7883,\"ticket\":7381}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0374073999992106,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0017",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 4919 and the ticket number is 5499.",
+            "expected": "{\"user\":4919,\"ticket\":5499}",
+            "generated": "{\"user\":4919,\"ticket\":5499}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1238352000000305,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0023",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 3471 and the ticket number is 4788.",
+            "expected": "{\"user\":3471,\"ticket\":4788}",
+            "generated": "{\"user\":3471,\"ticket\":4788}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1916760000003705,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0016",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8939 was opened by user 9540. Status: open.",
+            "expected": "{\"user\":9540,\"ticket\":8939}",
+            "generated": "{\"user\":9540,\"ticket\":8939}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2130809000009322,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0025",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 2052 was opened by user 4505. Status: closed.",
+            "expected": "{\"user\":4505,\"ticket\":2052}",
+            "generated": "{\"user\":4505,\"ticket\":2052}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2159489000005124,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0015",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=5050; ticket=5543; status=closed.",
+            "expected": "{\"user\":5050,\"ticket\":5543}",
+            "generated": "{\"user\":5050,\"ticket\":5543}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2237163999998302,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0028",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7812 was opened by user 8633. Status: closed.",
+            "expected": "{\"user\":8633,\"ticket\":7812}",
+            "generated": "{\"user\":8633,\"ticket\":7812}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.228420900000856,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0001",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7547 was opened by user 9099. Status: closed.",
+            "expected": "{\"user\":9099,\"ticket\":7547}",
+            "generated": "{\"user\":9099,\"ticket\":7547}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1541720000004716,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0013",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8777 was opened by user 3607. Status: closed.",
+            "expected": "{\"user\":3607,\"ticket\":8777}",
+            "generated": "{\"user\":3607,\"ticket\":8777}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.133087099999102,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0031",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7232 was opened by user 1320. Status: pending.",
+            "expected": "{\"user\":1320,\"ticket\":7232}",
+            "generated": "{\"user\":1320,\"ticket\":7232}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2573226999993494,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0012",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=9976; ticket=8305; status=closed.",
+            "expected": "{\"user\":9976,\"ticket\":8305}",
+            "generated": "{\"user\":9976,\"ticket\":8305}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2157676999995601,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0018",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8206; ticket=2269; status=pending.",
+            "expected": "{\"user\":8206,\"ticket\":2269}",
+            "generated": "{\"user\":8206,\"ticket\":2269}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.228570999999647,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0007",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 2988 was opened by user 5082. Status: pending.",
+            "expected": "{\"user\":5082,\"ticket\":2988}",
+            "generated": "{\"user\":5082,\"ticket\":2988}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.233925000000454,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0022",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 3267 was opened by user 2320. Status: pending.",
+            "expected": "{\"user\":2320,\"ticket\":3267}",
+            "generated": "{\"user\":2320,\"ticket\":3267}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1924985999994533,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0006",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8611; ticket=1822; status=pending.",
+            "expected": "{\"user\":8611,\"ticket\":1822}",
+            "generated": "{\"user\":8611,\"ticket\":1822}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1812305999992532,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0027",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=6421; ticket=9890; status=closed.",
+            "expected": "{\"user\":6421,\"ticket\":9890}",
+            "generated": "{\"user\":6421,\"ticket\":9890}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1234031999993022,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0010",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8251 was opened by user 6198. Status: open.",
+            "expected": "{\"user\":6198,\"ticket\":8251}",
+            "generated": "{\"user\":6198,\"ticket\":8251}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.208057000001645,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0029",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 2020 and the ticket number is 4388.",
+            "expected": "{\"user\":2020,\"ticket\":4388}",
+            "generated": "{\"user\":2020,\"ticket\":4388}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1431819000008545,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0014",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 8373 and the ticket number is 5246.",
+            "expected": "{\"user\":8373,\"ticket\":5246}",
+            "generated": "{\"user\":8373,\"ticket\":5246}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.2168808999995235,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0024",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=7275; ticket=3503; status=open.",
+            "expected": "{\"user\":7275,\"ticket\":3503}",
+            "generated": "{\"user\":7275,\"ticket\":3503}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1984606999994867,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          }
+        ]
+      }
+    },
+    "merged": {
+      "loss": {
+        "loss": 0.00041629469706094824,
+        "target_tokens": 544,
+        "perplexity": 1.0004163813597238,
+        "seconds": 5.727275799999916
+      },
+      "generation": {
+        "examples": 32,
+        "json_exact_match_rate": 1.0,
+        "valid_json_rate": 1.0,
+        "text_exact_match_rate": 1.0,
+        "generated_tokens_including_eos": 544,
+        "seconds": 34.98394510000071,
+        "end_to_end_generated_tokens_per_second": 15.549990101030343,
+        "records": [
+          {
+            "id": "test-0004",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 4585 was opened by user 7965. Status: closed.",
+            "expected": "{\"user\":7965,\"ticket\":4585}",
+            "generated": "{\"user\":7965,\"ticket\":4585}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.182096399999864,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0019",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 4841 was opened by user 5681. Status: closed.",
+            "expected": "{\"user\":5681,\"ticket\":4841}",
+            "generated": "{\"user\":5681,\"ticket\":4841}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.167811300001631,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0008",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 8478 and the ticket number is 3184.",
+            "expected": "{\"user\":8478,\"ticket\":3184}",
+            "generated": "{\"user\":8478,\"ticket\":3184}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1621732000003249,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0020",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 5451 and the ticket number is 6502.",
+            "expected": "{\"user\":5451,\"ticket\":6502}",
+            "generated": "{\"user\":5451,\"ticket\":6502}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.171259499998996,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0003",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=1090; ticket=2746; status=open.",
+            "expected": "{\"user\":1090,\"ticket\":2746}",
+            "generated": "{\"user\":1090,\"ticket\":2746}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1164711000001262,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0009",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8612; ticket=9702; status=open.",
+            "expected": "{\"user\":8612,\"ticket\":9702}",
+            "generated": "{\"user\":8612,\"ticket\":9702}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0853724999997212,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0026",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 7797 and the ticket number is 7678.",
+            "expected": "{\"user\":7797,\"ticket\":7678}",
+            "generated": "{\"user\":7797,\"ticket\":7678}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0019971000001533,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0005",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: open. The user number is 3881 and the ticket number is 9486.",
+            "expected": "{\"user\":3881,\"ticket\":9486}",
+            "generated": "{\"user\":3881,\"ticket\":9486}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.009967100000722,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0011",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 9270 and the ticket number is 7991.",
+            "expected": "{\"user\":9270,\"ticket\":7991}",
+            "generated": "{\"user\":9270,\"ticket\":7991}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0949142000008578,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0000",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=4185; ticket=7291; status=open.",
+            "expected": "{\"user\":4185,\"ticket\":7291}",
+            "generated": "{\"user\":4185,\"ticket\":7291}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0959962000015366,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0021",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=6238; ticket=9849; status=pending.",
+            "expected": "{\"user\":6238,\"ticket\":9849}",
+            "generated": "{\"user\":6238,\"ticket\":9849}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.073406100000284,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0002",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 4997 and the ticket number is 3417.",
+            "expected": "{\"user\":4997,\"ticket\":3417}",
+            "generated": "{\"user\":4997,\"ticket\":3417}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0968883999994432,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0030",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=7883; ticket=7381; status=pending.",
+            "expected": "{\"user\":7883,\"ticket\":7381}",
+            "generated": "{\"user\":7883,\"ticket\":7381}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1375889999999345,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0017",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 4919 and the ticket number is 5499.",
+            "expected": "{\"user\":4919,\"ticket\":5499}",
+            "generated": "{\"user\":4919,\"ticket\":5499}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1461718999998993,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0023",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 3471 and the ticket number is 4788.",
+            "expected": "{\"user\":3471,\"ticket\":4788}",
+            "generated": "{\"user\":3471,\"ticket\":4788}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0534158999998908,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0016",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8939 was opened by user 9540. Status: open.",
+            "expected": "{\"user\":9540,\"ticket\":8939}",
+            "generated": "{\"user\":9540,\"ticket\":8939}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0383959000009781,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0025",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 2052 was opened by user 4505. Status: closed.",
+            "expected": "{\"user\":4505,\"ticket\":2052}",
+            "generated": "{\"user\":4505,\"ticket\":2052}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1024089000002277,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0015",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=5050; ticket=5543; status=closed.",
+            "expected": "{\"user\":5050,\"ticket\":5543}",
+            "generated": "{\"user\":5050,\"ticket\":5543}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0888986999998451,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0028",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7812 was opened by user 8633. Status: closed.",
+            "expected": "{\"user\":8633,\"ticket\":7812}",
+            "generated": "{\"user\":8633,\"ticket\":7812}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0741926999999123,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0001",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7547 was opened by user 9099. Status: closed.",
+            "expected": "{\"user\":9099,\"ticket\":7547}",
+            "generated": "{\"user\":9099,\"ticket\":7547}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0741324999999051,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0013",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8777 was opened by user 3607. Status: closed.",
+            "expected": "{\"user\":3607,\"ticket\":8777}",
+            "generated": "{\"user\":3607,\"ticket\":8777}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.111056899999312,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0031",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 7232 was opened by user 1320. Status: pending.",
+            "expected": "{\"user\":1320,\"ticket\":7232}",
+            "generated": "{\"user\":1320,\"ticket\":7232}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.110226300001159,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0012",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=9976; ticket=8305; status=closed.",
+            "expected": "{\"user\":9976,\"ticket\":8305}",
+            "generated": "{\"user\":9976,\"ticket\":8305}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0678153000008024,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0018",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8206; ticket=2269; status=pending.",
+            "expected": "{\"user\":8206,\"ticket\":2269}",
+            "generated": "{\"user\":8206,\"ticket\":2269}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 0.9938595999992685,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0007",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 2988 was opened by user 5082. Status: pending.",
+            "expected": "{\"user\":5082,\"ticket\":2988}",
+            "generated": "{\"user\":5082,\"ticket\":2988}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0732170000010228,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0022",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 3267 was opened by user 2320. Status: pending.",
+            "expected": "{\"user\":2320,\"ticket\":3267}",
+            "generated": "{\"user\":2320,\"ticket\":3267}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1038361999999324,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0006",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=8611; ticket=1822; status=pending.",
+            "expected": "{\"user\":8611,\"ticket\":1822}",
+            "generated": "{\"user\":8611,\"ticket\":1822}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0974249000009877,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0027",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=6421; ticket=9890; status=closed.",
+            "expected": "{\"user\":6421,\"ticket\":9890}",
+            "generated": "{\"user\":6421,\"ticket\":9890}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0400136999996903,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0010",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nTicket 8251 was opened by user 6198. Status: open.",
+            "expected": "{\"user\":6198,\"ticket\":8251}",
+            "generated": "{\"user\":6198,\"ticket\":8251}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.092819799998324,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0029",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: closed. The user number is 2020 and the ticket number is 4388.",
+            "expected": "{\"user\":2020,\"ticket\":4388}",
+            "generated": "{\"user\":2020,\"ticket\":4388}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1434055000008811,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0014",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nStatus: pending. The user number is 8373 and the ticket number is 5246.",
+            "expected": "{\"user\":8373,\"ticket\":5246}",
+            "generated": "{\"user\":8373,\"ticket\":5246}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.1387222000012116,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          },
+          {
+            "id": "test-0024",
+            "prompt": "Extract user and ticket as integers. Reply only with JSON containing the keys user and ticket.\nRecord: user=7275; ticket=3503; status=open.",
+            "expected": "{\"user\":7275,\"ticket\":3503}",
+            "generated": "{\"user\":7275,\"ticket\":3503}",
+            "generated_tokens_including_eos": 17,
+            "generation_seconds_including_prefill": 1.0169055000005756,
+            "text_exact": true,
+            "valid_json": true,
+            "json_exact": true
+          }
+        ]
+      }
+    }
+  },
+  "benchmark_schedule": [
+    {
+      "pair": 0,
+      "prompt_index": 1,
+      "repeat": 2,
+      "order": [
+        "unmerged",
+        "merged"
+      ]
+    },
+    {
+      "pair": 1,
+      "prompt_index": 1,
+      "repeat": 0,
+      "order": [
+        "merged",
+        "unmerged"
+      ]
+    },
+    {
+      "pair": 2,
+      "prompt_index": 0,
+      "repeat": 0,
+      "order": [
+        "unmerged",
+        "merged"
+      ]
+    },
+    {
+      "pair": 3,
+      "prompt_index": 1,
+      "repeat": 1,
+      "order": [
+        "merged",
+        "unmerged"
+      ]
+    },
+    {
+      "pair": 4,
+      "prompt_index": 0,
+      "repeat": 1,
+      "order": [
+        "unmerged",
+        "merged"
+      ]
+    },
+    {
+      "pair": 5,
+      "prompt_index": 0,
+      "repeat": 2,
+      "order": [
+        "merged",
+        "unmerged"
+      ]
+    }
+  ],
+  "timing_summary": {
+    "unmerged": {
+      "calls": 6,
+      "total_output_tokens": 192,
+      "total_generation_seconds": 13.116002000002482,
+      "aggregate_tokens_per_second": 14.638607099935154,
+      "median_call_seconds": 2.1669559499996467
+    },
+    "merged": {
+      "calls": 6,
+      "total_output_tokens": 192,
+      "total_generation_seconds": 12.623713900002258,
+      "aggregate_tokens_per_second": 15.209470170261515,
+      "median_call_seconds": 2.0890691000004153
+    },
+    "merged_speedup_ratio": 1.0389970894381673,
+    "paired_speedup_ratios": [
+      1.0066812931329403,
+      1.1162710641047144,
+      1.0069478429334844,
+      1.0224896046412613,
+      1.0495984203896875,
+      1.0366432719288592
+    ],
+    "paired_median_speedup_ratio": 1.0295664382850602,
+    "paired_min_speedup_ratio": 1.0066812931329403,
+    "paired_max_speedup_ratio": 1.1162710641047144
+  },
+  "observed_quality_check": {
+    "passed": true,
+    "checks": {
+      "no_json_exact_match_drop": true,
+      "no_valid_json_drop": true,
+      "loss_increase_at_most_1e_minus_5": true,
+      "logit_max_absolute_difference_at_most_1e_minus_3": true
+    },
+    "scope": "Observed checks on this held-out synthetic task and two validation logit probes; not general quality equivalence."
+  },
+  "recipe_file": "merge-recipe.json"
+}

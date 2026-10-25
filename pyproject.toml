@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cpu-only-ai-lab"
+version = "0.1.0"
+description = "Reproducible CPU-only language model training and inference experiments"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "torch==2.8.0",
+  "transformers==4.51.3",
+  "peft==0.15.2",
+  "accelerate==1.6.0",
+  "numpy==2.2.6",
+  "psutil==7.0.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.5"]
+deploy = ["sentencepiece==0.2.1", "protobuf==4.25.8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

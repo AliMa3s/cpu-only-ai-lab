@@ -1,0 +1,9 @@
+{
+  "cpu": "AMD Ryzen 9 3900X 12-Core Processor",
+  "physical_cores": 12,
+  "logical_processors": 24,
+  "physical_memory_bytes": 34269245440,
+  "os": "Microsoft Windows 11 Education",
+  "os_version": "10.0.26200",
+  "note": "Hardware inventory; other machine activity was not controlled. Model workloads were run sequentially."
+}

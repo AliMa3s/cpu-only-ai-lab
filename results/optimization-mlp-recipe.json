@@ -1,0 +1,29 @@
+{
+  "format": "cpu-ai-lab-reconstruction-v1",
+  "selected_variant": "fp32",
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "model_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "adapter_directory": "../artifacts/train-run/adapter",
+  "adapter_sha256": {
+    "adapter_config.json": "96de7d899b6c363f4009ae7c58ea12664d14586b8a7dfddd9506d7886b11d8b0",
+    "adapter_model.safetensors": "9c7e61cb6a188a37b99b2be7f691441655e114b51102b8b7ce18a756c557e9ed",
+    "README.md": "cfa85e367113113a54e233050b748e3092bc5f7dff9765d1eb7cc17ad1319bbe"
+  },
+  "versions": {
+    "python": "3.12.14",
+    "torch": "2.8.0+cpu",
+    "transformers": "4.51.3",
+    "peft": "0.15.2"
+  },
+  "threads": 4,
+  "inter_op_threads": 1,
+  "quantization_engine": null,
+  "quantization_scope": null,
+  "quantized_module_names": [],
+  "steps": [
+    "Load the pinned base checkpoint locally in FP32 on CPU.",
+    "Load the saved adapter with PeftModel.from_pretrained and merge_and_unload(safe_merge=True).",
+    "Set eval mode and use_cache=True."
+  ],
+  "serialization": "Reconstruct from safetensors adapter and pinned base; no pickled executable model is required."
+}

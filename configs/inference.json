@@ -1,0 +1,22 @@
+{
+  "model": "qwen2.5-coder:7b",
+  "base_url": "http://127.0.0.1:11434",
+  "threads": [2, 4, 6, 8, 12],
+  "baseline_threads": 12,
+  "context": 2048,
+  "tokens": 64,
+  "warmup_tokens": 8,
+  "confirmation_repeats": 2,
+  "seed": 20261025,
+  "timeout_seconds": 300,
+  "tuning_prompts": [
+    "Explain how merge sort works, including its time complexity, then write a Python implementation.",
+    "Write a Python function that counts word frequencies in a text file, then explain its edge cases.",
+    "Explain the difference between a SQL inner join and a left join, with a concrete example of each."
+  ],
+  "confirmation_prompts": [
+    "Write a Python breadth-first search for the shortest path in an unweighted graph and explain its complexity.",
+    "Explain why database transactions need atomicity and isolation, with practical examples.",
+    "Write a Python function to merge overlapping intervals and explain how you would test it."
+  ]
+}
