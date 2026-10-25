@@ -1,0 +1,52 @@
+{
+  "format": "cpu-document-verifier-audit-v1",
+  "passed": true,
+  "checks": 312820,
+  "split_counts": {
+    "train": 1024,
+    "validation": 120,
+    "test": 348
+  },
+  "positive_train_labels": 186,
+  "historical_exclusions": {
+    "unique_ids": 1685,
+    "unique_contexts": 1669
+  },
+  "report_sha256": "dbad97d65c71f89ba5d322d08bcda1b69dd3c587554b8e0ab96ddf4cc27e9225",
+  "audit_script_sha256": "fde0be0e55a5748a8f229d8d4f23d5b3e7b999f3c361bb751c0d570a46ad635c",
+  "prior_manifest_sha256": [
+    "3d28a88ab92f99542dec9f7de9f1506d43321a2e804cfa48f09d4ef7a38bb280",
+    "d59241f1aeeaf6f98821725cbcfe478fb5b0637089f2fff2b9416d3fe0bde2f7"
+  ],
+  "benchmark_sha256": {
+    "benchmark-baseline.json": "bef33ab7601f51c9b840393a4b82f7adc82a77803f835764a9d3d391924b2982",
+    "benchmark-paired.json": "70d8f313ca7c071758c201bcc1d9a5b0918b5c41cb011516f57627398e43f96d",
+    "benchmark-verifier.json": "eae8615e1ca5637ab9ac678bac48e68d7a27c23d41254653a6a9a90b182fa187"
+  },
+  "public_sha256": {
+    "analysis.json": "0bf384e4b448e4a8e347670c251dfd7836f1593be1d64d9ae0b3a2f871ee4e13",
+    "benchmark-baseline.json": "bef33ab7601f51c9b840393a4b82f7adc82a77803f835764a9d3d391924b2982",
+    "benchmark-paired.json": "70d8f313ca7c071758c201bcc1d9a5b0918b5c41cb011516f57627398e43f96d",
+    "benchmark-verifier.json": "eae8615e1ca5637ab9ac678bac48e68d7a27c23d41254653a6a9a90b182fa187",
+    "data_provenance.json": "daf999435ea920dcb4e78f0ef146cf2bef828233407842f80b78ba770a68411c",
+    "policy.json": "b9a6fb86f4e6256fdca454151978397dad79f19378451e436706d58fe14375a4",
+    "protocol.json": "0fa583eb792c7b0ab5775b23df94075e927dcb96617e384140a260cadfc4803e",
+    "report.json": "dbad97d65c71f89ba5d322d08bcda1b69dd3c587554b8e0ab96ddf4cc27e9225",
+    "resolved_config.json": "1cb58c473850ce839c513fae0a02c6cd60974f23d068fbb5e21b7e1597a52f79",
+    "selection.json": "1c919d1e52d4a6d73407b7d8843dad84a89db251e9a36405a96551d7d464038f",
+    "split_manifest.json": "1004da5c1921f09ab01162fc8f607de4c6145d330d729b61dc6f983cce8373cd",
+    "test-features.json": "c5ef73decd8d44609cc16c34687439ba8bc7016bfe1c0e71de27e9af8be234b1",
+    "train-features.json": "8250cfab9accbb94d05d9877ec8f1530ceca916bd465993b71c3cf239fd392e2",
+    "validation-features.json": "f761d87fb21213beae15f4b3ce6b9e7122a7039b12f78940bf8e1efa62aa8e28",
+    "verifier.json": "9e882f5780b812cae1f1c2c9154c9112c904285babc6dd7b6b5feee94e5e17ab"
+  },
+  "supplemental_analysis_software_sha256": {
+    "analyze_document_verifier.py": "a0f6a163b96655fed15f5577a817a3760266b56bc4d81fcbe80b2a38f8a3e02f",
+    "analyze_document_v2.py": "008b9f1ea27a77e6d38d73cc80a3e259764e543404e9022f84a22d6985d0e3f5"
+  },
+  "limitations": [
+    "No language-model inference is repeated. Saved confidence summaries are checked for consistency but cannot be independently reconstructed without token logits.",
+    "Saved timestamps and frozen-source ordering support policy-before-test chronology; timestamps alone are not cryptographic proof of execution order.",
+    "Recorded token counts are checked against limits; this audit does not import a tokenizer or retokenize the corpus."
+  ]
+}

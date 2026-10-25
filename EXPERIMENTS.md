@@ -323,3 +323,96 @@ A guard-induced abstention means **no supported span was extracted**, not that t
 ```
 
 The plotting command uses the published primary metrics, validation trials, and guard report to write `results/figures/document-v2.png` and `.svg`. It requires the existing optional plotting dependencies. Keep the guard's `policy.json` and hash-bound `report.json` together when publishing or moving them; the whitelist for publication is those two files plus `reload_verification.json`, without source passages, generated answer strings, or model weights.
+
+## Learning when to withhold an answer on CPU
+
+This follow-up freezes the original selected document adapter and trains one small logistic correctness verifier. Its training target is 1 only when the raw generator gives an exact-correct answer to an answerable question. Incorrect answers and outputs on missing-answer questions are negative examples. The classifier learns 20 coefficients and an intercept; no language-model weights are updated. A verifier may retain the original answer or replace it with `NOT_FOUND`.
+
+This is a bounded test of selective answering, motivated by [Kamath, Jia and Liang (2020)](https://aclanthology.org/2020.acl-main.503/). The paper motivates a learned error detector; its reported performance is not a result for this model or machine.
+
+### Fresh passages and fixed recipe
+
+`configs/document-verifier.json` fixes seed 20261030, 1,024 training examples, 120 validation examples, and 348 test examples, equally divided among native answerability and short/long passage groups. Every question ID and exact context from **all splits of both earlier document experiments** is excluded from every new split. The current splits are article-disjoint. Validation uses the same 18 official-training articles held out from the original adapter's train/validation pool; test uses official-development articles. Their topics appeared in earlier evaluations, so fresh passages are not an independent corpus replication. Possible pretraining exposure and paraphrases remain uncontrolled.
+
+Initial targets were 256 validation and 512 test examples. Historical exclusions left only 30 distinct missing-long validation contexts and 175 distinct long test contexts. With one question per context and four equally sized groups, the maximum balanced sizes are 120 and 348. These counts were chosen from source availability before model generation. The preparation report records the limits and all exclusions. Complete paragraphs, the unchanged prompt, pinned source bytes, and token budgets are inherited from the preceding experiment.
+
+Features use only the complete passage, question, raw generated answer, and generation distributions. They include six confidence statistics and 14 fixed lexical features listed in the saved model's feature contract. Confidence is computed from processed greedy-generation scores: mean/minimum chosen-token log probability, mean entropy in nats, mean top-1 minus top-2 probability, generated token count, and EOS termination. Confidence averages exclude EOS and later batch padding; an EOS-only generation uses its one EOS distribution. Token count includes EOS. The generator uses FP32, 12 CPU threads, deterministic greedy decoding, length-grouped batches of eight, and a 16-token cap.
+
+Only training features fit the mean/standard-deviation scaler. A deterministic float64 Newton solver minimizes mean binary log loss plus `0.5 * 0.01 * sum(coefficients**2)`; the intercept is unpenalized. The solver has at most 100 updates, fixed damping and line search, and saved convergence evidence. There is one feature recipe, one regularization setting, and one fit. Scores are not calibrated probabilities for real user queries; this experiment's artificial answerability mixture differs from deployment prevalence.
+
+### Validation selection and failure behavior
+
+Thresholds are the fixed grid 0.00 through 1.00 in increments of 0.01, plus a named always-abstain diagnostic. A score strictly below the threshold suppresses the answer. Existing model abstentions remain abstentions. A deployable verifier must satisfy all three validation requirements:
+
+- Retain at least 95% of the raw generator's exact-correct **answerable** responses; a zero baseline-correct denominator fails.
+- Withhold at least 40% of the missing-answer cases.
+- Lose at most 0.02 absolute answerable token F1.
+
+Among passing thresholds, rank by missing-answer recall, then answerable F1, answerable exact match, coverage, and earlier grid entry. If none passes, select unchanged raw model output. Still publish the best threshold satisfying the retention/F1 constraints as a **diagnostic candidate**, even if it misses the recall target. Test results do not promote that candidate. A raw-confidence comparator uses `exp(mean_logprob)` and the same validation search; the fixed span guard is also evaluated without tuning it.
+
+The model, validation selection, and deployment policy are serialized before **any test generation**. The report records timestamps and hashes. Implementation fingerprints use canonical LF newlines so Git newline conversion does not change them. Loading verifies the feature contract, model integrity, policy siblings, original adapter source, prompt, and implementation version. The frozen adapter state hash is checked before and after the experiment. Public metrics distinguish deployed fallback from a rejected candidate and retain strict abstention, answer quality, coverage, and per-group results.
+
+### Reproduction and complete request costs
+
+Use the existing CPU-only environment, cached original document adapter, and pinned SQuAD2 files in `.cache/document-v2-data`. On first preparation, add `--download-data` to fetch the checksum-verified dataset files. If reproducing the earlier experiments with different saved manifests, supply both via `--prior-manifests PATH_TO_ORIGINAL_MANIFEST PATH_TO_V2_MANIFEST`, in that order; the first must match the frozen generator's source run. Choose new output directories when repeating a run; previous artifacts are preserved.
+
+```powershell
+$env:HF_HOME = Join-Path (Get-Location) '.cache\huggingface'
+$env:HF_HUB_OFFLINE = '1'
+$env:PYTHONNOUSERSITE = '1'
+$env:OPENBLAS_NUM_THREADS = '1'
+$env:OMP_NUM_THREADS = '1'
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_data `
+  --config configs/document-verifier.json --output artifacts/my-verifier-data
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_run `
+  --config configs/document-verifier.json --prepared-data artifacts/my-verifier-data `
+  --source-run artifacts/document-task-v1 --output artifacts/my-verifier-run
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_run `
+  --benchmark-run artifacts/my-verifier-run --prepared-data artifacts/my-verifier-data `
+  --benchmark-mode paired --output artifacts/my-verifier-run/benchmark-paired.json
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_run `
+  --benchmark-run artifacts/my-verifier-run --prepared-data artifacts/my-verifier-data `
+  --benchmark-mode baseline --output artifacts/my-verifier-run/benchmark-baseline.json
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_run `
+  --benchmark-run artifacts/my-verifier-run --prepared-data artifacts/my-verifier-data `
+  --benchmark-mode verifier --output artifacts/my-verifier-run/benchmark-verifier.json
+
+& .\.venv\Scripts\python.exe scripts/export_document_verifier.py `
+  --run artifacts/my-verifier-run --output results/my-verifier
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_verifier_run `
+  --load-policy results/my-verifier/policy.json --source-run artifacts/document-task-v1 `
+  --context 'The laboratory opened in Paris in 1999.' --question 'When did the laboratory open?'
+```
+
+The full experiment timer includes model loading, all training/validation/test generation and feature extraction, classifier fitting, and selection. It excludes interpreter startup, dataset preparation, and final report serialization. The classifier-fit timer alone is **not** the training pipeline's total cost.
+
+The paired request benchmark uses the first three test examples in each stratum, fixed by source order, repeated three times. Baseline and verifier arm order alternates. Warmups and model loading are reported separately. The baseline does not collect distributions or features. The verifier arm includes generation, confidence extraction, lexical features, scoring and application of the diagnostic threshold. Every pair records original output hashes and token work; unmatched pairs remain visible and do not enter the paired latency ratio. Separate fresh-process single-arm probes report full sampled process RSS so an allocator shared by the paired run cannot be misreported as incremental verifier RAM. Run model jobs sequentially.
+
+The cost benchmark deliberately measures the candidate even if its quality gate failed. Its overhead then describes a rejected experiment, not the selected deployment. Replay evidence compares the serial request outputs and classifier scores with the saved batched evaluation. Publication exports only whitelisted numerical artifacts, including the small learned classifier coefficients; passages, generated answer strings and language-model weights remain local. Keep `policy.json`, `verifier.json`, `selection.json`, and `protocol.json` together.
+
+### Independent verification and descriptive uncertainty
+
+`scripts/audit_document_verifier.py` independently reconstructs the gold-free lexical features, training labels and scaler, refits the small classifier, replays every validation threshold, recomputes held-out metrics, checks full native passages and historical exclusions, and verifies hashes and publication privacy. It does not repeat language-model inference or independently reconstruct confidence from token logits; fixed live replay and mocked confidence tests cover those separate concerns.
+
+`scripts/analyze_document_verifier.py` jointly resamples the 35 held-out article clusters 10,000 times with seed 20261031. It gives the four strata equal weight and compares the diagnostic candidate and actual selected policy with the raw baseline. It reports exact-correct retention as a level and other scores as paired changes. Empty-stratum draws and zero-denominator retention draws are counted explicitly. These post-selection intervals are descriptive, and do not alter validation gates. An unchanged fallback has zero paired differences by construction, not zero uncertainty about its absolute accuracy.
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/analyze_document_verifier.py `
+  --report results/my-verifier/report.json --output results/my-verifier/analysis.json
+
+& .\.venv\Scripts\python.exe scripts/audit_document_verifier.py `
+  --run artifacts/my-verifier-run --prepared artifacts/my-verifier-data `
+  --public results/my-verifier --output results/my-verifier/audit.json
+
+& .\.venv\Scripts\python.exe scripts/plot_document_verifier.py `
+  --report results/my-verifier/report.json --selection results/my-verifier/selection.json `
+  --benchmark results/my-verifier/benchmark-paired.json --output results/figures/my-verifier
+```
+
+For the recorded run, threshold 0.11 achieved the two headline validation targets (40% missing recall, 95% exact-correct retention), but lost 5.25 points of answerable F1. The added two-point partial-answer quality limit therefore rejected it. The best candidate within both quality constraints used threshold 0.08 and reached only 30% validation missing recall. That diagnostic threshold remained fixed on test; no additional threshold was selected from test outcomes.

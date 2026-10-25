@@ -1,0 +1,328 @@
+{
+  "format": "cpu-document-verifier-paired-analysis-v1",
+  "status": "complete",
+  "source_report_sha256": "dbad97d65c71f89ba5d322d08bcda1b69dd3c587554b8e0ab96ddf4cc27e9225",
+  "selection": {
+    "accepted": false,
+    "enabled": false,
+    "threshold": null,
+    "diagnostic_candidate_threshold": 0.08,
+    "policy_saved_utc": "2026-10-25T13:50:19.155225+00:00",
+    "test_generation_started_utc": "2026-10-25T13:50:19.159251+00:00",
+    "test_used_for_selection": false
+  },
+  "paired_evidence": {
+    "examples": 348,
+    "article_clusters": 35,
+    "same_ids_hashes_labels_lengths_and_order": true,
+    "ordered_identity_sha256": "157eada2d3605730a83555e7226f76b537151056dc2f02cb889012813cfff11c",
+    "stratum_counts": {
+      "answerable_short": 87,
+      "answerable_long": 87,
+      "missing_short": 87,
+      "missing_long": 87
+    }
+  },
+  "comparisons": {
+    "verifier_candidate": {
+      "interpretation": "Diagnostic threshold fixed on validation; may be rejected for deployment.",
+      "paired_correctness": {
+        "overall": {
+          "examples": 348,
+          "both_correct": 86,
+          "baseline_only_correct": 1,
+          "candidate_only_correct": 49,
+          "both_incorrect": 212,
+          "net_additional_correct": 48,
+          "candidate_minus_baseline_exact_match": 0.13793103448275862
+        },
+        "by_stratum": {
+          "answerable_short": {
+            "examples": 87,
+            "both_correct": 37,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 0,
+            "both_incorrect": 50,
+            "net_additional_correct": 0,
+            "candidate_minus_baseline_exact_match": 0.0
+          },
+          "answerable_long": {
+            "examples": 87,
+            "both_correct": 49,
+            "baseline_only_correct": 1,
+            "candidate_only_correct": 0,
+            "both_incorrect": 37,
+            "net_additional_correct": -1,
+            "candidate_minus_baseline_exact_match": -0.011494252873563218
+          },
+          "missing_short": {
+            "examples": 87,
+            "both_correct": 0,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 19,
+            "both_incorrect": 68,
+            "net_additional_correct": 19,
+            "candidate_minus_baseline_exact_match": 0.21839080459770116
+          },
+          "missing_long": {
+            "examples": 87,
+            "both_correct": 0,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 30,
+            "both_incorrect": 57,
+            "net_additional_correct": 30,
+            "candidate_minus_baseline_exact_match": 0.3448275862068966
+          }
+        }
+      },
+      "exact_correct_counts": {
+        "baseline_correct_answerable": 87,
+        "retained_baseline_correct_answerable": 86,
+        "raw_record_retention": 0.9885057471264368
+      },
+      "balanced_point_estimates": {
+        "baseline": {
+          "exact_match": 0.25,
+          "token_f1": 0.2975939609560299,
+          "answerable_exact_match": 0.5,
+          "answerable_token_f1": 0.5951879219120598,
+          "missing_correct_abstention_recall": 0.0
+        },
+        "candidate": {
+          "exact_match": 0.3879310344827586,
+          "token_f1": 0.42741744207261445,
+          "answerable_exact_match": 0.49425287356321834,
+          "answerable_token_f1": 0.5732256887429301,
+          "missing_correct_abstention_recall": 0.2816091954022989
+        },
+        "deltas": {
+          "exact_match": 0.13793103448275862,
+          "token_f1": 0.12982348111658454,
+          "answerable_exact_match": -0.005747126436781658,
+          "answerable_token_f1": -0.021962233169129708,
+          "missing_correct_abstention_recall": 0.2816091954022989
+        },
+        "exact_correct_retention": 0.9885057471264367
+      },
+      "intervals": {
+        "exact_match": {
+          "point_estimate": 0.13793103448275862,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.10735624428428245,
+            0.17397732047539843
+          ],
+          "replicate_mean": 0.1391842014946468
+        },
+        "token_f1": {
+          "point_estimate": 0.12982348111658454,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.10053957606557742,
+            0.163981260515353
+          ],
+          "replicate_mean": 0.13108529030567703
+        },
+        "answerable_exact_match": {
+          "point_estimate": -0.005747126436781658,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            -0.018518518518518545,
+            0.0
+          ],
+          "replicate_mean": -0.00559988109089344
+        },
+        "answerable_token_f1": {
+          "point_estimate": -0.021962233169129708,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            -0.038486653966593204,
+            -0.007156057103311962
+          ],
+          "replicate_mean": -0.021797703468832964
+        },
+        "missing_correct_abstention_recall": {
+          "point_estimate": 0.2816091954022989,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.22424322296790417,
+            0.3505934104041498
+          ],
+          "replicate_mean": 0.28396828408018704
+        },
+        "exact_correct_retention": {
+          "point_estimate": 0.9885057471264367,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.9614237624079344,
+            1.0
+          ],
+          "replicate_mean": 0.9885658368873838
+        }
+      }
+    },
+    "selected": {
+      "interpretation": "Actual validation-selected deployment, including unchanged baseline on rejection.",
+      "paired_correctness": {
+        "overall": {
+          "examples": 348,
+          "both_correct": 87,
+          "baseline_only_correct": 0,
+          "candidate_only_correct": 0,
+          "both_incorrect": 261,
+          "net_additional_correct": 0,
+          "candidate_minus_baseline_exact_match": 0.0
+        },
+        "by_stratum": {
+          "answerable_short": {
+            "examples": 87,
+            "both_correct": 37,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 0,
+            "both_incorrect": 50,
+            "net_additional_correct": 0,
+            "candidate_minus_baseline_exact_match": 0.0
+          },
+          "answerable_long": {
+            "examples": 87,
+            "both_correct": 50,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 0,
+            "both_incorrect": 37,
+            "net_additional_correct": 0,
+            "candidate_minus_baseline_exact_match": 0.0
+          },
+          "missing_short": {
+            "examples": 87,
+            "both_correct": 0,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 0,
+            "both_incorrect": 87,
+            "net_additional_correct": 0,
+            "candidate_minus_baseline_exact_match": 0.0
+          },
+          "missing_long": {
+            "examples": 87,
+            "both_correct": 0,
+            "baseline_only_correct": 0,
+            "candidate_only_correct": 0,
+            "both_incorrect": 87,
+            "net_additional_correct": 0,
+            "candidate_minus_baseline_exact_match": 0.0
+          }
+        }
+      },
+      "exact_correct_counts": {
+        "baseline_correct_answerable": 87,
+        "retained_baseline_correct_answerable": 87,
+        "raw_record_retention": 1.0
+      },
+      "balanced_point_estimates": {
+        "baseline": {
+          "exact_match": 0.25,
+          "token_f1": 0.2975939609560299,
+          "answerable_exact_match": 0.5,
+          "answerable_token_f1": 0.5951879219120598,
+          "missing_correct_abstention_recall": 0.0
+        },
+        "candidate": {
+          "exact_match": 0.25,
+          "token_f1": 0.2975939609560299,
+          "answerable_exact_match": 0.5,
+          "answerable_token_f1": 0.5951879219120598,
+          "missing_correct_abstention_recall": 0.0
+        },
+        "deltas": {
+          "exact_match": 0.0,
+          "token_f1": 0.0,
+          "answerable_exact_match": 0.0,
+          "answerable_token_f1": 0.0,
+          "missing_correct_abstention_recall": 0.0
+        },
+        "exact_correct_retention": 1.0
+      },
+      "intervals": {
+        "exact_match": {
+          "point_estimate": 0.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.0,
+            0.0
+          ],
+          "replicate_mean": 0.0
+        },
+        "token_f1": {
+          "point_estimate": 0.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.0,
+            0.0
+          ],
+          "replicate_mean": 0.0
+        },
+        "answerable_exact_match": {
+          "point_estimate": 0.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.0,
+            0.0
+          ],
+          "replicate_mean": 0.0
+        },
+        "answerable_token_f1": {
+          "point_estimate": 0.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.0,
+            0.0
+          ],
+          "replicate_mean": 0.0
+        },
+        "missing_correct_abstention_recall": {
+          "point_estimate": 0.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            0.0,
+            0.0
+          ],
+          "replicate_mean": 0.0
+        },
+        "exact_correct_retention": {
+          "point_estimate": 1.0,
+          "defined_replicates": 10000,
+          "percentile_95_interval": [
+            1.0,
+            1.0
+          ],
+          "replicate_mean": 1.0
+        }
+      }
+    }
+  },
+  "bootstrap": {
+    "seed": 20261031,
+    "attempted_replicates": 10000,
+    "retained_stratum_complete_replicates": 10000,
+    "skipped_empty_stratum_draw_indices_zero_based": [],
+    "undefined_retention_draw_indices_zero_based": [],
+    "clusters_per_draw": 35,
+    "stratum_order": [
+      "answerable_short",
+      "answerable_long",
+      "missing_short",
+      "missing_long"
+    ],
+    "method": "Jointly resample the observed number of whole article clusters with replacement for baseline, candidate and selected outputs. Preaggregated article totals reproduce member-record repetition exactly. Give each of four strata weight1/4; answerable and missing subgroups give their two length strata weight1/2. Report percentile95% bounds with linear interpolation.",
+    "retention_estimand": "Level, not change: balanced-stratum proportion of baseline-correct answerable outputs that remain exact-correct. Compute the ratio of weighted retained-correct to weighted baseline-correct rates. Draws with zero baseline-correct denominator are undefined only for retention.",
+    "delta_estimands": "Candidate or selected minus raw baseline for EM/F1 and answerability subgroup metrics. All rates and differences are fractions.",
+    "skipping": "Draws with any missing stratum are reported and skipped for every metric; draws with undefined retention still contribute to all EM/F1/recall changes. Skipped draws are not replaced."
+  },
+  "limitations": [
+    "Post-selection descriptive uncertainty on a filtered balanced historical test, not production prevalence, training-seed variance or unseen-corpus performance.",
+    "Article clusters preserve within-article dependence; independence across articles remains an assumption and related facts can cross articles.",
+    "Neither test counts nor intervals select a threshold or relax validation acceptance. A diagnostic candidate can have useful test results while remaining rejected.",
+    "A zero interval for an unchanged selected policy reflects identical predictions by construction, not certainty about absolute answer quality.",
+    "Retention is conditional on baseline exact-correct positives; it does not measure retention of partially correct answers, which is why answerable F1 is separately reported."
+  ],
+  "completed_utc": "2026-10-25T13:56:20.804809+00:00"
+}

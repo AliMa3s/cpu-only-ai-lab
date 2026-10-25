@@ -2,7 +2,7 @@
 
 Reproducible language-model training, adaptation, and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
 
-Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipeline comparison achieved **2.38x faster execution with unchanged test predictions**. The latest document experiment tests longer passages and missing answers, with mixed results described below.
+Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipeline comparison achieved **2.38x faster execution with unchanged test predictions**. The latest experiment trains a small CPU answer verifier: it detects more missing answers, but misses the predeclared quality target and is not enabled in the saved deployment policy.
 
 ## What the experiments do
 
@@ -14,6 +14,7 @@ Read the [project goal and acceptance criteria](GOAL.md). A controlled SMS pipel
 | Complete training pipeline | 135M SMS classifier | Tune threads and batching, then repeat the same 120 updates and all evaluation passes in fresh processes. |
 | Real document extraction | A new 135M LoRA adapter | Generate short answers from complete SQuAD passages; evaluate separate articles with exact match and token F1. |
 | Longer passages and missing answers | Existing document adapter, continued training, and a separate output guard | Test native unanswerable questions and passages up to 512 tokens; retain answer accuracy when learning or adding abstention. |
+| Learned answer verifier | Frozen document generator plus a 21-parameter logistic classifier | Learn when to withhold an answer, select thresholds on validation only, and measure complete request costs. |
 | Training from random weights | 1.90M byte transformer | Learn text patterns on CPU without a pretrained checkpoint or learned tokenizer. |
 
 The training experiment does **not** train the 7B model. The pretrained 135M base was trained elsewhere; this project makes its local adaptation and inference CPU-only. The synthetic task measures copying fields into a specified format, not general reasoning, coding ability, or overall language-model quality.
@@ -22,7 +23,38 @@ The training experiment does **not** train the 7B model. The pretrained 135M bas
 
 Measured on an AMD Ryzen 9 3900X (12 physical cores), approximately 32 GiB RAM, Windows 11. Model workloads ran sequentially. Numerical reports are in [`results/`](results/); downloaded weights, local adapters, and environments remain outside Git.
 
-### Latest: longer passages and a limited missing-answer safeguard
+### Latest: a learned CPU verifier improves detection but misses its target
+
+![Verifier quality tradeoff and complete request latency](results/figures/document-verifier.png)
+
+We trained a **21-parameter correctness classifier entirely on CPU**, using the frozen document model's answer-confidence statistics and fixed lexical features. The generator's weights did not change. This is training a small verifier, not another language-model adaptation run. There were 1,024 training examples, 120 validation examples and 348 test examples, balanced across native missing/answerable and short/long passage groups. Every passage and question ID used in either earlier document experiment was excluded. Article topics still overlap historical evaluations. Limited remaining fresh passages capped validation/test sizes before generation. [Protocol](results/document-verifier/protocol.json), [data provenance](results/document-verifier/data_provenance.json), [methods](EXPERIMENTS.md#learning-when-to-withhold-an-answer-on-cpu).
+
+**The verifier failed the validation gate, so the saved policy keeps the raw generator unchanged.** The best threshold preserving answer quality caught **18/60 missing answers (30%)**, below the required 40%, while retaining all 20 baseline exact-correct answers and losing 1.78 points of answerable F1. The fixed acceptance rules required at least 95% exact-correct retention, at least 40% missing-answer recall, and at most two points of answerable F1 loss. The threshold was saved before test generation; test results did not change this decision. [Selection and all threshold trials](results/document-verifier/selection.json).
+
+The two headline goals were reachable on validation: threshold 0.11 caught **24/60 missing answers (40%)** and retained **19/20 exact-correct answers (95%)**. However, it also lost **5.25 points of answerable F1**, exceeding the additional two-point partial-answer quality limit. This is a measured accuracy trade-off, not a claim that no threshold can reach 40% recall.
+
+The rejected candidate was still evaluated once on the fresh held-out questions:
+
+| Held-out measure | Raw generator | Fixed span guard | Learned verifier candidate |
+| --- | ---: | ---: | ---: |
+| Exact-correct answerable responses | 87/174 (50.00%) | 87/174 (50.00%) | **86/174 (49.43%)** |
+| Missing answers correctly withheld | 0/174 (0%) | 19/174 (10.92%) | **49/174 (28.16%)** |
+| Answerable token F1 | 59.52% | 58.18% | **57.32%** |
+| Answer coverage | 100% | 91.38% | **79.02%** |
+
+The learned verifier retained **86/87 (98.85%)** of the generator's exact-correct answers, but still answered **125/174 missing-answer questions incorrectly**. It suppressed 24 answerable responses, including one exact-correct answer, and reduced answerable F1 by **2.20 points**. Its missing-answer target remained unmet on test as well. A separately validation-tuned raw-confidence comparator caught only 17/174 missing answers and retained 85/87 exact-correct answers; it also failed its validation gate. All comparisons use the same raw generations and held-out questions. Scores from different historical test subsets should not be compared as if their difficulty were identical. [Complete report](results/document-verifier/report.json).
+
+The full measured pipeline took **469.57 seconds (7 min 50 sec)** and peaked at **1.49 GiB** sampled process RSS. Generating training features took 320.72 seconds. The classifier fit itself took only **4.72 ms**, completing six Newton updates on 186 correct-answer positives and 838 negatives; this tiny fit time excludes the expensive model-generation work. Its regularized training objective fell from 0.6931 to 0.4187. Model reload reproduced validation scores exactly, and the language-model adapter hash remained unchanged. [Reusable classifier](results/document-verifier/verifier.json), [timing and CPU evidence](results/document-verifier/report.json).
+
+Across **36 paired requests** on 12 predetermined test questions, median warm request latency was **600.7 ms raw versus 593.6 ms with the candidate verifier**; the median paired ratio was **0.994x**. This small difference does not establish a speedup. The verifier timings include confidence extraction and classification; loading and warmups are separate. All 36 pairs had matching raw output hashes and token counts. Fresh-process reloads reproduced all 72 raw outputs and all 36 verifier outputs in that paired check. This measures the rejected candidate's cost; the selected fallback does not run the verifier. [Paired request evidence](results/document-verifier/benchmark-paired.json).
+
+Separate fresh-process probes measured **1.085 GiB raw versus 1.084 GiB with the candidate** sampled peak RSS, approximately the same footprint on these inputs. These are full-process measurements, not exact or incremental classifier allocations. [Raw memory probe](results/document-verifier/benchmark-baseline.json), [verifier memory probe](results/document-verifier/benchmark-verifier.json).
+
+The classifier is an experimental error detector, not proof that a passage lacks an answer. Overall strict correctness rises from 25.00% to 38.79% for the candidate, but always abstaining would score 50% on this balanced sample while answering nothing correctly. That is why selection uses separate retention, missing-answer, and partial-answer quality gates. Public artifacts include numeric features, scores and the tiny classifier; source passages, generated answer text and language-model weights remain local. Keep the saved policy and its hash-bound sibling files together.
+
+**243 tests passed.** An independent audit recomputed the lexical features for all 1,492 answers using the saved confidence summaries, replayed the training fit, recomputed the threshold trials and test metrics, and verified exclusions and publication hashes. It did not regenerate token logits. A descriptive 10,000-draw article-cluster analysis gives the candidate's 98.85% exact-correct retention an interval of 96.14–100%, and its 28.16% missing-answer recall an interval of 22.42–35.06%. These intervals do not change the failed validation decision or establish performance on new corpora. [Audit evidence](results/document-verifier/audit.json), [paired analysis](results/document-verifier/analysis.json).
+
+### Longer passages and a limited missing-answer safeguard
 
 ![Rejected training checkpoints and the limited effect of the span guard](results/figures/document-v2.png)
 
