@@ -1,0 +1,735 @@
+{
+  "format": "cpu-ai-lab-historical-pipeline-profile-v1",
+  "method": "Derived from recorded timers and input lengths; no model weights loaded or forward passes executed. Optional training pass loads only the cached tokenizer and recreates the recorded sampler.",
+  "limitations": [
+    "Historical wall times are not a fresh paired benchmark.",
+    "Padding/token-square counts are workload-shape estimates, not actual hardware FLOPs or expected speedups.",
+    "Evaluation must retain all examples and original scoring rules when changing batch shape.",
+    "Batching, microbatching and CPU thread changes can alter floating-point results; confirm validation quality before reporting held-out test quality.",
+    "The derived residual includes loading, preprocessing, artifact writes, sampler/Python overhead, and timer boundaries; it is not a separately profiled function."
+  ],
+  "profiles": {
+    "135m": {
+      "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "source_hashes": {
+        "real-task-135m.json": "7bd5a0c1cbb60d7fe36678c35f2f5d55ee4572361ea5d66baa9abd293383bda3",
+        "real-task-135m-curve.json": "bcac78603565b0a77e6fff2e4d59b477107353248cfa49c71f5ecbc83aaa6416",
+        "real-task-135m-config.json": "48eca8c17b25c10cb6fd17c9cf2d044ffe6473c88d436e4f60bf90b51b736029"
+      },
+      "stage_seconds": {
+        "training_compute": 212.24930490000224,
+        "periodic_validation": 135.6836985000009,
+        "before_evaluation": 129.62167749999753,
+        "after_evaluation": 129.66648189999796,
+        "all_evaluation": 394.9718578999964,
+        "other_by_subtraction": 3.2802005000012286,
+        "whole_run": 610.5013632999999
+      },
+      "fractions_of_whole_run": {
+        "training_compute": 0.3476639327268842,
+        "evaluation": 0.6469631054794345,
+        "other": 0.005372961793681271
+      },
+      "amdahl_examples": {
+        "evaluation_2x_training_unchanged_whole_run_speedup": 1.4781562927806777,
+        "training_2x_evaluation_unchanged_whole_run_speedup": 1.2104075191559795,
+        "both_2x_whole_run_speedup": 1.9893115052863657,
+        "required_eval_speedup_for_2x_whole_run_if_training_unchanged": 4.402214442657979,
+        "note": "Arithmetic scenarios, not measured achievable speedups. They assume fixed work and unchanged other overhead."
+      },
+      "evaluation_padding": {
+        "validation": {
+          "historical": {
+            "batch_size": 8,
+            "ordering": "original",
+            "examples": 192,
+            "batches": 24,
+            "unpadded_tokens": 16870,
+            "padded_token_slots": 22272,
+            "padding_token_slots": 5402,
+            "padding_fraction": 0.24254669540229884,
+            "sum_batch_sequence_squares": 2644784,
+            "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime."
+          },
+          "candidate_shape_work": [
+            {
+              "batch_size": 4,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 48,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 20232,
+              "padding_token_slots": 3362,
+              "padding_fraction": 0.16617240015816528,
+              "sum_batch_sequence_squares": 2207144,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9084051724137931
+            },
+            {
+              "batch_size": 4,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 48,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17060,
+              "padding_token_slots": 190,
+              "padding_fraction": 0.011137162954279016,
+              "sum_batch_sequence_squares": 1586908,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7659841954022989
+            },
+            {
+              "batch_size": 8,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 24,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 22272,
+              "padding_token_slots": 5402,
+              "padding_fraction": 0.24254669540229884,
+              "sum_batch_sequence_squares": 2644784,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0
+            },
+            {
+              "batch_size": 8,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 24,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17312,
+              "padding_token_slots": 442,
+              "padding_fraction": 0.025531423290203328,
+              "sum_batch_sequence_squares": 1653568,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7772988505747126
+            },
+            {
+              "batch_size": 16,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 12,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 23888,
+              "padding_token_slots": 7018,
+              "padding_fraction": 0.29378767582049564,
+              "sum_batch_sequence_squares": 3038064,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0725574712643677
+            },
+            {
+              "batch_size": 16,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 12,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17888,
+              "padding_token_slots": 1018,
+              "padding_fraction": 0.056909660107334524,
+              "sum_batch_sequence_squares": 1803744,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.8031609195402298
+            },
+            {
+              "batch_size": 32,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 6,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 26272,
+              "padding_token_slots": 9402,
+              "padding_fraction": 0.3578714981729598,
+              "sum_batch_sequence_squares": 3653920,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.1795977011494252
+            },
+            {
+              "batch_size": 32,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 6,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 19136,
+              "padding_token_slots": 2266,
+              "padding_fraction": 0.11841555183946488,
+              "sum_batch_sequence_squares": 2124736,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.8591954022988506
+            },
+            {
+              "batch_size": 64,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 3,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 28928,
+              "padding_token_slots": 12058,
+              "padding_fraction": 0.41682798672566373,
+              "sum_batch_sequence_squares": 4402688,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.2988505747126438
+            },
+            {
+              "batch_size": 64,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 3,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 21696,
+              "padding_token_slots": 4826,
+              "padding_fraction": 0.22243731563421829,
+              "sum_batch_sequence_squares": 2789696,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9741379310344828
+            }
+          ],
+          "number_of_passes": 6
+        },
+        "test": {
+          "historical": {
+            "batch_size": 8,
+            "ordering": "original",
+            "examples": 512,
+            "batches": 64,
+            "unpadded_tokens": 45883,
+            "padded_token_slots": 61160,
+            "padding_token_slots": 15277,
+            "padding_fraction": 0.24978744277305429,
+            "sum_batch_sequence_squares": 7556056,
+            "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime."
+          },
+          "candidate_shape_work": [
+            {
+              "batch_size": 4,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 128,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 55876,
+              "padding_token_slots": 9993,
+              "padding_fraction": 0.17884243682439688,
+              "sum_batch_sequence_squares": 6323604,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9136036625245259
+            },
+            {
+              "batch_size": 4,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 128,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46032,
+              "padding_token_slots": 149,
+              "padding_fraction": 0.0032368786930830726,
+              "sum_batch_sequence_squares": 4317584,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.752648790058862
+            },
+            {
+              "batch_size": 8,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 64,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 61160,
+              "padding_token_slots": 15277,
+              "padding_fraction": 0.24978744277305429,
+              "sum_batch_sequence_squares": 7556056,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0
+            },
+            {
+              "batch_size": 8,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 64,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46320,
+              "padding_token_slots": 437,
+              "padding_fraction": 0.009434369602763386,
+              "sum_batch_sequence_squares": 4398928,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7573577501635056
+            },
+            {
+              "batch_size": 16,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 32,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 66624,
+              "padding_token_slots": 20741,
+              "padding_fraction": 0.31131424111431316,
+              "sum_batch_sequence_squares": 8949760,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0893394375408765
+            },
+            {
+              "batch_size": 16,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 32,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46976,
+              "padding_token_slots": 1093,
+              "padding_fraction": 0.023267200272479565,
+              "sum_batch_sequence_squares": 4585440,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7680837148463048
+            },
+            {
+              "batch_size": 32,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 16,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 73760,
+              "padding_token_slots": 27877,
+              "padding_fraction": 0.37794197396963125,
+              "sum_batch_sequence_squares": 10926176,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.2060170045781557
+            },
+            {
+              "batch_size": 32,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 16,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 48416,
+              "padding_token_slots": 2533,
+              "padding_fraction": 0.05231741573033708,
+              "sum_batch_sequence_squares": 4990496,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7916285153695226
+            },
+            {
+              "batch_size": 64,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 8,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 81664,
+              "padding_token_slots": 35781,
+              "padding_fraction": 0.43814900078369906,
+              "sum_batch_sequence_squares": 13305856,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.3352517985611512
+            },
+            {
+              "batch_size": 64,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 8,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 51328,
+              "padding_token_slots": 5445,
+              "padding_fraction": 0.10608245012468828,
+              "sum_batch_sequence_squares": 5811200,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.839241334205363
+            }
+          ],
+          "number_of_passes": 2
+        }
+      },
+      "training_padding": {
+        "optimizer_steps": 120,
+        "global_batch_size": 4,
+        "examples_seen": 480,
+        "unique_examples_seen": 389,
+        "input_tokens": 48931,
+        "padded_token_slots": 60948,
+        "padding_fraction": 0.1971680777055851,
+        "sample_id_schedule_sha256": "fe202bc6ef2fdc98b23e28e543f640c857278cc41795751a2f1efc038219f0eb",
+        "microbatch_shape_candidates": [
+          {
+            "microbatch_size": 1,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 480,
+            "padded_token_slots": 48931,
+            "padded_slot_ratio_vs_historical": 0.8028319222944149,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          },
+          {
+            "microbatch_size": 2,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 240,
+            "padded_token_slots": 55724,
+            "padded_slot_ratio_vs_historical": 0.9142875894204896,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          },
+          {
+            "microbatch_size": 4,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 120,
+            "padded_token_slots": 60948,
+            "padded_slot_ratio_vs_historical": 1.0,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          }
+        ]
+      }
+    },
+    "360m": {
+      "model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "source_hashes": {
+        "real-task-360m.json": "dd452919629362fd85c8ede4d7573a013e31d4e5c6beb0df17fb4d8be5473062",
+        "real-task-360m-curve.json": "4f53fde9c30a8a4192ed7f0d4ba9726cd8474355be4f92b38d56000180fc6578",
+        "real-task-360m-config.json": "7ca3f8b9090fb4d5c9381f2738fb7c9f161877f897229e12e4e3d58d4c6d3091"
+      },
+      "stage_seconds": {
+        "training_compute": 530.3994075999981,
+        "periodic_validation": 355.44052969999757,
+        "before_evaluation": 344.39022379999915,
+        "after_evaluation": 343.0153649999993,
+        "all_evaluation": 1042.846118499996,
+        "other_by_subtraction": 3.200520400005189,
+        "whole_run": 1576.4460464999993
+      },
+      "fractions_of_whole_run": {
+        "training_compute": 0.33645262315039737,
+        "evaluation": 0.6615171643934827,
+        "other": 0.002030212456119849
+      },
+      "amdahl_examples": {
+        "evaluation_2x_training_unchanged_whole_run_speedup": 1.4942290978977883,
+        "training_2x_evaluation_unchanged_whole_run_speedup": 1.2022500998965029,
+        "both_2x_whole_run_speedup": 1.9959478019107957,
+        "required_eval_speedup_for_2x_whole_run_if_training_unchanged": 4.0956462235921665,
+        "note": "Arithmetic scenarios, not measured achievable speedups. They assume fixed work and unchanged other overhead."
+      },
+      "evaluation_padding": {
+        "validation": {
+          "historical": {
+            "batch_size": 8,
+            "ordering": "original",
+            "examples": 192,
+            "batches": 24,
+            "unpadded_tokens": 16870,
+            "padded_token_slots": 22272,
+            "padding_token_slots": 5402,
+            "padding_fraction": 0.24254669540229884,
+            "sum_batch_sequence_squares": 2644784,
+            "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime."
+          },
+          "candidate_shape_work": [
+            {
+              "batch_size": 4,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 48,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 20232,
+              "padding_token_slots": 3362,
+              "padding_fraction": 0.16617240015816528,
+              "sum_batch_sequence_squares": 2207144,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9084051724137931
+            },
+            {
+              "batch_size": 4,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 48,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17060,
+              "padding_token_slots": 190,
+              "padding_fraction": 0.011137162954279016,
+              "sum_batch_sequence_squares": 1586908,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7659841954022989
+            },
+            {
+              "batch_size": 8,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 24,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 22272,
+              "padding_token_slots": 5402,
+              "padding_fraction": 0.24254669540229884,
+              "sum_batch_sequence_squares": 2644784,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0
+            },
+            {
+              "batch_size": 8,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 24,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17312,
+              "padding_token_slots": 442,
+              "padding_fraction": 0.025531423290203328,
+              "sum_batch_sequence_squares": 1653568,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7772988505747126
+            },
+            {
+              "batch_size": 16,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 12,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 23888,
+              "padding_token_slots": 7018,
+              "padding_fraction": 0.29378767582049564,
+              "sum_batch_sequence_squares": 3038064,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0725574712643677
+            },
+            {
+              "batch_size": 16,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 12,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 17888,
+              "padding_token_slots": 1018,
+              "padding_fraction": 0.056909660107334524,
+              "sum_batch_sequence_squares": 1803744,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.8031609195402298
+            },
+            {
+              "batch_size": 32,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 6,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 26272,
+              "padding_token_slots": 9402,
+              "padding_fraction": 0.3578714981729598,
+              "sum_batch_sequence_squares": 3653920,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.1795977011494252
+            },
+            {
+              "batch_size": 32,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 6,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 19136,
+              "padding_token_slots": 2266,
+              "padding_fraction": 0.11841555183946488,
+              "sum_batch_sequence_squares": 2124736,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.8591954022988506
+            },
+            {
+              "batch_size": 64,
+              "ordering": "original",
+              "examples": 192,
+              "batches": 3,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 28928,
+              "padding_token_slots": 12058,
+              "padding_fraction": 0.41682798672566373,
+              "sum_batch_sequence_squares": 4402688,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.2988505747126438
+            },
+            {
+              "batch_size": 64,
+              "ordering": "length_sorted",
+              "examples": 192,
+              "batches": 3,
+              "unpadded_tokens": 16870,
+              "padded_token_slots": 21696,
+              "padding_token_slots": 4826,
+              "padding_fraction": 0.22243731563421829,
+              "sum_batch_sequence_squares": 2789696,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9741379310344828
+            }
+          ],
+          "number_of_passes": 6
+        },
+        "test": {
+          "historical": {
+            "batch_size": 8,
+            "ordering": "original",
+            "examples": 512,
+            "batches": 64,
+            "unpadded_tokens": 45883,
+            "padded_token_slots": 61160,
+            "padding_token_slots": 15277,
+            "padding_fraction": 0.24978744277305429,
+            "sum_batch_sequence_squares": 7556056,
+            "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime."
+          },
+          "candidate_shape_work": [
+            {
+              "batch_size": 4,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 128,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 55876,
+              "padding_token_slots": 9993,
+              "padding_fraction": 0.17884243682439688,
+              "sum_batch_sequence_squares": 6323604,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.9136036625245259
+            },
+            {
+              "batch_size": 4,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 128,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46032,
+              "padding_token_slots": 149,
+              "padding_fraction": 0.0032368786930830726,
+              "sum_batch_sequence_squares": 4317584,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.752648790058862
+            },
+            {
+              "batch_size": 8,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 64,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 61160,
+              "padding_token_slots": 15277,
+              "padding_fraction": 0.24978744277305429,
+              "sum_batch_sequence_squares": 7556056,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0
+            },
+            {
+              "batch_size": 8,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 64,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46320,
+              "padding_token_slots": 437,
+              "padding_fraction": 0.009434369602763386,
+              "sum_batch_sequence_squares": 4398928,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7573577501635056
+            },
+            {
+              "batch_size": 16,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 32,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 66624,
+              "padding_token_slots": 20741,
+              "padding_fraction": 0.31131424111431316,
+              "sum_batch_sequence_squares": 8949760,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.0893394375408765
+            },
+            {
+              "batch_size": 16,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 32,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 46976,
+              "padding_token_slots": 1093,
+              "padding_fraction": 0.023267200272479565,
+              "sum_batch_sequence_squares": 4585440,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7680837148463048
+            },
+            {
+              "batch_size": 32,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 16,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 73760,
+              "padding_token_slots": 27877,
+              "padding_fraction": 0.37794197396963125,
+              "sum_batch_sequence_squares": 10926176,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.2060170045781557
+            },
+            {
+              "batch_size": 32,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 16,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 48416,
+              "padding_token_slots": 2533,
+              "padding_fraction": 0.05231741573033708,
+              "sum_batch_sequence_squares": 4990496,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.7916285153695226
+            },
+            {
+              "batch_size": 64,
+              "ordering": "original",
+              "examples": 512,
+              "batches": 8,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 81664,
+              "padding_token_slots": 35781,
+              "padding_fraction": 0.43814900078369906,
+              "sum_batch_sequence_squares": 13305856,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 1.3352517985611512
+            },
+            {
+              "batch_size": 64,
+              "ordering": "length_sorted",
+              "examples": 512,
+              "batches": 8,
+              "unpadded_tokens": 45883,
+              "padded_token_slots": 51328,
+              "padding_token_slots": 5445,
+              "padding_fraction": 0.10608245012468828,
+              "sum_batch_sequence_squares": 5811200,
+              "interpretation": "Token slots approximate linear-layer work; sequence squares are only an attention-shape proxy, not measured FLOPs or runtime.",
+              "padded_slot_ratio_vs_historical": 0.839241334205363
+            }
+          ],
+          "number_of_passes": 2
+        }
+      },
+      "training_padding": {
+        "optimizer_steps": 120,
+        "global_batch_size": 4,
+        "examples_seen": 480,
+        "unique_examples_seen": 389,
+        "input_tokens": 48931,
+        "padded_token_slots": 60948,
+        "padding_fraction": 0.1971680777055851,
+        "sample_id_schedule_sha256": "fe202bc6ef2fdc98b23e28e543f640c857278cc41795751a2f1efc038219f0eb",
+        "microbatch_shape_candidates": [
+          {
+            "microbatch_size": 1,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 480,
+            "padded_token_slots": 48931,
+            "padded_slot_ratio_vs_historical": 0.8028319222944149,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          },
+          {
+            "microbatch_size": 2,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 240,
+            "padded_token_slots": 55724,
+            "padded_slot_ratio_vs_historical": 0.9142875894204896,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          },
+          {
+            "microbatch_size": 4,
+            "global_batch_size_unchanged": 4,
+            "forward_backward_calls": 120,
+            "padded_token_slots": 60948,
+            "padded_slot_ratio_vs_historical": 1.0,
+            "note": "Microbatch gradients must be weighted by microbatch examples/global-batch examples before a single clipping and optimizer step. Extra calls can erase padding savings."
+          }
+        ]
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 Reproducible language-model training, adaptation, and inference using a CPU and system RAM. The project measures whether training improves a held-out task and whether an inference change improves speed without unacceptable task-quality loss.
 
-Read the [project goal and acceptance criteria](GOAL.md).
+Read the [project goal and acceptance criteria](GOAL.md). The latest complete CPU pipeline is **2.38x faster with unchanged test predictions**; details and limits are below.
 
 ## What the experiments do
 
@@ -11,12 +11,51 @@ Read the [project goal and acceptance criteria](GOAL.md).
 | CPU training | `HuggingFaceTB/SmolLM2-135M-Instruct` | Train LoRA adapters for extracting two integer fields from text into JSON; compare held-out loss and generated answers before and after training. |
 | Small-model inference | The same trained 135M model | Merge its saved adapter, compare FP32 with dynamic INT8 linear layers, and retain INT8 only if the validation-quality and measured-speed gates pass. |
 | Existing-model inference | Ollama `qwen2.5-coder:7b` | Tune CPU thread count while keeping model digest, quantization, context, and generation budget fixed; confirm the selected setting on separate prompts. |
+| Complete training pipeline | 135M SMS classifier | Tune threads and batching, then repeat the same 120 updates and all evaluation passes in fresh processes. |
+| Real document extraction | A new 135M LoRA adapter | Generate short answers from complete SQuAD passages; evaluate separate articles with exact match and token F1. |
+| Training from random weights | 1.90M byte transformer | Learn text patterns on CPU without a pretrained checkpoint or learned tokenizer. |
 
 The training experiment does **not** train the 7B model. The pretrained 135M base was trained elsewhere; this project makes its local adaptation and inference CPU-only. The synthetic task measures copying fields into a specified format, not general reasoning, coding ability, or overall language-model quality.
 
 ## Results
 
 Measured on an AMD Ryzen 9 3900X (12 physical cores), approximately 32 GiB RAM, Windows 11. Model workloads ran sequentially. Numerical reports are in [`results/`](results/); downloaded weights, local adapters, and environments remain outside Git.
+
+### Latest: 2.38x faster complete CPU training pipeline
+
+![Measured complete pipeline time and real document-answer quality](results/figures/pipeline-document.png)
+
+The fresh SMS comparison reduced load/data preparation, training, and all before/after and periodic evaluation from **553.49 to 232.42 seconds**: **2.381x faster**, or 58.0% less elapsed time. Both runs completed the same 120 updates, four-example batches, 480 presentations, 48,931 input tokens, and all scheduled evaluation. All 512 test predictions matched, retaining **503/512 correct (98.24%)** and macro F1 **0.954**. The predeclared validation quality gate passed. [Comparison and checks](results/pipeline-comparison.json).
+
+| Measured stage | Fresh baseline | Tuned execution | Ratio |
+| --- | ---: | ---: | ---: |
+| Complete measured pipeline | 553.49 s | 232.42 s | **2.381x** |
+| Training loop, including validation | 315.91 s | 147.77 s | **2.138x** |
+| All evaluation passes | 357.20 s | 127.79 s | **2.795x** |
+| Sampled peak process RSS | 1.88 GiB | 1.93 GiB | Slightly higher |
+
+Training-loop and evaluation rows overlap because the loop includes periodic validation; do not add them. The selected execution uses **12 CPU threads instead of four**, evaluation batches of eight grouped by length, and unchanged four-example training batches. FP32 arithmetic and the model remain unchanged. No examples, tokens, optimizer updates, or validation passes were dropped. Every recorded training-step loss matched the baseline exactly; evaluation loss differs only slightly with the batching change.
+
+Separate TRAIN-only timing confirmation found **1.808x median training speedup** and **2.651x median evaluation speedup**, with all three pairs faster in each stage and all numerical checks passing. These short trials are distinct from the single full run per variant. The complete-run baseline was measured first, files were cached, and unrelated activity and thermal conditions were not controlled. The timer excludes Python startup/imports and final report serialization. This is a measured result for this machine and workload, not a universal CPU speedup. [Tuning report](results/pipeline-speed.json), [profile](results/pipeline-profile.json), [baseline](results/pipeline-baseline.json), [optimized run](results/pipeline-optimized.json), [reproduction commands](EXPERIMENTS.md#cpu-pipeline-profiling-and-controlled-execution-tuning).
+
+### Latest: real document-answer extraction on CPU
+
+A new adapter learned to generate short answers from complete Wikipedia passages in [SQuAD v1.1](https://rajpurkar.github.io/SQuAD-explorer/). The fixed filtered subset contains 400 training passages, 64 validation passages, and 200 held-out test passages, with separate articles across splits. The model generates answer text; it does not choose between predefined labels.
+
+| Held-out document measure | Before adaptation | Selected adapter |
+| --- | ---: | ---: |
+| Normalized exact answer match | 2/200 (1.0%) | **104/200 (52.0%)** |
+| Mean answer token F1 | 15.59% | **58.59%** |
+| Response-token loss | 3.1688 | **0.8792** |
+| Output is a verbatim passage span | 10.5% | **90.0%** |
+
+The run trained 460,800 LoRA parameters for 100 updates, seeing all 400 training examples once. Validation loss selected **step 75**, whose adapter had seen 300 examples; the remaining updates did not improve it. Training with periodic validation took **192.71 seconds** (3 min 13 sec); loading, training, saving, and before/after evaluation took **382.50 seconds** (6 min 23 sec), excluding initial dataset preparation and Python startup. Sampled peak process RSS was **2.34 GiB**. Parameters and optimizer tensors remained on CPU. [Metrics and per-record scores](results/document-metrics.json), [learning curve](results/document-training-curve.json), [resolved settings](results/document-config.json).
+
+The implementation uses 12 threads, length-grouped batches of eight, and computes the vocabulary projection only at supervised answer positions. The latter preserves the response-only training objective; a test checks both loss and LoRA gradients against the ordinary full projection. These are transferred execution choices, with **no separate document-task speedup claim**. After adaptation, answers also became shorter (2,984 -> 815 generated tokens across the test), so before/after generation time is not a fixed-work speed comparison.
+
+The 52% exact score demonstrates learning but remains inadequate for unattended extraction. Even a copied passage span can answer the wrong question. This subset includes only answerable questions, complete passages of at most 192 tokens, and reference answers of at most five tokens. It does not test long documents, OCR, missing answers, or the full SQuAD benchmark; base-model pretraining contamination is possible. Raw source text stays local, while IDs, hashes, scores, and attribution are published. The saved adapter reproduced all three predetermined serial replay answers from the original batched evaluation. [Data provenance](results/document-data-provenance.json), [split manifest](results/document-split-manifest.json), [reload checks](results/document-reload.json), [training and inference commands](EXPERIMENTS.md#generative-extraction-from-real-wikipedia-passages).
+
+The complete suite has **123 passing tests**, including data separation, loss/gradient parity, workload comparisons, artifact integrity, and generated-answer scoring.
 
 ### Follow-up: longer generation and real data
 
@@ -69,7 +108,7 @@ The training loop took **209.96 seconds** (3 min 30 sec), including validation; 
 
 This demonstrates full CPU training and learned text patterns. Generated samples remain word-like but ungrammatical and unreliable; this is not a useful general assistant. Byte perplexity is not comparable to the subword-token losses of the other models. Natural repeated phrases can occur across the contiguous source splits.
 
-The expanded suite has **81 passing tests**. Saved classifiers and the scratch model also passed artifact-loading/CLI execution checks. Those checks are not an accuracy benchmark: the 360M classifier labeled an illustrative prize message as legitimate while Naive Bayes labeled it as spam, showing that the held-out score does not guarantee every new answer. [Recorded functional checks](results/reload-smoke.json).
+The expanded suite has **123 passing tests**. Saved classifiers and the scratch model also passed artifact-loading/CLI execution checks. Those checks are not an accuracy benchmark: the 360M classifier labeled an illustrative prize message as legitimate while Naive Bayes labeled it as spam, showing that the held-out score does not guarantee every new answer. [Recorded functional checks](results/reload-smoke.json).
 
 ### Initial extraction proof and deployment experiments
 

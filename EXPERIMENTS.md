@@ -119,3 +119,107 @@ uv pip install --python .venv/Scripts/python.exe -r requirements-plots-lock.txt
 ```
 
 Keep model weights, raw SMS messages, trained Naive Bayes vocabulary files, and environment/cache files out of Git. The existing synthetic-data exporter is specific to the first experiment and should not be used for these runs.
+
+## CPU pipeline profiling and controlled execution tuning
+
+`scripts/profile_existing.py` separates the recorded SMS training, periodic validation, before/after evaluation, and residual wall times. It also estimates padded token slots and attention shapes from saved sequence lengths. These are historical timings and arithmetic workload estimates, not new measured speedups. The profiler loads no model weights and performs no forward passes.
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/profile_existing.py `
+  --output results/my-pipeline-profile.json
+```
+
+The optional `--include-training-padding` switch additionally requires the original local runs at `artifacts/real-task-135m` and `artifacts/real-task-360m`. It loads their cached tokenizers, reconstructs the seeded balanced sampler, checks the recorded token total, and hashes the ordered source IDs of every global batch. Padding savings do not translate directly into runtime savings: smaller batches can increase dispatch and matrix-operation overhead.
+
+The execution tuner uses a completed 135M SMS run from the earlier commands. It verifies its adapter and saved training records, then draws 64 tuning records and 64 separate confirmation records from **TRAIN only**. Validation and test records do not choose execution settings. The checkpoint used for these short timing trials is already adapted; its original checkpoint selection used validation, and the trials do not replace a full run from the original pretrained model.
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.pipeline_speed `
+  --config configs/pipeline-speed.json --training-dir artifacts/my-sms-135m `
+  --output results/my-pipeline-speed.json
+```
+
+The search tries 1, 2, 4, 6, and 12 CPU threads; evaluation batches of 4, 8, 16, and 32; length-sorted evaluation; and training microbatches of 1, 2, or 4. This is a hierarchical search, not every joint combination. Evaluation restores original record order and preserves tokenization, sequence limits, labels, and scoring. Training retains the same ordered four-example global batch and one AdamW update, scales each microbatch mean loss by its fraction of the global batch, and clips accumulated gradients once. Each short trajectory starts from cloned adapter weights, the same Torch seed, and a fresh optimizer. FP32 precision and the model architecture stay fixed.
+
+Evaluation candidates require identical predictions and maximum absolute logit, probability, and per-example loss differences at most `0.0001`. Training candidates require adapter differences at most `0.0001`; confirmation also scores their updated models on unused confirmation records, requiring identical predictions and differences at most `0.002`. The explicit evaluation warmups and numerical reference runs are retained in the report but excluded from speed selection. Tuning uses two training steps; confirmation uses three and repeats each baseline/candidate pair three times in alternating order. A changed setting is recommended only when all confirmation quality checks pass, all three pairs are faster, and median paired speedup exceeds `1.03`. Confirmation can reject a tuned setting and fall back to the baseline; it does not search for another winner.
+
+The microbenchmark excludes thread switching, adapter restoration, and optimizer creation from its timed regions. Its training timer includes collation and work counters, while the original SMS training-compute timer excludes collation. RAM is sampled process RSS in a process that may retain allocations across variants. Reported component ratios and RAM observations need those boundaries; use the complete-run wall time for the final speed claim. PyTorch documents CPU intra-operation thread control in [`set_num_threads`](https://docs.pytorch.org/docs/stable/generated/torch.set_num_threads.html). Each complete-run command below starts a fresh Python process, with configured initial thread counts set before model execution.
+
+## Complete-run comparison and validation acceptance
+
+After selecting the execution recipe, run a fresh baseline and optimized pipeline sequentially with the same cached model/data and semantic configuration:
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.real_task `
+  --config configs/real-task.json --output artifacts/my-pipeline-baseline
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.pipeline_run train `
+  --config configs/real-task.json --execution-report results/my-pipeline-speed.json `
+  --output artifacts/my-pipeline-optimized
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.pipeline_run compare `
+  --baseline artifacts/my-pipeline-baseline --candidate artifacts/my-pipeline-optimized `
+  --output results/my-pipeline-comparison.json
+```
+
+The configured workload remains 120 optimizer updates with global batch four, validation every 30 steps, and the same before/after validation and test passes. Checkpoint selection remains validation macro F1, then validation loss, including the initial checkpoint. Comparison checks semantic configuration, split manifest, ordered training-sample schedule, exposure/token counts, every configured update and validation pass, and evaluation record identities/order. The optimized schedule hash comes from the IDs actually sampled; the original baseline schedule is reconstructed from its saved training rows and seed.
+
+The acceptance rule is declared before using the complete-run result: final selected-checkpoint **validation accuracy and macro F1 must not decrease**, and validation binary-label loss may increase by at most **0.01 absolute**. The comparison computes this gate independently of test scores. Test metrics and prediction disagreements are then reported descriptively; they never select settings or relax the gate. The reused historical SMS test set is not a new unseen dataset.
+
+A `2x` complete-run target is met only if this validation gate passes and measured baseline wall time divided by optimized wall time is at least two. Neither a faster isolated stage nor padding arithmetic establishes that result. The reported `elapsed_seconds` starts inside `_train` after imports, initial configuration/status writes, and thread/seed setup: it includes data processing, model loading, training, evaluation, and adapter/tokenizer saving, but excludes Python startup/imports, remaining report hashing, and final metrics/status serialization. One fresh process per variant, baseline first, provides one complete-run observation rather than a repeated randomized estimate. Cached files, other machine activity, and thermal conditions can affect it. Repeated short confirmation measurements remain separate evidence; the original historical timings are also distinct from this fresh comparison.
+
+## Generative extraction from real Wikipedia passages
+
+`document_task.py` adapts the same pinned SmolLM2-135M checkpoint to produce a free text answer from a question and passage. It starts a new rank-eight q/v LoRA adapter. The source is [SQuAD v1.1](https://rajpurkar.github.io/SQuAD-explorer/), attributed to [Rajpurkar, Zhang, Lopyrev, and Liang (2016)](https://arxiv.org/abs/1606.05250) and distributed under CC BY-SA 4.0. Source JSON files are pinned to a repository revision and SHA256 checksums.
+
+The default recipe selects 400 training passages, 64 validation passages, and 200 test passages. Training and validation come from disjoint articles in the official training source; 24 eligible articles form the validation pool. The official development source is reserved as the local test, not the official hidden SQuAD test. Sampling rotates across seeded shuffled articles and keeps at most one question per distinct passage. Exact duplicate contexts across official source sets are removed, and article/question/context overlap across selected splits is rejected.
+
+Eligibility is declared by the configuration: complete passage at most 192 tokens, rendered question/passage prompt at most 256, every reference answer at most five, and training sequence at most 264. Gold answer spans are checked against the source, but never used to crop a passage. Questions with unsuitable reference lengths or empty normalized answers are excluded. These filters intentionally produce a short-passage, short-answer subset; they do not represent full-dataset performance.
+
+Prepare the checksum-verified local data, then train without downloading or selecting new examples:
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_task `
+  --config configs/document-task.json --prepare-only --download-data `
+  --output artifacts/my-document-data
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_task `
+  --config configs/document-task.json --prepared-data artifacts/my-document-data `
+  --training-threads 12 --evaluation-threads 12 --loss-batch-size 8 --generation-batch-size 8 `
+  --output artifacts/my-document-run
+```
+
+The default budget is 100 updates with batch four and validation every 25 updates. Teacher-forced causal cross-entropy supervises the first reference answer plus EOS; prompt and padding positions are masked. The full vocabulary projection is computed only at hidden-state positions with response targets, preserving that objective for the supported Llama architecture. A targeted test compares the loss and LoRA gradients against the ordinary causal-LM forward path on unequal, right-padded sequences. Evaluation loss weights each batch by its response-token count.
+
+Minimum validation response-token loss selects the checkpoint, with the initial model included. Before/after test generation is greedy, length-sorted, left-padded in batches, and limited to 16 new tokens. Output order is restored and per-row token counts stop at the first EOS. Generated answers receive normalized exact match and token-overlap F1 against all reference answers, taking the best reference score. Normalization lowercases, removes punctuation and English articles, and collapses whitespace. The additional passage-span rate is a case-insensitive substring check. Better validation loss does not guarantee better generated-answer scores.
+
+Thread and batch overrides (`--training-threads`, `--evaluation-threads`, `--loss-batch-size`, and `--generation-batch-size`) are stored in the resolved config. The command above uses 12 threads for both stages and batches of eight for both evaluation paths. These are transferred execution choices, not a measured document-task speedup: that claim requires its own matched baseline. Data preparation can occur outside the training timer when `--prepared-data` is used. Both choices must be disclosed when comparing elapsed times.
+
+Reload the saved adapter for a new question, or verify the first three predetermined test IDs against the saved batched prediction hashes:
+
+```powershell
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_task `
+  --load artifacts/my-document-run --evaluation-threads 12 `
+  --context 'The meeting takes place in Paris on Tuesday.' `
+  --question 'In which city does the meeting take place?'
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_task `
+  --verify-reload artifacts/my-document-run --prepared-data artifacts/my-document-data `
+  --evaluation-threads 12
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.document_task `
+  --export-run artifacts/my-document-run --results-directory results `
+  --export-prefix my-document
+```
+
+Loading verifies the saved configuration, provenance/manifest, tokenizer, and adapter checksums; replay additionally verifies the prepared data. Serial/batched output differences are reported, not used to choose a model. The export copies only metrics, resolved config, training curve, provenance, and split manifest, preserving their bytes and refusing conflicting existing reports. Raw passages, questions, references, predictions, and model weights remain in ignored local artifacts.
+
+All source questions here are answerable. This does not evaluate abstention, long documents, OCR, production documents, or unseen factual knowledge. Wikipedia/SQuAD may have appeared in base-model pretraining, and article separation cannot exclude every related fact or near duplicate. Small filtered samples, finite generation caps, and possible serial/batched numerical differences limit interpretation. Report the actual generated-answer results even when training loss improves.
+
+After exporting the recorded reports, render the combined pipeline/document figure with the optional plotting dependencies:
+
+```powershell
+& .\.venv\Scripts\python.exe scripts/plot_pipeline.py
+```
+
+This reads `results/pipeline-comparison.json` and `results/document-metrics.json`, and writes PNG/SVG outputs in `results/figures/`.

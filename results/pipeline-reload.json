@@ -1,0 +1,14 @@
+{
+  "selection": "First test ID in immutable order; replay only, not model selection",
+  "id": 4082,
+  "text_sha256": "06120553bb2b71241aa8065f4892c2153ad09ce38ac00f77525a804712c15cf0",
+  "expected_saved_label": "ham",
+  "reloaded_prediction": {
+    "label": "ham",
+    "spam_score": 0.03033514693379402,
+    "message_truncated": false,
+    "device": "cpu",
+    "score_is_calibrated_probability": false
+  },
+  "matches_saved_prediction": true
+}

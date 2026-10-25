@@ -1,0 +1,16 @@
+{
+  "seed": 20261027,
+  "baseline_threads": 4,
+  "baseline_eval_batch_size": 8,
+  "thread_candidates": [1, 2, 4, 6, 12],
+  "eval_batch_candidates": [4, 8, 16, 32],
+  "microbatch_candidates": [1, 2, 4],
+  "tuning_examples": 64,
+  "confirmation_examples": 64,
+  "tuning_train_steps": 2,
+  "confirmation_train_steps": 3,
+  "confirmation_repeats": 3,
+  "logit_tolerance": 0.0001,
+  "adapter_tolerance": 0.0001,
+  "training_logit_tolerance": 0.002
+}

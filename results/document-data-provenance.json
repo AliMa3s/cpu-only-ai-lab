@@ -1,0 +1,75 @@
+{
+  "dataset": "SQuAD v1.1 short-passage, short-answer extraction subset",
+  "source_revision": "e0c66cfec263165fb3c15cb76a22175e371b71d7",
+  "source_urls": {
+    "train-v1.1.json": "https://raw.githubusercontent.com/rajpurkar/SQuAD-explorer/e0c66cfec263165fb3c15cb76a22175e371b71d7/dataset/train-v1.1.json",
+    "dev-v1.1.json": "https://raw.githubusercontent.com/rajpurkar/SQuAD-explorer/e0c66cfec263165fb3c15cb76a22175e371b71d7/dataset/dev-v1.1.json"
+  },
+  "source_sha256": {
+    "train-v1.1.json": "3527663986b8295af4f7fcdff1ba1ff3f72d07d61a20f487cb238a6ef92fd955",
+    "dev-v1.1.json": "95aa6a52d5d6a735563366753ca50492a658031da74f301ac5238b03966972c9"
+  },
+  "citation": "Rajpurkar, Zhang, Lopyrev, Liang (2016). SQuAD: 100,000+ Questions for Machine Comprehension of Text. arXiv:1606.05250.",
+  "license": "CC BY-SA 4.0",
+  "license_source": "https://rajpurkar.github.io/SQuAD-explorer/",
+  "data_config": {
+    "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+    "seed": 20261027,
+    "train_size": 400,
+    "validation_size": 64,
+    "test_size": 200,
+    "validation_articles": 24,
+    "max_context_tokens": 192,
+    "max_prompt_tokens": 256,
+    "max_answer_tokens": 5,
+    "max_sequence_length": 264
+  },
+  "eligibility": {
+    "official_train": {
+      "source_paragraphs": 18896,
+      "source_questions": 87599,
+      "rejected_answer_length_or_empty_normalization": 18215,
+      "eligible_questions": 43873,
+      "rejected_context_length": 23775,
+      "rejected_prompt_length": 1736,
+      "eligible_articles": 440,
+      "eligible_contexts": 13243
+    },
+    "official_dev": {
+      "source_paragraphs": 2067,
+      "source_questions": 10570,
+      "eligible_questions": 4743,
+      "rejected_answer_length_or_empty_normalization": 2720,
+      "rejected_context_length": 2903,
+      "rejected_prompt_length": 204,
+      "eligible_articles": 48,
+      "eligible_contexts": 1415
+    }
+  },
+  "selection": {
+    "exact_cross_source_duplicate_contexts_removed": 0,
+    "eligible_pool_sizes_after_article_split": {
+      "train": 41807,
+      "validation": 2066,
+      "test": 4743
+    },
+    "selected_article_counts": {
+      "train": 400,
+      "validation": 24,
+      "test": 48
+    }
+  },
+  "counts": {
+    "train": 400,
+    "validation": 64,
+    "test": 200
+  },
+  "local_data_sha256": {
+    "train": "920b6f1760266ea1b777b7da126dd4413460bc568150dd0f3f97ad950599c95e",
+    "validation": "5e923c2eda1dfd464002d21f14edf9a3b2b43207e76101e414a5cd940370d272",
+    "test": "e845ea59ba8876c682e2a695e7028288bbdfdbe0db7c5d9e4b572b2305e942b7"
+  },
+  "split_manifest_sha256": "3d28a88ab92f99542dec9f7de9f1506d43321a2e804cfa48f09d4ef7a38bb280",
+  "policy": "Complete passages only, no cropping/truncation. Keep only declared context/prompt limits and questions whose every reference answer fits the target-token limit. First reference is training target; all references score generation. Article-disjoint splits, one question per passage, deterministic round-robin sampling across articles. Official dev is the local held-out test; this is not the official hidden SQuAD test or a full-dataset leaderboard score."
+}

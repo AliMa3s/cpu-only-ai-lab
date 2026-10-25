@@ -1,0 +1,23 @@
+{
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "local_files_only": true,
+  "seed": 20261025,
+  "threads": 4,
+  "train_size": 1400,
+  "validation_size": 192,
+  "test_size": 512,
+  "near_duplicate_similarity": 0.8,
+  "max_sequence_length": 192,
+  "batch_size": 4,
+  "evaluation_batch_size": 8,
+  "optimizer_steps": 120,
+  "validation_every": 30,
+  "learning_rate": 0.0005,
+  "lora_rank": 8,
+  "lora_alpha": 16,
+  "lora_target_modules": [
+    "q_proj",
+    "v_proj"
+  ]
+}

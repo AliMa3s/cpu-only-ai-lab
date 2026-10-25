@@ -1,0 +1,147 @@
+{
+  "format": "cpu-ai-lab-whole-pipeline-comparison-v1",
+  "status": "complete",
+  "source_sha256": {
+    "baseline_metrics": "b487a772e2ef88252307fd3866d9550b0371bf5f96e767e3b706a4b36abe1777",
+    "optimized_metrics": "fe9c49b51d862c62d2e468c360516510957abdee6a18a9008a22895d59ed4d64"
+  },
+  "same_work": {
+    "split_manifest_sha256": "9c1656a20bbf4513af1a2581e2f9d705603d7ecb3b9830a0833edef97845fd3c",
+    "sample_schedule_sha256": "fe202bc6ef2fdc98b23e28e543f640c857278cc41795751a2f1efc038219f0eb",
+    "baseline_schedule_evidence": "Reconstructed from original balanced-sampler algorithm, saved train records and seed; token/exposure totals checked.",
+    "candidate_schedule_evidence": "Hash recorded from actual sampled IDs in every update.",
+    "optimizer_steps": 120,
+    "global_batch_size": 4,
+    "input_tokens": 48931,
+    "periodic_validation_passes": 4,
+    "before_and_after_eval_examples": {
+      "validation": 192,
+      "test": 512
+    }
+  },
+  "baseline_seconds": {
+    "whole_run": 553.4867006999993,
+    "training_compute": 193.43054019996998,
+    "training_loop_including_validation": 315.9125516999993,
+    "all_evaluation": 357.20088309999846,
+    "sampled_peak_process_rss_bytes": 2021838848
+  },
+  "optimized_seconds": {
+    "whole_run": 232.41735609999887,
+    "training_compute": 101.28894329999457,
+    "training_loop_including_validation": 147.76698629999737,
+    "all_evaluation": 127.79068209999605,
+    "sampled_peak_process_rss_bytes": 2068324352
+  },
+  "speedups": {
+    "whole_run": 2.3814344590593253,
+    "training_compute": 1.909690573304464,
+    "training_loop_including_validation": 2.1379102302230883,
+    "all_evaluation": 2.7952028835755742
+  },
+  "validation_acceptance": {
+    "checks": {
+      "accuracy_no_lower": true,
+      "macro_f1_no_lower": true,
+      "binary_loss_within_absolute_0_01": true
+    },
+    "accepted": true,
+    "policy": "Validation accuracy and macro F1 must not decrease; binary-label loss may increase by at most 0.01 absolute. Test results never select settings."
+  },
+  "two_times_whole_run_target_met": true,
+  "baseline": {
+    "validation": {
+      "examples": 192,
+      "correct": 186,
+      "accuracy": 0.96875,
+      "macro_f1": 0.9080459770114943,
+      "binary_label_loss": 0.14454439977847264,
+      "seconds": 30.808467899998504
+    },
+    "test": {
+      "examples": 512,
+      "correct": 503,
+      "accuracy": 0.982421875,
+      "macro_f1": 0.95379756354339,
+      "binary_label_loss": 0.08147477551580096,
+      "seconds": 86.27280350000001
+    },
+    "selected_step": 120
+  },
+  "optimized": {
+    "validation": {
+      "examples": 192,
+      "correct": 186,
+      "accuracy": 0.96875,
+      "macro_f1": 0.9080459770114943,
+      "binary_label_loss": 0.14454445561871884,
+      "seconds": 11.396523699997488
+    },
+    "test": {
+      "examples": 512,
+      "correct": 503,
+      "accuracy": 0.982421875,
+      "macro_f1": 0.95379756354339,
+      "binary_label_loss": 0.08147482912846726,
+      "seconds": 30.174021799997718
+    },
+    "selected_step": 120,
+    "execution": {
+      "report_sha256": "f9f1564fd486cf740ba812aa2954beca4a4a9184d5adad88f4fb9fb8e455fc14",
+      "training": {
+        "threads": 12,
+        "microbatch_size": 4
+      },
+      "evaluation": {
+        "threads": 12,
+        "batch_size": 8,
+        "sort_by_length": true
+      },
+      "changes": "Execution only: thread counts, evaluation batching/order, optional weighted microbatches. Same global updates and data."
+    }
+  },
+  "test_prediction_disagreements": 0,
+  "cpu_evidence": {
+    "baseline": {
+      "torch_cuda_build": null,
+      "cuda_available": false,
+      "parameter_devices": [
+        "cpu"
+      ],
+      "buffer_devices": [
+        "cpu"
+      ],
+      "threads": 4,
+      "dtype": "float32"
+    },
+    "optimized": {
+      "torch_cuda_build": null,
+      "cuda_available": false,
+      "parameter_devices": [
+        "cpu"
+      ],
+      "buffer_devices": [
+        "cpu"
+      ],
+      "threads": 12,
+      "dtype": "float32",
+      "training_threads_configured": 12,
+      "evaluation_threads_configured": 12,
+      "training_threads_observed": [
+        12
+      ],
+      "evaluation_threads_observed": [
+        12
+      ]
+    }
+  },
+  "limitations": [
+    "One fresh-process full run per variant, baseline first; not a repeated randomized whole-run benchmark.",
+    "elapsed_seconds starts inside _train after imports, initial configuration/status writes, and thread/seed setup; it excludes Python startup/imports and final metrics/status serialization, while including data processing, model loading, training, evaluation, and adapter/tokenizer saving.",
+    "Whole-run wall time is primary. The original baseline training-compute timer excludes collation; optimized training-compute includes collation and work counters, so that component ratio has different boundaries.",
+    "Filesystem/model caches were already populated. Other machine activity and thermal conditions were not controlled.",
+    "Repeated TRAIN-only microbenchmark confirmations are separate from this full-run measurement.",
+    "The historical SMS test set is reused for descriptive confirmation; it does not select optimizations.",
+    "Microbatching/thread changes may change floating-point trajectories; quality is measured rather than assumed."
+  ]
+}

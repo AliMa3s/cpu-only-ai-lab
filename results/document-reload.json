@@ -1,0 +1,31 @@
+{
+  "examples": 3,
+  "matched": 3,
+  "selection": "first test IDs in immutable split order, no selection by output quality",
+  "reloaded_from_saved_artifacts": true,
+  "all_artifact_checksums_verified": true,
+  "mode": "serial greedy reload compared with original length-sorted batched generation",
+  "parameter_devices": [
+    "cpu"
+  ],
+  "records": [
+    {
+      "id": "572996c73f37b319004784b6",
+      "prediction_sha256": "3d8422e88f23cd4d09b68a09cc37bf6b9c665fa705a2f280c2d49127a78528ec",
+      "expected_prediction_sha256": "3d8422e88f23cd4d09b68a09cc37bf6b9c665fa705a2f280c2d49127a78528ec",
+      "matches_saved_batched_output": true
+    },
+    {
+      "id": "57274046dd62a815002e9a12",
+      "prediction_sha256": "ca8ba7d4c82b206d78c3be9fb8e219a7cd584fe4136e766fba26afbe56b8819f",
+      "expected_prediction_sha256": "ca8ba7d4c82b206d78c3be9fb8e219a7cd584fe4136e766fba26afbe56b8819f",
+      "matches_saved_batched_output": true
+    },
+    {
+      "id": "572ffb02b2c2fd14005686b8",
+      "prediction_sha256": "a334a6eb3261b500adac82d33712dadc7cbd51a7fcbef709e7a870cf08c96104",
+      "expected_prediction_sha256": "a334a6eb3261b500adac82d33712dadc7cbd51a7fcbef709e7a870cf08c96104",
+      "matches_saved_batched_output": true
+    }
+  ]
+}

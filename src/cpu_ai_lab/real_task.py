@@ -345,7 +345,25 @@ def _train(config, output, archive, download):
             raise ValueError(f"{name} must be positive.")
     if config["batch_size"] % 2:
         raise ValueError("Balanced training sampler requires an even batch size.")
-    torch.set_num_threads(config["threads"])
+    execution = config.get("execution")
+    training_threads = evaluation_threads = config["threads"]
+    if execution is not None:
+        from .pipeline_speed import optimized_evaluate, optimized_train_step
+
+        training_execution = execution["training"]
+        evaluation_execution = execution["evaluation"]
+        for count in (training_execution["threads"], evaluation_execution["threads"], evaluation_execution["batch_size"]):
+            if type(count) is not int or not 1 <= count <= 256:
+                raise ValueError("Execution thread and evaluation batch counts must be integers from 1 to 256.")
+        microbatch_size = training_execution["microbatch_size"]
+        if type(microbatch_size) is not int or not 1 <= microbatch_size <= config["batch_size"]:
+            raise ValueError("Execution microbatch size must be a positive integer no larger than the global batch.")
+        if type(evaluation_execution["sort_by_length"]) is not bool:
+            raise ValueError("Execution sort_by_length must be a boolean.")
+        training_threads = training_execution["threads"]
+        evaluation_threads = evaluation_execution["threads"]
+    training_threads_observed, evaluation_threads_observed = set(), set()
+    torch.set_num_threads(training_threads)
     torch.set_num_interop_threads(1)
     torch.use_deterministic_algorithms(True)
     torch.manual_seed(config["seed"])
@@ -383,9 +401,21 @@ def _train(config, output, archive, download):
         initial = adapter_snapshot(model)
         encoded = {name: encode_split(tokenizer, values, config["max_sequence_length"]) for name, values in splits.items()}
         truncated = {name: sum(row["truncated"] for row in values) for name, values in encoded.items()}
+
+        def evaluate_for_run(values):
+            if execution is None:
+                result = evaluate(model, values, tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
+            else:
+                result = optimized_evaluate(model, values, tokenizer.pad_token_id, token_ids,
+                                            batch_size=evaluation_execution["batch_size"],
+                                            sort_by_length=evaluation_execution["sort_by_length"],
+                                            threads=evaluation_threads)
+            evaluation_threads_observed.add(torch.get_num_threads())
+            return result
+
         print(json.dumps({"stage": "baseline_evaluation", "truncated_message_counts": truncated}), flush=True)
-        before_validation = evaluate(model, encoded["validation"], tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
-        before_test = evaluate(model, encoded["test"], tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
+        before_validation = evaluate_for_run(encoded["validation"])
+        before_test = evaluate_for_run(encoded["test"])
         write_json(output / "baseline.json", {"validation": before_validation, "test": before_test})
         best = (before_validation["macro_f1"], -before_validation["binary_label_loss"])
         best_step, best_adapter, best_seen = 0, initial, set()
@@ -396,6 +426,7 @@ def _train(config, output, archive, download):
             rng.shuffle(values)
         positions = {0: 0, 1: 0}
         curve, seen = [], set()
+        schedule_ids = []
         compute_seconds, input_tokens = 0.0, 0
         training_started = time.perf_counter()
         for step in range(1, config["optimizer_steps"] + 1):
@@ -408,24 +439,36 @@ def _train(config, output, archive, download):
                     selected.append(indices[label][positions[label]])
                     positions[label] += 1
             rng.shuffle(selected)
+            schedule_ids.append([encoded["train"][index]["id"] for index in selected])
             seen.update(selected)
-            batch, targets = collate_classification([encoded["train"][i] for i in selected], tokenizer.pad_token_id)
-            model.train()
-            optimizer.zero_grad(set_to_none=True)
-            step_started = time.perf_counter()
-            logits = label_logits(model, batch, token_ids)
-            loss = torch.nn.functional.cross_entropy(logits, targets)
-            if not torch.isfinite(loss):
-                raise RuntimeError("Nonfinite training loss.")
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_([parameter for parameter in model.parameters() if parameter.requires_grad], 1.0, error_if_nonfinite=True)
-            optimizer.step()
-            elapsed = time.perf_counter() - step_started
-            compute_seconds += elapsed
-            input_tokens += int(batch["attention_mask"].sum())
-            record = {"step": step, "binary_label_loss": float(loss.detach()), "seconds": elapsed}
+            if execution is None:
+                batch, targets = collate_classification([encoded["train"][i] for i in selected], tokenizer.pad_token_id)
+                model.train()
+                optimizer.zero_grad(set_to_none=True)
+                step_started = time.perf_counter()
+                logits = label_logits(model, batch, token_ids)
+                loss = torch.nn.functional.cross_entropy(logits, targets)
+                if not torch.isfinite(loss):
+                    raise RuntimeError("Nonfinite training loss.")
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_([parameter for parameter in model.parameters() if parameter.requires_grad], 1.0, error_if_nonfinite=True)
+                optimizer.step()
+                elapsed = time.perf_counter() - step_started
+                compute_seconds += elapsed
+                input_tokens += int(batch["attention_mask"].sum())
+                record = {"step": step, "binary_label_loss": float(loss.detach()), "seconds": elapsed}
+            else:
+                step_result = optimized_train_step(model, optimizer, [encoded["train"][i] for i in selected],
+                                                   tokenizer.pad_token_id, token_ids,
+                                                   microbatch_size=training_execution["microbatch_size"],
+                                                   threads=training_threads)
+                compute_seconds += step_result["seconds"]
+                input_tokens += step_result["input_tokens"]
+                record = {"step": step, "binary_label_loss": step_result["binary_label_loss"], "seconds": step_result["seconds"],
+                          "execution": {key: value for key, value in step_result.items() if key not in ("binary_label_loss", "seconds")}}
+            training_threads_observed.add(torch.get_num_threads())
             if step % config["validation_every"] == 0 or step == config["optimizer_steps"]:
-                validation = evaluate(model, encoded["validation"], tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
+                validation = evaluate_for_run(encoded["validation"])
                 record["validation"] = compact(validation)
                 candidate = (validation["macro_f1"], -validation["binary_label_loss"])
                 if candidate > best:
@@ -451,8 +494,8 @@ def _train(config, output, archive, download):
         write_json(output / "selected_training_manifest.json", selected_manifest)
         matched_nb = naive_bayes({**splits, "train": selected_rows}, recipe_output=output / "naive_bayes_matched.json") if selected_rows else None
         print(json.dumps({"stage": "final_evaluation", "selected_step": best_step}), flush=True)
-        after_validation = evaluate(model, encoded["validation"], tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
-        after_test = evaluate(model, encoded["test"], tokenizer.pad_token_id, token_ids, config["evaluation_batch_size"])
+        after_validation = evaluate_for_run(encoded["validation"])
+        after_test = evaluate_for_run(encoded["test"])
         delta = math.sqrt(sum(float((best_adapter[name] - tensor).square().sum()) for name, tensor in initial.items()))
         metric = {
             "experiment": "CPU-only constrained SMS spam classification with LoRA",
@@ -475,9 +518,13 @@ def _train(config, output, archive, download):
                          "selected_checkpoint_examples_seen_with_repetition": best_step * config["batch_size"],
                          "selected_checkpoint_unique_training_examples_seen": len(best_seen),
                          "selected_training_manifest_sha256": sha256((output / "selected_training_manifest.json").read_bytes()), "input_tokens": input_tokens,
+                         "sample_schedule_sha256": sha256(json.dumps(schedule_ids, separators=(",", ":")).encode()),
                          "compute_seconds_excluding_validation": compute_seconds, "wall_seconds_including_validation": training_seconds,
+                         "compute_timing_includes_collation": execution is not None,
                          "input_tokens_per_compute_second": input_tokens / compute_seconds, "selected_adapter_l2_change": delta},
-            "cpu_evidence": {"torch_cuda_build": torch.version.cuda, "cuda_available": torch.cuda.is_available(), "parameter_devices": sorted({str(p.device) for p in model.parameters()}), "buffer_devices": sorted({str(b.device) for b in model.buffers()}), "threads": torch.get_num_threads(), "dtype": "float32"},
+            "cpu_evidence": {"torch_cuda_build": torch.version.cuda, "cuda_available": torch.cuda.is_available(), "parameter_devices": sorted({str(p.device) for p in model.parameters()}), "buffer_devices": sorted({str(b.device) for b in model.buffers()}), "threads": torch.get_num_threads(), "dtype": "float32",
+                             "training_threads_configured": training_threads, "evaluation_threads_configured": evaluation_threads,
+                             "training_threads_observed": sorted(training_threads_observed), "evaluation_threads_observed": sorted(evaluation_threads_observed)},
             "environment": {"packages": {name: importlib.metadata.version(name) for name in ("torch", "transformers", "peft", "psutil")}},
             "sampled_peak_process_rss_bytes": memory.peak_bytes, "elapsed_seconds": time.perf_counter() - started,
             "adapter_sha256": {path.name: sha256(path.read_bytes()) for path in (output / "adapter").glob("*") if path.is_file()},
