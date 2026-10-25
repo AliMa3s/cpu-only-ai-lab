@@ -416,3 +416,75 @@ The cost benchmark deliberately measures the candidate even if its quality gate 
 ```
 
 For the recorded run, threshold 0.11 achieved the two headline validation targets (40% missing recall, 95% exact-correct retention), but lost 5.25 points of answerable F1. The added two-point partial-answer quality limit therefore rejected it. The best candidate within both quality constraints used threshold 0.08 and reached only 30% validation missing recall. That diagnostic threshold remained fixed on test; no additional threshold was selected from test outcomes.
+
+## A compact extractive reader on fresh movie plots
+
+This experiment compares the retained 135M document generator with a compact MiniLM reader, before and after **full-parameter CPU adaptation**. The reader predicts answer start/end positions in one forward pass, plus a null score at CLS. It does not generate answer tokens autoregressively. A faster reader is useful only if its validation quality also passes the declared requirements.
+
+The initializer is [`deepset/minilm-uncased-squad2`](https://huggingface.co/deepset/minilm-uncased-squad2), pinned to revision `934656cdda79824eabf503ed56e15c01ddbdbe3f`; its safetensors SHA256 is `240478c7251d5e55be35feb47177054b960259b9328af662ea3cee87ce9755a6`. The publisher declares CC-BY-4.0, a Microsoft MiniLM base, and prior SQuAD2 question-answering training on a GPU. That prior specialization differs substantially from our small generator's training history. This is a practical deployment comparison, **not an isolated architecture experiment** and not a claim that the reader's original pretraining used a CPU. Before/after adaptation results separately measure the changes made locally.
+
+### Data, literal spans, and complete inputs
+
+The dataset is the authors' [DuoRC ParaphraseRC](https://duorc.github.io/), pinned to repository revision `f8520942ea5e98e135e1eae0f6851db86d3407d9`. The source files are `dataset/ParaphraseRC_train.json`, `_dev.json`, and `_test.json` in the [authors' repository](https://github.com/duorc/duorc/tree/f8520942ea5e98e135e1eae0f6851db86d3407d9); its [license](https://github.com/duorc/duorc/blob/f8520942ea5e98e135e1eae0f6851db86d3407d9/LICENSE) is MIT. Citation: Saha, Aralikatte, Khapra and Sankaranarayanan, *DuoRC: Towards Complex Language Understanding with Paraphrased Reading Comprehension*, ACL 2018.
+
+The fixed split sizes are **2,048 train / 256 validation / 512 test**, each half native answerable and half native unanswerable. Movie IDs, exact contexts and question IDs do not overlap across splits. Each movie contributes at most four different questions. The selected sets contain 632/78/158 movies. Two training movie IDs share one identical native plot, so training has 631 unique contexts and that one plot contributes eight questions; this does not create cross-split context overlap. Length groups are reported descriptively, not balanced: the fresh corpus could not support four equally sized answerability/length groups. Sampling counts and constraints were fixed from data availability before inference.
+
+Every historical question ID and exact context from all three preceding document experiments is excluded. This corpus changes the subject matter from Wikipedia passages to movie narratives. It does not rule out related facts, paraphrases or base-model pretraining exposure.
+
+DuoRC supplies human answer strings, not native character offsets. An answerable row is eligible only when at least one reference is an exact literal context span with at most eight SmolLM tokens and exact MiniLM token-boundary alignment within 32 WordPieces. Derived span offsets are supervised labels, not input features. All original human reference strings remain available for evaluation, including references that were not used as a training span. Native unanswerable labels map to CLS; unaligned positives are excluded, never relabeled as missing. This is a filtered extractive subset, not the full DuoRC benchmark.
+
+Both models receive the same complete plot and question. There is no answer-aware cropping, window selection, synthetic answer removal or truncation. Eligibility requires at most 512 SmolLM context tokens, at most 608 rendered generator prompt tokens, and at most 512 total MiniLM question/context tokens. The generator uses its existing prompt and a 16-token generation cap. The reader uses original character offsets to return a passage substring, avoiding tokenizer reconstruction changes to punctuation or case.
+
+The reader decoder exhaustively searches all contiguous context-only spans up to 32 tokens, excluding question, special and padding positions. It chooses maximum start-plus-end logit score, with deterministic earliest-start/earliest-end ties. Its decision statistic is `null_minus_span_score = CLS_start + CLS_end - best_span_score`; a larger score favors abstention. Gold answers and native labels never enter inference or span selection.
+
+### Adaptation and validation selection
+
+`configs/reader.json` fixes seed 20261101, CPU FP32, 12 training/evaluation threads, and 256 planned AdamW updates with eight examples each. Every planned batch has four native answerable and four native missing examples. The schedule visits all 2,048 training questions exactly once. All reader parameters are trainable; the generator remains frozen. Learning rate is 2e-5 with 26 warmup steps and fixed linear decay, weight decay 0.01, and gradient-norm clipping at 1.0. Positive training labels choose the earliest aligned reference span, then earliest end. Loss is the mean of start/end cross entropy, including CLS labels for missing answers.
+
+The training loop may stop before the next update after 900 seconds or after sampled process RSS exceeds 8 GiB. The report records actual updates, examples, tokens, stopping reason and changed weight-state checksums. These are bounded resource guards, not a validation-loss early-stopping search. A zero-update stop is recorded honestly and does not establish local learning.
+
+Only two reader checkpoints are considered: the unchanged publisher initializer and the final locally adapted checkpoint. Each receives the same validation-only threshold search: -20 through 20 in increments of 0.5, plus explicit always-answer and always-abstain endpoints. A score **strictly greater** than the threshold withholds; equality answers. A passing candidate must retain at least 95% of the generator's exact-correct answerable cases, achieve at least 40% missing-answer recall, and lose at most two absolute points of answerable token F1 relative to the generator. Retention is the **intersection of correct question IDs**; newly correct answers cannot compensate for lost baseline successes.
+
+Within a checkpoint, passing thresholds rank by missing recall, answerable F1, answerable EM, coverage, then fixed grid order. Among passing checkpoints, prefer higher answerable F1, then missing recall, then the initializer on ties. If neither passes, deployment retains the generator. On failure, a separately labeled diagnostic candidate ranks the checkpoints' best quality-constrained thresholds by constraint satisfaction, paired retention, F1, recall and initial-on-ties; when no quality-constrained threshold exists, that checkpoint's diagnostic is always-answer with its failed gate. Test results never promote a rejected candidate.
+
+Both saved reader checkpoints, threshold selection, and deployment policy are serialized before any test generation or reader forward pass. Test reports include initial/final results at the fixed zero threshold as well as their validation-selected diagnostic thresholds. The zero-threshold comparison helps distinguish adaptation effects from threshold changes. Source hashes, canonical-LF implementation fingerprints and checkpoint manifests bind reloads to the recorded experiment.
+
+### Reproduction and request measurements
+
+Use the existing CPU-only Python environment and original local generator adapter. Model and source data downloads are separate from the measured experiment. New output directories preserve previous results.
+
+```powershell
+$env:HF_HOME = Join-Path (Get-Location) '.cache\huggingface'
+$env:PYTHONNOUSERSITE = '1'
+$env:OPENBLAS_NUM_THREADS = '1'
+$env:OMP_NUM_THREADS = '1'
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run --prepare-model
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_data `
+  --config configs/reader.json --download-data --output artifacts/my-reader-data
+
+$env:HF_HUB_OFFLINE = '1'
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
+  --config configs/reader.json --prepared-data artifacts/my-reader-data `
+  --source-run artifacts/document-task-v1 --output artifacts/my-reader-run
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
+  --benchmark-run artifacts/my-reader-run --prepared-data artifacts/my-reader-data `
+  --benchmark-mode paired --output artifacts/my-reader-run/benchmark-paired.json
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
+  --benchmark-run artifacts/my-reader-run --prepared-data artifacts/my-reader-data `
+  --benchmark-mode generator --output artifacts/my-reader-run/benchmark-generator.json
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
+  --benchmark-run artifacts/my-reader-run --prepared-data artifacts/my-reader-data `
+  --benchmark-mode reader --output artifacts/my-reader-run/benchmark-reader.json
+
+& .\.venv\Scripts\python.exe -m cpu_ai_lab.reader_run `
+  --load-run artifacts/my-reader-run --source-run artifacts/document-task-v1 `
+  --context 'The laboratory opened in Paris in 1999.' --question 'When did the laboratory open?'
+```
+
+The paired benchmark uses the first six test questions in each answerability class, three repetitions, and alternating arm order. Timing includes tokenization, model computation, decoding and the reader's threshold decision. Loading, integrity checks and warmups are separate. The two architectures receive identical complete inputs; they can produce different answers and do not perform matching generated-token work. Therefore a speed ratio must be interpreted alongside held-out quality, never as evidence of equivalent outputs. The initial 2x latency target is experimental, not assumed.
+
+Paired-mode RSS includes both models. Separate fresh-process generator-only and reader-only probes provide comparable full-process sampled RAM figures. The benchmark measures the diagnostic reader even if validation rejected it; the selected fallback's runtime must not be confused with the candidate's speed. Reload checks compare serial predictions with saved batched outputs, using raw generation hashes separately from trimmed display text. All model workloads run sequentially.
+
+The initial full-batch run is preserved in `results/reader-batch8`. Its sampled process RSS reached 8.13 GiB, stopping training after 15 of 256 planned updates (120 examples). The run still completed evaluation and benchmarks, and its selected policy retained the generator. This partial run is evidence of a resource limit, not completion of the planned training pass. A follow-up execution calibration was declared before inspecting its test scores; it uses only the first eight scheduled training batches to choose a thread count and microbatch size under the same memory guard.
